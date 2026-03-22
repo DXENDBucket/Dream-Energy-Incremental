@@ -4,6 +4,8 @@ import { hasMilestone } from "./selectors";
 import {
   UNLOCK_REFINE_MILESTONE_ID,
   UNLOCK_REFINE_REQUIREMENT,
+  UNLOCK_UPGRADES_MILESTONE_ID,
+  UNLOCK_UPGRADES_REQUIREMENT,
 } from "@/engine/strata/common/milestones/balance";
 
 export function canClaimMilestone(stratum: StratumState, id: string): boolean {
@@ -12,6 +14,8 @@ export function canClaimMilestone(stratum: StratumState, id: string): boolean {
   switch (id) {
     case UNLOCK_REFINE_MILESTONE_ID:
       return gte(stratum.dreamEnergy, UNLOCK_REFINE_REQUIREMENT);
+    case UNLOCK_UPGRADES_MILESTONE_ID:
+      return gte(stratum.dreamEnergy, UNLOCK_UPGRADES_REQUIREMENT);
     default:
       return false;
   }
