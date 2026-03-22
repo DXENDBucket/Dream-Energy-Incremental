@@ -12,7 +12,8 @@ import {
 export type GameStore = ReturnType<typeof createGameStore>;
 
 export function createGameStore() {
-  const state = reactive(createNewState());
+  const initialState = loadGame() ?? createNewState();
+  const state = reactive(initialState);
   const engine = createEngine(state);
 
   let autoSaveElapsedSec = 0;
