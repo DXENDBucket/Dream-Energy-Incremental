@@ -70,20 +70,20 @@ function onBuyClick() {
       </button>
 
       <div
+        v-if="refineUnlocked"
         class="refine-wrap"
         @mouseenter="showRefineTooltip = true"
         @mouseleave="showRefineTooltip = false"
       >
         <transition name="refine-tooltip-rise">
           <div
-            v-if="showRefineTooltip"
+            v-if="showRefineTooltip && refineUnlocked"
             class="refine-tooltip"
           >
             {{ refineTooltipText }}
           </div>
         </transition>
         <button
-          v-if="refineUnlocked"
           class="dc-button refine-button"
           :class="{ disabled: !canRefine }"
           :disabled="!canRefine"

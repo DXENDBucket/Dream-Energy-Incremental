@@ -25,7 +25,7 @@ export function getDreamCrystalCost(tier: number, amountBought: Num) {
 export function getDreamCrystalProduction(
     stratum: StratumState,
     tier: number,
-    dtSec: number
+    dtSec: Num
 ) {
     const amount = getDreamCrystalAmount(stratum.dreamCrystals, tier);
     return mul(mul(amount, getDreamCrystalMultiplier(stratum, tier)), dtSec);

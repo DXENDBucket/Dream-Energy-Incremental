@@ -1,5 +1,6 @@
 import * as Num from "@/engine/math/num"
 import type { GameState  } from "./core/state";
+import { N } from "@/engine/math/num";
 import { tickActiveStratum } from "./strata/tick";
 
 export function createEngine(state: GameState) {
@@ -12,8 +13,10 @@ export function createEngine(state: GameState) {
         
         const dtSec = dtMs / 1000;
         state.simTimeSec += dtSec;
+
+        let numDtSec = N(dtSec)
         
-        tickActiveStratum(state, dtSec);
+        tickActiveStratum(state, numDtSec);
     }
 
     return { tick }

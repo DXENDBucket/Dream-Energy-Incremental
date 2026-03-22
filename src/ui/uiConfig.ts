@@ -97,6 +97,7 @@ export const PRIMARY_TABS = [
     borderColor: "#8b6cff",
     textColor: "#efe3ff",
     children: [
+      { id: "current-stratum", icon: "C", label: "Current Stratum"},
       { id: "surface", icon: "S", label: "Surface" },
       { id: "depth", icon: "D", label: "Depth" },
       { id: "dream", icon: "✦", label: "Dream" },
@@ -120,7 +121,15 @@ export const PRIMARY_TABS = [
     children: [
       { id: "save", icon: "S", label: "Save" },
       { id: "theme", icon: "T", label: "Theme" },
-      { id: "debug", icon: "!", label: "Debug" },
+    ],
+  },
+  {
+    id: "debug",
+    label: "Debug",
+    borderColor: "#f44e6d",
+    textColor: "#ffb2ea",
+    children: [
+      { id: "stratum-speed", icon: "»", label: "Stratum Speed" },
     ],
   },
 ] as const;

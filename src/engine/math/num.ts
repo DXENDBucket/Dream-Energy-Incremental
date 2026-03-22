@@ -33,3 +33,7 @@ export const rt = (a: Num, n: NumInput): Num => a.root(N(n))
 
 export const isZero = (x: Num): boolean => x.eq(ZERO)
 export const clampMin = (x: Num, lo: NumInput): Num => max(x, lo)
+
+export const isNum = (value: unknown): value is Num => value instanceof Decimal
+export const serializeNum = (value: Num): string => value.toString()
+export const deserializeNum = (value: string): Num => N(value)

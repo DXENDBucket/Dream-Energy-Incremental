@@ -6,12 +6,16 @@ import { getActiveDreamEnergy, getActiveStratum } from "@/engine/strata/manager/
 import type { GameState } from "@/engine/core/state";
 import DreamCrystalsPage from "./dream-crystals/DreamCrystalsPage.vue";
 import DreamEnergyMilestonesPage from "./milestones/DreamEnergyMilestones.vue";
+import StratumSpeedPage from "./debug/StratumSpeedPage.vue";
 import { getDreamEnergyPercentageText } from "@/engine/math/dream-energy/computed";
+import { isDreamEnergySoftcapOneActive } from "@/engine/strata/common/dream-energy";
+import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
+import SavePage from "./options/SavePage.vue";
+
+import type { GameStore } from "@/store/gameStore";
 
 const props = defineProps<{
-  game: {
-    state: GameState;
-  };
+  game: GameStore;
 }>();
 
 const ui = UI_CONFIG;
@@ -135,6 +139,10 @@ const activeDreamEnergyText = computed(() => {
 const activeDreamEnergyPercentageText = computed(() => {
   return getDreamEnergyPercentageText(getActiveStratum(props.game.state));
 });
+
+const isFirstDreamEnergySoftcapReached = computed(() => {
+  return isDreamEnergySoftcapOneActive(getActiveStratum(props.game.state))
+})
 
 const rootStyle = computed(() => ({
   "--left-width": `${ui.sizes.leftWidth}px`,
@@ -276,6 +284,9 @@ const secondaryTooltipStyle = computed(() => ({
           Current active stratum: {{ props.game.state.activeStratumId }}
         </div>
         <div class="top-sub-line">Gain: {{ activeDreamEnergyPercentageText }}</div>
+        <div v-if="isFirstDreamEnergySoftcapReached" class="top-softcap-line">
+          You don't have enough storage, so your Dream Energy is repelling.
+        </div>
       </section>
 
       <section class="bottom-panel">
@@ -285,8 +296,20 @@ const secondaryTooltipStyle = computed(() => ({
           <DreamCrystalsPage :game="props.game" />
         </div>
 
-        <div v-else-if="selectedSecondary === 'de-milestones'" class="milestones-card">
+        <div v-else-if="selectedSecondary === 'de-milestones'" class="page-card">
           <DreamEnergyMilestonesPage :game="props.game" />
+        </div>
+
+        <div v-else-if="selectedSecondary === 'stratum-speed'" class="dream-crystals-page">
+          <StratumSpeedPage :game="props.game" />
+        </div>
+
+        <div v-else-if="selectedSecondary === 'current-stratum'" class="page-card">
+          <CurrentStratumPage :game="props.game" />
+        </div>
+        
+        <div v-else-if="selectedSecondary === 'save'" class="page-card">
+          <SavePage :game="props.game" />
         </div>
 
         <div v-else-if="selectedSecondary === 'dc-upgrades'" class="page-card">
@@ -311,10 +334,6 @@ const secondaryTooltipStyle = computed(() => ({
 
         <div v-else-if="selectedSecondary === 'history'" class="page-card">
           History placeholder
-        </div>
-
-        <div v-else-if="selectedSecondary === 'save'" class="page-card">
-          Save page placeholder
         </div>
 
         <div v-else-if="selectedSecondary === 'theme'" class="page-card">
@@ -535,6 +554,12 @@ const secondaryTooltipStyle = computed(() => ({
 .top-sub-line {
   color: var(--text-dim);
   font-size: 0.95rem;
+}
+
+.top-softcap-line {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  color: #B03060
 }
 
 .bottom-panel {

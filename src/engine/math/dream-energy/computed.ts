@@ -3,7 +3,11 @@ import { getDreamCrystalMultiplier } from "../dream-crystals";
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals";
 import { getDreamEnergy } from "@/engine/strata";
 import { format } from "../format";
-import { mul, div, ZERO } from "../num";
+import { mul, div, ZERO, TEN, N, type Num, sub, ONE, add } from "../num";
+import { DREAM_ENERGY_SOFTCAP_ONE_DEFAULT_SCALE, DREAM_ENERGY_SOFTCAP_POWER_DISPLAY } from "./balance";
+
+
+const SCALE = DREAM_ENERGY_SOFTCAP_ONE_DEFAULT_SCALE;
 
 export function getDreamEnergyIncrement(
     stratum: StratumState,
@@ -28,4 +32,12 @@ export function getDreamEnergyPercentageText(
 ) {
     const percentage = mul(getDreamEnergyPercentageIncrement(stratum), 100);
     return `+${format(percentage)}%/s`;
+}
+
+export function convertDreamEnergySoftcapOneToRaw(power: Num) {
+    return mul(SCALE, div(power, sub(ONE, power)));
+}
+
+export function convertDreamEnergySoftcapOneToPower(raw: Num) {
+    return div(raw, add(raw, SCALE));
 }

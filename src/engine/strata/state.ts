@@ -1,4 +1,4 @@
-import { N } from "../math/num";
+import { N, ZERO } from "../math/num";
 import type { Num } from "../math/num";
 import {
   createDreamCrystalsState,
@@ -13,6 +13,7 @@ export interface StratumState {
   dreamEnergy: Num;
   dreamCrystals: DreamCrystalsState;
   milestones: MilestonesState;
+  stratumSpeed: Num;
 }
 
 export function createStratumState(): StratumState {
@@ -20,5 +21,6 @@ export function createStratumState(): StratumState {
     dreamEnergy: N(10),
     dreamCrystals: createDreamCrystalsState(),
     milestones: createMilestonesState(),
+    stratumSpeed: N(1),
   };
 }
