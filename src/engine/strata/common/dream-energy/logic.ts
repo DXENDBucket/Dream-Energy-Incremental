@@ -17,6 +17,10 @@ export function getDreamEnergyGain(stratum: StratumState) {
     return gain;
 }
 
+export function getDreamEnergyGainPerSecond(stratum: StratumState) {
+    return mul(getDreamEnergyGain(stratum), stratum.stratumSpeed);
+}
+
 export function applyDreamEnergySoftcapOne(raw: Num, divisor: Num) {
     return div(raw, divisor);
 }
@@ -36,6 +40,17 @@ export function getRawDreamEnergyGain(stratum: StratumState) {
     gain = add(gain, getDreamEnergyIncrement(stratum));
 
     return gain;
+}
+
+export function getRawDreamEnergyGainPerSecond(stratum: StratumState) {
+    return mul(getRawDreamEnergyGain(stratum), stratum.stratumSpeed);
+}
+
+export function getDreamEnergyPercentageGainPerSecond(stratum: StratumState) {
+    const amount = getDreamEnergy(stratum);
+    if (lte(amount, ZERO)) return ZERO;
+
+    return div(getDreamEnergyGainPerSecond(stratum), amount);
 }
 
 export function isDreamEnergySoftcapOneActive(stratum: StratumState) {

@@ -62,3 +62,23 @@ export function getDreamCrystalPercentageIncrement(
     if (amount.eq(ZERO)) return ZERO;
     return div(increment, amount);
 }
+
+export function getDreamCrystalGainPerSecond(
+    stratum: StratumState,
+    tier: number,
+) {
+    return mul(getDreamCrystalIncrement(stratum, tier), stratum.stratumSpeed);
+}
+
+export function getDreamCrystalPercentageGainPerSecond(
+    stratum: StratumState,
+    tier: number,
+) {
+    if (tier >= 8) return ZERO;
+
+    const gain = getDreamCrystalGainPerSecond(stratum, tier);
+    const amount = getDreamCrystalAmount(stratum.dreamCrystals, tier);
+
+    if (amount.eq(ZERO)) return ZERO;
+    return div(gain, amount);
+}

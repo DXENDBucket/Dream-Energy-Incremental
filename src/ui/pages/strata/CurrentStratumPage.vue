@@ -5,8 +5,8 @@ import type { GameState } from "@/engine/core/state";
 import { format, formatGain } from "@/engine/math/format";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import {
-  getDreamEnergyGain,
-  getRawDreamEnergyGain,
+  getDreamEnergyGainPerSecond,
+  getRawDreamEnergyGainPerSecond,
   getDreamEnergySoftcapOneDivisor,
   getDreamEnergySoftcapOnePowerDisplay,
   isDreamEnergySoftcapOneActive,
@@ -27,11 +27,11 @@ const currentDreamEnergyText = computed(() => {
 });
 
 const rawDreamEnergyGainText = computed(() => {
-  return formatGain(getRawDreamEnergyGain(activeStratum.value));
+  return formatGain(getRawDreamEnergyGainPerSecond(activeStratum.value));
 });
 
 const finalDreamEnergyGainText = computed(() => {
-  return formatGain(getDreamEnergyGain(activeStratum.value));
+  return formatGain(getDreamEnergyGainPerSecond(activeStratum.value));
 });
 
 const softcapOneActive = computed(() => {

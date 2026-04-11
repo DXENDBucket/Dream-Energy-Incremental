@@ -13,7 +13,7 @@ import {
 import {
   DREAM_CRYSTAL_TIERS,
   getDreamCrystalMultiplier,
-  getDreamCrystalPercentageIncrement,
+  getDreamCrystalPercentageGainPerSecond,
   type DreamCrystalTier,
 } from "@/engine/math/dream-crystals";
 import {
@@ -51,7 +51,7 @@ const dreamCrystalRows = computed(() => {
       title: getDreamCrystalTitle(t, tier as DreamCrystalTier),
       amountText: formatInt(getDreamCrystalAmount(activeStratum.value.dreamCrystals, tier)),
       percentageText: formatPercentagePerSecondText(
-        getDreamCrystalPercentageIncrement(activeStratum.value, tier),
+        getDreamCrystalPercentageGainPerSecond(activeStratum.value, tier),
       ),
       multiplierText: formatMultiplierText(multiplier),
       costText: format(getCurrentDreamCrystalCost(activeStratum.value, tier)),

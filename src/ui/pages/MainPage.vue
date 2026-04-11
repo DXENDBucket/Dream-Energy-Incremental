@@ -7,8 +7,10 @@ import { getActiveDreamEnergy, getActiveStratum } from "@/engine/strata/manager/
 import DreamCrystalsPage from "./dream-crystals/DreamCrystalsPage.vue";
 import DreamEnergyMilestonesPage from "./milestones/DreamEnergyMilestones.vue";
 import StratumSpeedPage from "./debug/StratumSpeedPage.vue";
-import { getDreamEnergyPercentageIncrement } from "@/engine/math/dream-energy/computed";
-import { isDreamEnergySoftcapOneActive } from "@/engine/strata/common/dream-energy";
+import {
+  getDreamEnergyPercentageGainPerSecond,
+  isDreamEnergySoftcapOneActive,
+} from "@/engine/strata/common/dream-energy";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
 import SavePage from "./options/SavePage.vue";
 import ThemePage from "./options/ThemePage.vue";
@@ -140,7 +142,9 @@ const activeDreamEnergyText = computed(() => {
 });
 
 const activeDreamEnergyPercentageText = computed(() => {
-  return formatPercentagePerSecondText(getDreamEnergyPercentageIncrement(getActiveStratum(props.game.state)));
+  return formatPercentagePerSecondText(
+    getDreamEnergyPercentageGainPerSecond(getActiveStratum(props.game.state)),
+  );
 });
 
 const isFirstDreamEnergySoftcapReached = computed(() => {
