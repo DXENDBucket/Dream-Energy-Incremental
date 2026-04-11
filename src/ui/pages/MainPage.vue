@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { PRIMARY_TABS, UI_CONFIG } from "../uiConfig";
 import { format, formatInt } from "@/engine/math/format";
 import { getActiveDreamEnergy, getActiveStratum } from "@/engine/strata/manager/selectors";
@@ -11,6 +12,7 @@ import { getDreamEnergyPercentageText } from "@/engine/math/dream-energy/compute
 import { isDreamEnergySoftcapOneActive } from "@/engine/strata/common/dream-energy";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
 import SavePage from "./options/SavePage.vue";
+import ThemePage from "./options/ThemePage.vue";
 
 import type { GameStore } from "@/store/gameStore";
 
@@ -18,6 +20,7 @@ const props = defineProps<{
   game: GameStore;
 }>();
 
+const { t } = useI18n();
 const ui = UI_CONFIG;
 
 function getDefaultSecondaryId(primaryId: string): string {
@@ -38,7 +41,7 @@ const hoveredPrimary = ref<string | null>(null);
 const secondaryAnchorPrimary = ref<string | null>(null);
 const secondaryCenterPx = ref(0);
 
-const hoveredSecondaryLabel = ref<string | null>(null);
+const hoveredSecondaryLabelKey = ref<string | null>(null);
 const hoveredSecondaryLeftPx = ref(0);
 
 let hideTimer: number | null = null;
@@ -53,7 +56,7 @@ function clearHideTimer() {
 function hideSecondaryMenu() {
   hoveredPrimary.value = null;
   secondaryAnchorPrimary.value = null;
-  hoveredSecondaryLabel.value = null;
+  hoveredSecondaryLabelKey.value = null;
 }
 
 function scheduleHideSecondaryMenu() {
@@ -99,8 +102,8 @@ function openPage(primaryId: string, secondaryId: string) {
   //hideSecondaryMenu();
 }
 
-function onSecondaryButtonEnter(label: string, index: number) {
-  hoveredSecondaryLabel.value = label;
+function onSecondaryButtonEnter(labelKey: string, index: number) {
+  hoveredSecondaryLabelKey.value = labelKey;
   hoveredSecondaryLeftPx.value =
     ui.sizes.secondaryGap +
     ui.sizes.secondaryMenuPadding +
@@ -109,7 +112,7 @@ function onSecondaryButtonEnter(label: string, index: number) {
 }
 
 function onSecondaryButtonLeave() {
-  hoveredSecondaryLabel.value = null;
+  hoveredSecondaryLabelKey.value = null;
 }
 
 const showSecondaryMenu = computed(() => {
@@ -127,9 +130,9 @@ const visibleSecondaryTabs = computed(() => {
 const currentPageTitle = computed(() => {
   for (const tab of PRIMARY_TABS) {
     const child = tab.children.find(x => x.id === selectedSecondary.value);
-    if (child) return child.label;
+    if (child) return t(child.labelKey);
   }
-  return "Unknown";
+  return t("common.unknown");
 });
 
 const activeDreamEnergyText = computed(() => {
@@ -214,7 +217,7 @@ const secondaryTooltipStyle = computed(() => ({
     <aside class="left-area">
       <div class="resource-box">
         <div class="resource-main">{{ activeDreamEnergyText }}</div>
-        <div class="resource-sub">Dream Energy</div>
+        <div class="resource-sub">{{ t("resource.dreamEnergy") }}</div>
       </div>
 
       <div class="primary-menu" @mouseleave="onPrimaryMenuLeave">
@@ -230,7 +233,7 @@ const secondaryTooltipStyle = computed(() => ({
           @mouseenter="onPrimaryEnter(tab.id, index)"
           @click="onPrimaryClick(tab.id)"
         >
-          {{ tab.label }}
+          {{ t(tab.labelKey) }}
         </button>
       </div>
 
@@ -244,11 +247,11 @@ const secondaryTooltipStyle = computed(() => ({
         >
           <transition name="tooltip-rise">
             <div
-              v-if="hoveredSecondaryLabel"
+              v-if="hoveredSecondaryLabelKey"
               class="secondary-tooltip"
               :style="secondaryTooltipStyle"
             >
-              {{ hoveredSecondaryLabel }}
+              {{ t(hoveredSecondaryLabelKey) }}
             </div>
           </transition>
 
@@ -262,8 +265,8 @@ const secondaryTooltipStyle = computed(() => ({
                   selectedSecondary === sub.id ||
                   lastSecondaryByPrimary[visiblePrimaryId] === sub.id
               }"
-              :title="sub.label"
-              @mouseenter="onSecondaryButtonEnter(sub.label, index)"
+              :title="t(sub.labelKey)"
+              @mouseenter="onSecondaryButtonEnter(sub.labelKey, index)"
               @mouseleave="onSecondaryButtonLeave"
               @click="openPage(visiblePrimaryId, sub.id)"
             >
@@ -276,16 +279,18 @@ const secondaryTooltipStyle = computed(() => ({
 
     <main class="right-area">
       <section class="top-panel">
-        <div class="top-title">Dream Energy Incremental</div>
-        <div class="top-main-line">
-          You have <span class="big-number">{{ activeDreamEnergyText }}</span> dream energy.
-        </div>
+        <div class="top-title">{{ t("mainPage.title") }}</div>
+        <i18n-t keypath="mainPage.haveDreamEnergy" tag="div" class="top-main-line">
+          <template #amount>
+            <span class="big-number">{{ activeDreamEnergyText }}</span>
+          </template>
+        </i18n-t>
         <div class="top-sub-line">
-          Current active stratum: {{ props.game.state.activeStratumId }}
+          {{ t("mainPage.activeStratum", { id: props.game.state.activeStratumId }) }}
         </div>
-        <div class="top-sub-line">Gain: {{ activeDreamEnergyPercentageText }}</div>
+        <div class="top-sub-line">{{ t("mainPage.gain", { value: activeDreamEnergyPercentageText }) }}</div>
         <div v-if="isFirstDreamEnergySoftcapReached" class="top-softcap-line">
-          You don't have enough storage, so your Dream Energy is repelling.
+          {{ t("mainPage.softcapWarning") }}
         </div>
       </section>
 
@@ -313,39 +318,39 @@ const secondaryTooltipStyle = computed(() => ({
         </div>
 
         <div v-else-if="selectedSecondary === 'dc-upgrades'" class="page-card">
-          Upgrades placeholder
+          {{ t("mainPage.placeholders.upgrades") }}
         </div>
 
         <div v-else-if="selectedSecondary === 'surface'" class="page-card">
-          Surface stratum placeholder
+          {{ t("mainPage.placeholders.surface") }}
         </div>
 
         <div v-else-if="selectedSecondary === 'depth'" class="page-card">
-          Depth stratum placeholder
+          {{ t("mainPage.placeholders.depth") }}
         </div>
 
         <div v-else-if="selectedSecondary === 'dream'" class="page-card">
-          Dream stratum placeholder
+          {{ t("mainPage.placeholders.dream") }}
         </div>
 
         <div v-else-if="selectedSecondary === 'numbers'" class="page-card">
-          Numbers/statistics placeholder
+          {{ t("mainPage.placeholders.numbers") }}
         </div>
 
         <div v-else-if="selectedSecondary === 'history'" class="page-card">
-          History placeholder
+          {{ t("mainPage.placeholders.history") }}
         </div>
 
         <div v-else-if="selectedSecondary === 'theme'" class="page-card">
-          Theme page placeholder
+          <ThemePage />
         </div>
 
         <div v-else-if="selectedSecondary === 'debug'" class="page-card">
-          Debug page placeholder
+          {{ t("mainPage.placeholders.debug") }}
         </div>
 
         <div v-else class="page-card">
-          Unknown page
+          {{ t("mainPage.placeholders.unknownPage") }}
         </div>
       </section>
     </main>
