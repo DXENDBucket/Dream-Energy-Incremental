@@ -3,6 +3,7 @@ export default {
     unknown: "Unknown",
     ready: "Ready.",
     language: "Language",
+    pause: "Pause",
   },
   navigation: {
     primary: {
@@ -16,7 +17,7 @@ export default {
     },
     secondary: {
       dreamCrystals: "Dream Crystals",
-      dreamCrystalUpgrades: "Dream Crystals Upgrades",
+      dreamCrystalUpgrades: "Dream Crystal Upgrades",
       dreamEnergyMilestones: "Dream Energy Milestones",
       currentStratum: "Current Stratum",
       surface: "Surface",
@@ -49,6 +50,84 @@ export default {
       unknownPage: "Unknown page",
     },
   },
+  dreamCrystalRow: {
+    buy: "Buy",
+    buyMax: "Buy Max",
+    cost: "Cost: {value}",
+    refine: "Refine",
+    executable: "Executable",
+    locked: "Locked",
+    lockedTooltip: "Locked.",
+    refineThisCrystal: "Refine this Dream Crystal.",
+  },
+  dreamCrystals: {
+    refineGain: "Refine gain: {value}",
+    noRefinementGain: "No refinement gain available right now.",
+    tiers: {
+      1: { title: "1st Dream Crystal" },
+      2: { title: "2nd Dream Crystal" },
+      3: { title: "3rd Dream Crystal" },
+      4: { title: "4th Dream Crystal" },
+      5: { title: "5th Dream Crystal" },
+      6: { title: "6th Dream Crystal" },
+      7: { title: "7th Dream Crystal" },
+      8: { title: "8th Dream Crystal" },
+    },
+  },
+  milestones: {
+    claim: "Claim",
+    claimed: "Claimed",
+    unknownRequirement: "Unknown requirement.",
+    requirements: {
+      reachDreamEnergy: "Reach {amount} Dream Energy.",
+    },
+    content: {
+      unlockRefine: {
+        title: "Milestone 1",
+        reward: "Unlock Dream Crystal Refinement.",
+        description:
+          "Refinement resets all other crystals and grants a bonus based on the number and quality of crystals reset.",
+      },
+      unlockUpgrades: {
+        title: "Milestone 2",
+        reward: "Unlock Dream Crystal Upgrades.",
+        description: "Dream crystal upgrades enhance production.",
+      },
+    },
+  },
+  save: {
+    title: "Save Controls",
+    saveNow: "Save Now",
+    loadLocalSave: "Load Local Save",
+    exportSave: "Export Save",
+    copyExport: "Copy Export",
+    importExport: "Import / Export",
+    importExportPlaceholder:
+      "Exported save text will appear here, or paste a save string here to import.",
+    importSave: "Import Save",
+    autoSave: "Auto Save",
+    interval: "Interval",
+    off: "Off",
+    everySecond: "Every 1 second",
+    everySeconds: "Every {value} seconds",
+    hardResetTitle: "HARD RESET",
+    hardResetWarning: "This will erase your current progress and replace it with a fresh new save.",
+    hardResetInstruction: "Type {resetText} below, then press the button.",
+    hardResetPlaceholder: 'Type "RESET" here',
+    status: {
+      savedToLocalStorage: "Saved to local storage.",
+      loadedFromLocalStorage: "Loaded save from local storage.",
+      noLocalSaveFound: "No local save found.",
+      exportedToTextBox: "Exported current save into the text box.",
+      copiedToClipboard: "Copied save string to clipboard.",
+      copyFailed: "Copy failed. You can still copy it manually.",
+      pasteFirst: "Please paste a save string first.",
+      importSuccess: "Imported save successfully.",
+      importFailed: "Import failed. The save string may be invalid.",
+      typeReset: 'Type "RESET" to enable hard reset.',
+      hardResetComplete: "Hard reset complete.",
+    },
+  },
   theme: {
     title: "Theme",
     description: "Theme settings are not ready yet. You can change the UI language here for now.",
@@ -56,10 +135,20 @@ export default {
     languageHint: "Choose the display language for the UI.",
     currentLanguage: "Current language",
   },
-  save: {
-    title: "Save Controls",
-    saveNow: "Save Now",
-    loadLocalSave: "Load Local Save",
+  stratumSpeed: {
+    title: "Stratum Speed",
+    currentSpeed: "Current speed",
+    sliderHint: "Left end is 0. The rest of the slider is logarithmic from 1 to 1e4.",
+  },
+  currentStratum: {
+    title: "Dream Energy Repulsion",
+    underPressure: "Your Dream Energy storage is under pressure.",
+    detail:
+      "Because you currently hold {current} Dream Energy, your raw production of {raw} is facing a repulsion strength of {power}.",
+    reducedTo: "This reduces your production by {divisor} to {final}.",
+    stable: "Your current Dream Energy storage is stable.",
+    noRepulsion: "No repulsion is affecting Dream Energy production right now.",
+    currentProduction: "Current production: {value}",
   },
   language: {
     english: "English",

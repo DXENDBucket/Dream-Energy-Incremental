@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type { GameState } from "@/engine/core/state";
+import { useI18n } from "vue-i18n";
 
 import type { GameStore } from "@/store/gameStore";
 
@@ -8,9 +8,12 @@ const props = defineProps<{
   game: GameStore;
 }>();
 
+const { t } = useI18n();
 const saveText = ref("");
 const hardResetText = ref("");
-const statusText = ref("Ready.");
+const statusKey = ref("common.ready");
+
+const statusText = computed(() => t(statusKey.value));
 
 const autoSaveInterval = computed({
   get: () => props.game.state.settings.autoSaveIntervalSec,
@@ -21,26 +24,26 @@ const autoSaveInterval = computed({
 
 const autoSaveLabel = computed(() => {
   const value = autoSaveInterval.value;
-  if (value <= 0) return "Off";
-  if (value === 1) return "Every 1 second";
-  return `Every ${value} seconds`;
+  if (value <= 0) return t("save.off");
+  if (value === 1) return t("save.everySecond");
+  return t("save.everySeconds", { value });
 });
 
 function onSaveNow() {
   props.game.saveNow();
-  statusText.value = "Saved to local storage.";
+  statusKey.value = "save.status.savedToLocalStorage";
 }
 
 function onLoadFromDisk() {
   const ok = props.game.loadFromDisk();
-  statusText.value = ok
-    ? "Loaded save from local storage."
-    : "No local save found.";
+  statusKey.value = ok
+    ? "save.status.loadedFromLocalStorage"
+    : "save.status.noLocalSaveFound";
 }
 
 function onExportSave() {
   saveText.value = props.game.exportSaveString();
-  statusText.value = "Exported current save into the text box.";
+  statusKey.value = "save.status.exportedToTextBox";
 }
 
 async function onCopyExport() {
@@ -50,68 +53,68 @@ async function onCopyExport() {
 
   try {
     await navigator.clipboard.writeText(saveText.value);
-    statusText.value = "Copied save string to clipboard.";
+    statusKey.value = "save.status.copiedToClipboard";
   } catch (error) {
     console.error(error);
-    statusText.value = "Copy failed. You can still copy it manually.";
+    statusKey.value = "save.status.copyFailed";
   }
 }
 
 function onImportSave() {
   const raw = saveText.value.trim();
   if (!raw) {
-    statusText.value = "Please paste a save string first.";
+    statusKey.value = "save.status.pasteFirst";
     return;
   }
 
   const ok = props.game.importSaveString(raw);
-  statusText.value = ok
-    ? "Imported save successfully."
-    : "Import failed. The save string may be invalid.";
+  statusKey.value = ok
+    ? "save.status.importSuccess"
+    : "save.status.importFailed";
 }
 
 function onHardReset() {
   if (hardResetText.value !== "RESET") {
-    statusText.value = 'Type "RESET" to enable hard reset.';
+    statusKey.value = "save.status.typeReset";
     return;
   }
 
   props.game.hardReset();
   hardResetText.value = "";
   saveText.value = "";
-  statusText.value = "Hard reset complete.";
+  statusKey.value = "save.status.hardResetComplete";
 }
 </script>
 
 <template>
   <div class="save-page">
     <div class="save-card">
-      <div class="section-title">Save Controls</div>
+      <div class="section-title">{{ t("save.title") }}</div>
 
       <div class="button-row">
-        <button class="action-button" @click="onSaveNow">Save Now</button>
-        <button class="action-button" @click="onLoadFromDisk">Load Local Save</button>
-        <button class="action-button" @click="onExportSave">Export Save</button>
-        <button class="action-button" @click="onCopyExport">Copy Export</button>
+        <button class="action-button" @click="onSaveNow">{{ t("save.saveNow") }}</button>
+        <button class="action-button" @click="onLoadFromDisk">{{ t("save.loadLocalSave") }}</button>
+        <button class="action-button" @click="onExportSave">{{ t("save.exportSave") }}</button>
+        <button class="action-button" @click="onCopyExport">{{ t("save.copyExport") }}</button>
       </div>
 
-      <div class="section-title section-gap">Import / Export</div>
+      <div class="section-title section-gap">{{ t("save.importExport") }}</div>
 
       <textarea
         v-model="saveText"
         class="save-textarea"
         spellcheck="false"
-        placeholder="Exported save text will appear here, or paste a save string here to import."
+        :placeholder="t('save.importExportPlaceholder')"
       />
 
       <div class="button-row">
-        <button class="action-button" @click="onImportSave">Import Save</button>
+        <button class="action-button" @click="onImportSave">{{ t("save.importSave") }}</button>
       </div>
 
-      <div class="section-title section-gap">Auto Save</div>
+      <div class="section-title section-gap">{{ t("save.autoSave") }}</div>
 
       <div class="slider-line">
-        <div class="slider-label">Interval</div>
+        <div class="slider-label">{{ t("save.interval") }}</div>
         <div class="slider-value">{{ autoSaveLabel }}</div>
       </div>
 
@@ -125,28 +128,30 @@ function onHardReset() {
       />
 
       <div class="slider-hints">
-        <span>Off</span>
+        <span>{{ t("save.off") }}</span>
         <span>30s</span>
         <span>60s</span>
         <span>90s</span>
         <span>120s</span>
       </div>
 
-      <div class="section-title section-gap danger-title">HARD RESET</div>
+      <div class="section-title section-gap danger-title">{{ t("save.hardResetTitle") }}</div>
 
       <div class="danger-text">
-        This will erase your current progress and replace it with a fresh new save.
+        {{ t("save.hardResetWarning") }}
       </div>
 
-      <div class="danger-text">
-        Type <span class="danger-code">RESET</span> below, then press the button.
-      </div>
+      <i18n-t keypath="save.hardResetInstruction" tag="div" class="danger-text">
+        <template #resetText>
+          <span class="danger-code">RESET</span>
+        </template>
+      </i18n-t>
 
       <input
         v-model="hardResetText"
         class="reset-input"
         type="text"
-        placeholder='Type "RESET" here'
+        :placeholder="t('save.hardResetPlaceholder')"
       />
 
       <div class="button-row">
@@ -155,7 +160,7 @@ function onHardReset() {
           :disabled="hardResetText !== 'RESET'"
           @click="onHardReset"
         >
-          HARD RESET
+          {{ t("save.hardResetTitle") }}
         </button>
       </div>
 
@@ -278,11 +283,13 @@ function onHardReset() {
 .slider-hints span:nth-child(1) {
   text-align: left;
 }
+
 .slider-hints span:nth-child(2),
 .slider-hints span:nth-child(3),
 .slider-hints span:nth-child(4) {
   text-align: center;
 }
+
 .slider-hints span:nth-child(5) {
   text-align: right;
 }

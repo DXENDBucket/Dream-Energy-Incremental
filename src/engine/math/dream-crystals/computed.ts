@@ -2,7 +2,6 @@ import { DREAM_CRYSTAL_BASE_COSTS, DREAM_CRYSTAL_COST_SCALES } from "./balance";
 import type { Num } from "@/engine/math/num";
 import { mul, ONE, pow, ZERO, div } from "@/engine/math/num";
 import type { StratumState } from "@/engine/strata/state";
-import { format } from "../format";
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals/selectors";
 import { getCurrentDreamCrystalRefinementMultiplier } from "@/engine/strata/common/dream-crystals/refinement";
 
@@ -62,12 +61,4 @@ export function getDreamCrystalPercentageIncrement(
 
     if (amount.eq(ZERO)) return ZERO;
     return div(increment, amount);
-}
-
-export function getDreamCrystalPercentageText(
-    stratum: StratumState,
-    tier: number,
-) {
-    const percentage = mul(getDreamCrystalPercentageIncrement(stratum, tier), 100);
-    return `+${format(percentage)}%/s`;
 }

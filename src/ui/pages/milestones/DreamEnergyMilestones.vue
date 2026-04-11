@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import type { GameState } from "@/engine/core/state";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import {
   MILESTONE_ORDER,
-  MILESTONE_META,
-  getMilestoneRequirementText,
+  getMilestoneRequirement,
   hasMilestone,
   canClaimMilestone,
   claimMilestone,
+  type MilestoneId,
 } from "@/engine/strata/common/milestones";
+import {
+  getMilestoneRequirementLabel,
+  getMilestoneUiText,
+} from "@/ui/meta/milestones";
 
 const props = defineProps<{
   game: {
@@ -17,18 +22,23 @@ const props = defineProps<{
   };
 }>();
 
+const { t } = useI18n();
 const activeStratum = computed(() => getActiveStratum(props.game.state));
 
 const milestoneRows = computed(() => {
-  return MILESTONE_ORDER.map((id) => ({
-    id,
-    title: MILESTONE_META[id].title,
-    description: MILESTONE_META[id].description,
-    rewardText: MILESTONE_META[id].rewardText,
-    requirementText: getMilestoneRequirementText(id),
-    claimed: hasMilestone(activeStratum.value.milestones, id),
-    canClaim: canClaimMilestone(activeStratum.value, id),
-  }));
+  return MILESTONE_ORDER.map((id) => {
+    const uiText = getMilestoneUiText(t, id as MilestoneId);
+
+    return {
+      id,
+      title: uiText.title,
+      description: uiText.description,
+      rewardText: uiText.rewardText,
+      requirementText: getMilestoneRequirementLabel(t, getMilestoneRequirement(id)),
+      claimed: hasMilestone(activeStratum.value.milestones, id),
+      canClaim: canClaimMilestone(activeStratum.value, id),
+    };
+  });
 });
 
 function onClaimMilestone(id: string) {
@@ -61,7 +71,7 @@ function onClaimMilestone(id: string) {
           :disabled="row.claimed || !row.canClaim"
           @click="onClaimMilestone(row.id)"
         >
-          {{ row.claimed ? "Claimed" : "Claim" }}
+          {{ row.claimed ? t("milestones.claimed") : t("milestones.claim") }}
         </button>
       </div>
     </div>

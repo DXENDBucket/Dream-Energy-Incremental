@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps<{
   title: string;
@@ -19,20 +20,22 @@ const emit = defineEmits<{
   refine: [];
 }>();
 
+const { t } = useI18n();
 const showRefineTooltip = ref(false);
 
 const refineTooltipText = computed(() => {
   if (!props.canRefine) {
-    return props.refineHint ?? "Locked.";
+    return props.refineHint ?? t("dreamCrystalRow.lockedTooltip");
   }
 
-  return props.refineHint ?? "Refine this Dream Crystal.";
+  return props.refineHint ?? t("dreamCrystalRow.refineThisCrystal");
 });
 
 function onRefineClick() {
   if (!props.canRefine) return;
   emit("refine");
 }
+
 function onBuyClick() {
   if (!props.canBuy) return;
   emit("buy");
@@ -48,7 +51,7 @@ function onBuyClick() {
 
     <div class="dc-center">
       <div class="dc-amount">{{ amountText }}</div>
-      <div class="dc-percent" v-if="percentageText">{{ percentageText }}</div>
+      <div v-if="percentageText" class="dc-percent">{{ percentageText }}</div>
     </div>
 
     <div class="dc-right">
@@ -58,15 +61,12 @@ function onBuyClick() {
         :disabled="!canBuy"
         @click="onBuyClick"
       >
-        Buy
-        <span class="dc-button-sub">Cost: {{ costText }}</span>
+        {{ t("dreamCrystalRow.buy") }}
+        <span class="dc-button-sub">{{ t("dreamCrystalRow.cost", { value: costText }) }}</span>
       </button>
 
-      <button
-        class="dc-button secondary-button"
-        @click="emit('buyMax')"
-      >
-        Buy Max
+      <button class="dc-button secondary-button" @click="emit('buyMax')">
+        {{ t("dreamCrystalRow.buyMax") }}
       </button>
 
       <div
@@ -89,8 +89,10 @@ function onBuyClick() {
           :disabled="!canRefine"
           @click="onRefineClick"
         >
-          Refine
-          <span class="dc-button-sub">{{ canRefine ? "Executable" : "Locked" }}</span>
+          {{ t("dreamCrystalRow.refine") }}
+          <span class="dc-button-sub">
+            {{ canRefine ? t("dreamCrystalRow.executable") : t("dreamCrystalRow.locked") }}
+          </span>
         </button>
       </div>
     </div>
@@ -100,7 +102,7 @@ function onBuyClick() {
 <style scoped>
 .dc-row {
   --dc-button-width: 110px;
-  
+
   width: min(1180px, 97%);
   min-height: 30px;
 

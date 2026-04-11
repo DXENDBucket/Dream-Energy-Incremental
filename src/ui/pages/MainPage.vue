@@ -2,17 +2,17 @@
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { PRIMARY_TABS, UI_CONFIG } from "../uiConfig";
-import { format, formatInt } from "@/engine/math/format";
+import { formatInt } from "@/engine/math/format";
 import { getActiveDreamEnergy, getActiveStratum } from "@/engine/strata/manager/selectors";
-import type { GameState } from "@/engine/core/state";
 import DreamCrystalsPage from "./dream-crystals/DreamCrystalsPage.vue";
 import DreamEnergyMilestonesPage from "./milestones/DreamEnergyMilestones.vue";
 import StratumSpeedPage from "./debug/StratumSpeedPage.vue";
-import { getDreamEnergyPercentageText } from "@/engine/math/dream-energy/computed";
+import { getDreamEnergyPercentageIncrement } from "@/engine/math/dream-energy/computed";
 import { isDreamEnergySoftcapOneActive } from "@/engine/strata/common/dream-energy";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
 import SavePage from "./options/SavePage.vue";
 import ThemePage from "./options/ThemePage.vue";
+import { formatPercentagePerSecondText } from "@/ui/formatters/progression";
 
 import type { GameStore } from "@/store/gameStore";
 
@@ -140,7 +140,7 @@ const activeDreamEnergyText = computed(() => {
 });
 
 const activeDreamEnergyPercentageText = computed(() => {
-  return getDreamEnergyPercentageText(getActiveStratum(props.game.state));
+  return formatPercentagePerSecondText(getDreamEnergyPercentageIncrement(getActiveStratum(props.game.state)));
 });
 
 const isFirstDreamEnergySoftcapReached = computed(() => {

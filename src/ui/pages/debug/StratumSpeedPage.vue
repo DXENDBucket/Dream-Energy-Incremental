@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import type { GameState } from "@/engine/core/state";
 import { format } from "@/engine/math/format";
 import { N, ZERO, TEN, min, max, lte, log10, pow } from "@/engine/math/num";
@@ -11,6 +12,7 @@ const props = defineProps<{
   };
 }>();
 
+const { t } = useI18n();
 const SLIDER_MAX = 1000;
 const SPEED_MAX = N(1e4);
 
@@ -59,12 +61,12 @@ function setPaused() {
 <template>
   <div class="speed-page">
     <div class="speed-card">
-      <div class="speed-title">Stratum Speed</div>
+      <div class="speed-title">{{ t("stratumSpeed.title") }}</div>
       <div class="speed-main-line">
-        Current speed: <span class="speed-value">×{{ speedText }}</span>
+        {{ t("stratumSpeed.currentSpeed") }}: <span class="speed-value">×{{ speedText }}</span>
       </div>
       <div class="speed-sub-line">
-        Left end is 0. The rest of the slider is logarithmic from 1 to 1e4.
+        {{ t("stratumSpeed.sliderHint") }}
       </div>
 
       <div class="slider-wrap">
@@ -88,7 +90,7 @@ function setPaused() {
       </div>
 
       <div class="preset-row">
-        <button class="preset-button" @click="setPaused">Pause</button>
+        <button class="preset-button" @click="setPaused">{{ t("common.pause") }}</button>
         <button class="preset-button" @click="setPreset(1)">×1</button>
         <button class="preset-button" @click="setPreset(10)">×10</button>
         <button class="preset-button" @click="setPreset(100)">×100</button>

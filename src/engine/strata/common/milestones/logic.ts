@@ -3,21 +3,19 @@ import { gte } from "@/engine/math/num";
 import { hasMilestone } from "./selectors";
 import {
   UNLOCK_REFINE_MILESTONE_ID,
-  UNLOCK_REFINE_REQUIREMENT,
   UNLOCK_UPGRADES_MILESTONE_ID,
-  UNLOCK_UPGRADES_REQUIREMENT,
 } from "@/engine/strata/common/milestones/balance";
+import { getMilestoneRequirement } from "./definitions";
 
 export function canClaimMilestone(stratum: StratumState, id: string): boolean {
   if (hasMilestone(stratum.milestones, id)) return false;
 
-  switch (id) {
-    case UNLOCK_REFINE_MILESTONE_ID:
-      return gte(stratum.dreamEnergy, UNLOCK_REFINE_REQUIREMENT);
-    case UNLOCK_UPGRADES_MILESTONE_ID:
-      return gte(stratum.dreamEnergy, UNLOCK_UPGRADES_REQUIREMENT);
-    default:
-      return false;
+  const requirement = getMilestoneRequirement(id);
+  if (!requirement) return false;
+
+  switch (requirement.type) {
+    case "reach-dream-energy":
+      return gte(stratum.dreamEnergy, requirement.amount);
   }
 }
 

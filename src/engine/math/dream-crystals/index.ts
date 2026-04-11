@@ -1,3 +1,3 @@
 export * from "./balance"
-export * from "./display"
+export * from "./definitions"
 export * from "./computed"

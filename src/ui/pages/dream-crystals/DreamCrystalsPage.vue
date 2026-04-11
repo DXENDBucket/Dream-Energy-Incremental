@@ -1,20 +1,21 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import DreamCrystalRow from "./DreamCrystalRow.vue";
 import { format, formatInt } from "@/engine/math/format";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import { isRefineUnlocked } from "@/engine/strata/common/milestones";
-import { canRefineDreamCrystal,
-         getDreamCrystalRefinementMultiplierGainRatio
- } from "@/engine/strata/common/dream-crystals/refinement";
 import {
-  DREAM_CRYSTAL_META,
+  canRefineDreamCrystal,
+  getDreamCrystalRefinementMultiplierGainRatio,
+  refineDreamCrystal,
+} from "@/engine/strata/common/dream-crystals/refinement";
+import {
   DREAM_CRYSTAL_TIERS,
-  DREAM_CRYSTAL_BASE_COSTS,
-  DREAM_CRYSTAL_COST_SCALES,
   getDreamCrystalMultiplier,
-  getDreamCrystalPercentageText
-} from "@/engine/math/dream-crystals/index";
+  getDreamCrystalPercentageIncrement,
+  type DreamCrystalTier,
+} from "@/engine/math/dream-crystals";
 import {
   getCurrentDreamCrystalCost,
   canBuyDreamCrystal,
@@ -23,7 +24,11 @@ import {
 } from "@/engine/strata/common/dream-crystals/logic";
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals/selectors";
 import type { GameState } from "@/engine/core/state";
-import { refineDreamCrystal } from "@/engine/strata/common/dream-crystals/refinement";
+import { getDreamCrystalTitle } from "@/ui/meta/dreamCrystals";
+import {
+  formatMultiplierText,
+  formatPercentagePerSecondText,
+} from "@/ui/formatters/progression";
 
 const props = defineProps<{
   game: {
@@ -31,30 +36,31 @@ const props = defineProps<{
   };
 }>();
 
+const { t } = useI18n();
 const activeStratum = computed(() => getActiveStratum(props.game.state));
-const refineUnlocked = isRefineUnlocked(activeStratum.value);
+const refineUnlocked = computed(() => isRefineUnlocked(activeStratum.value));
 
 const dreamCrystalRows = computed(() => {
   return DREAM_CRYSTAL_TIERS.map((tier) => {
-    const meta = DREAM_CRYSTAL_META[tier];
     const multiplier = getDreamCrystalMultiplier(activeStratum.value, tier);
     const refinementIncrement = getDreamCrystalRefinementMultiplierGainRatio(activeStratum.value, tier);
     const canRefine = canRefineDreamCrystal(activeStratum.value, tier);
 
     return {
       tier,
-      title: meta.title,
+      title: getDreamCrystalTitle(t, tier as DreamCrystalTier),
       amountText: formatInt(getDreamCrystalAmount(activeStratum.value.dreamCrystals, tier)),
-      percentageText: getDreamCrystalPercentageText(activeStratum.value, tier),
-      multiplierText: `×${format(multiplier)}`,
+      percentageText: formatPercentagePerSecondText(
+        getDreamCrystalPercentageIncrement(activeStratum.value, tier),
+      ),
+      multiplierText: formatMultiplierText(multiplier),
       costText: format(getCurrentDreamCrystalCost(activeStratum.value, tier)),
       canBuy: canBuyDreamCrystal(activeStratum.value, tier),
-
-      refineUnlocked,
+      refineUnlocked: refineUnlocked.value,
       canRefine,
       refineHint: canRefine
-        ? `Refine gain: ×${format(refinementIncrement)}`
-        : "No refinement gain available right now.",
+        ? t("dreamCrystals.refineGain", { value: formatMultiplierText(refinementIncrement) })
+        : t("dreamCrystals.noRefinementGain"),
     };
   });
 });
@@ -75,22 +81,22 @@ function onRefineDreamCrystal(tier: number) {
 <template>
   <div class="crystals-page">
     <div class="crystals-list">
-    <DreamCrystalRow
-      v-for="row in dreamCrystalRows"
-      :key="row.tier"
-      :title="row.title"
-      :amount-text="row.amountText"
-      :percentage-text="row.percentageText"
-      :multiplier-text="row.multiplierText"
-      :cost-text="row.costText"
-      :can-buy="row.canBuy"
-      :refine-unlocked="row.refineUnlocked"
-      :can-refine="row.canRefine"
-      :refine-hint="row.refineHint"
-      @buy="onBuyDreamCrystal(row.tier)"
-      @buyMax="onBuyMaxDreamCrystal(row.tier)"
-      @refine="onRefineDreamCrystal(row.tier)"
-    />
+      <DreamCrystalRow
+        v-for="row in dreamCrystalRows"
+        :key="row.tier"
+        :title="row.title"
+        :amount-text="row.amountText"
+        :percentage-text="row.percentageText"
+        :multiplier-text="row.multiplierText"
+        :cost-text="row.costText"
+        :can-buy="row.canBuy"
+        :refine-unlocked="row.refineUnlocked"
+        :can-refine="row.canRefine"
+        :refine-hint="row.refineHint"
+        @buy="onBuyDreamCrystal(row.tier)"
+        @buyMax="onBuyMaxDreamCrystal(row.tier)"
+        @refine="onRefineDreamCrystal(row.tier)"
+      />
     </div>
   </div>
 </template>
