@@ -36,9 +36,11 @@ export function getDreamCrystalRefinementIncrement(stratum: StratumState, tier: 
 }
 
 export function refineDreamCrystal(stratum: StratumState, tier:number) {
+    if (!canRefineDreamCrystal(stratum, tier)) return;
+
     const increment = getDreamCrystalRefinementIncrement(stratum, tier);
     const crystal = stratum.dreamCrystals.tiers;
-    if (!canRefineDreamCrystal) return;
+
     for (let otherTier = 1; otherTier <= 8; otherTier++) {
         if (otherTier === tier) continue;
         

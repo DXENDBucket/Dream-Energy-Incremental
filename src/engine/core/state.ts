@@ -1,4 +1,5 @@
 import { firstStratumId } from "../strata/defs/ids.ts";
+import { createLiftState, type LiftState } from "../strata/lift/state.ts";
 import type { StratumState } from "../strata/state.ts";
 import { createStratumState } from "../strata/state.ts";
 
@@ -11,6 +12,7 @@ export interface GameState {
   simTimeSec: number;
   activeStratumId: string;
   strata: Record<string, StratumState>;
+  lift: LiftState;
   settings: GameSettingsState;
 }
 
@@ -23,6 +25,7 @@ export function createNewState(): GameState {
     strata: {
       [firstStratumId]: createStratumState(),
     },
+    lift: createLiftState(),
     settings: {
       autoSaveIntervalSec: 20,
     },
