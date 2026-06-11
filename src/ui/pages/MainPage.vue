@@ -13,6 +13,7 @@ import {
 } from "@/engine/strata/common/dream-energy";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
 import LiftPage from "./strata/LiftPage.vue";
+import StrataOverviewPage from "./strata/StrataOverviewPage.vue";
 import SavePage from "./options/SavePage.vue";
 import ThemePage from "./options/ThemePage.vue";
 import { formatPercentagePerSecondText } from "@/ui/formatters/progression";
@@ -29,6 +30,15 @@ const ui = UI_CONFIG;
 function getDefaultSecondaryId(primaryId: string): string {
   const tab = PRIMARY_TABS.find(x => x.id === primaryId);
   return tab?.children[0]?.id ?? "dream-crystals";
+}
+
+function getNextSecondaryId(primaryId: string, currentSecondaryId: string): string {
+  const children = PRIMARY_TABS.find(x => x.id === primaryId)?.children ?? [];
+  if (children.length === 0) return currentSecondaryId;
+
+  const currentIndex = children.findIndex(child => child.id === currentSecondaryId);
+  const nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % children.length;
+  return children[nextIndex]?.id ?? currentSecondaryId;
 }
 
 const lastSecondaryByPrimary = ref<Record<string, string>>(
@@ -90,6 +100,14 @@ function onSecondaryWrapLeave() {
 }
 
 function onPrimaryClick(primaryId: string) {
+  if (selectedPrimary.value === primaryId) {
+    const nextSecondary = getNextSecondaryId(primaryId, selectedSecondary.value);
+
+    selectedSecondary.value = nextSecondary;
+    lastSecondaryByPrimary.value[primaryId] = nextSecondary;
+    return;
+  }
+
   const rememberedSecondary =
     lastSecondaryByPrimary.value[primaryId] ?? getDefaultSecondaryId(primaryId);
 
@@ -312,6 +330,10 @@ const secondaryTooltipStyle = computed(() => ({
 
         <div v-else-if="selectedSecondary === 'stratum-speed'" class="dream-crystals-page">
           <StratumSpeedPage :game="props.game" />
+        </div>
+
+        <div v-else-if="selectedSecondary === 'strata-overview'" class="strata-overview-host">
+          <StrataOverviewPage :game="props.game" />
         </div>
 
         <div v-else-if="selectedSecondary === 'current-stratum'" class="page-card">
@@ -599,6 +621,12 @@ const secondaryTooltipStyle = computed(() => ({
 }
 
 .lift-page-host {
+  width: min(1040px, 100%);
+  display: flex;
+  justify-content: center;
+}
+
+.strata-overview-host {
   width: min(1040px, 100%);
   display: flex;
   justify-content: center;

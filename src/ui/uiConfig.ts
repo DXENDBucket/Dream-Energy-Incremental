@@ -98,6 +98,7 @@ export const PRIMARY_TABS = [
     textColor: "#efe3ff",
     children: [
       { id: "current-stratum", icon: "C", labelKey: "navigation.secondary.currentStratum" },
+      { id: "strata-overview", icon: "O", labelKey: "navigation.secondary.strataOverview" },
       { id: "lift", icon: "L", labelKey: "navigation.secondary.lift" },
     ],
   },

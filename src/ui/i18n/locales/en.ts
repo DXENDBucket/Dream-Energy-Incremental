@@ -19,6 +19,7 @@ export default {
       dreamCrystals: "Dream Crystals",
       dreamCrystalUpgrades: "Dream Crystal Upgrades",
       dreamEnergyMilestones: "Dream Energy Milestones",
+      strataOverview: "Overview",
       currentStratum: "Current Stratum",
       lift: "Lift",
       numbers: "Numbers",
@@ -108,7 +109,7 @@ export default {
     hardResetTitle: "HARD RESET",
     hardResetWarning: "This will erase your current progress and replace it with a fresh new save.",
     hardResetInstruction: "Type {resetText} below, then press the button.",
-    hardResetPlaceholder: 'Type "RESET" here',
+    hardResetPlaceholder: 'Type "BTNB" here',
     status: {
       savedToLocalStorage: "Saved to local storage.",
       loadedFromLocalStorage: "Loaded save from local storage.",
@@ -119,7 +120,7 @@ export default {
       pasteFirst: "Please paste a save string first.",
       importSuccess: "Imported save successfully.",
       importFailed: "Import failed. The save string may be invalid.",
-      typeReset: 'Type "RESET" to enable hard reset.',
+      typeReset: 'Type "BTNB" to enable hard reset.',
       hardResetComplete: "Hard reset complete.",
     },
   },
@@ -154,6 +155,10 @@ export default {
     ready: "Available",
     currentPosition: "Current position",
     activeStratum: "Active stratum",
+  },
+  strataOverview: {
+    reality: "Reality",
+    active: "Active",
   },
   language: {
     english: "English",

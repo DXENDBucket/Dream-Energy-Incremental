@@ -12,6 +12,7 @@ const { t } = useI18n();
 const saveText = ref("");
 const hardResetText = ref("");
 const statusKey = ref("common.ready");
+const HARD_RESET_CONFIRM_TEXT = "BTNB";
 
 const statusText = computed(() => t(statusKey.value));
 
@@ -74,7 +75,7 @@ function onImportSave() {
 }
 
 function onHardReset() {
-  if (hardResetText.value !== "RESET") {
+  if (hardResetText.value !== HARD_RESET_CONFIRM_TEXT) {
     statusKey.value = "save.status.typeReset";
     return;
   }
@@ -143,7 +144,7 @@ function onHardReset() {
 
       <i18n-t keypath="save.hardResetInstruction" tag="div" class="danger-text">
         <template #resetText>
-          <span class="danger-code">RESET</span>
+          <span class="danger-code">{{ HARD_RESET_CONFIRM_TEXT }}</span>
         </template>
       </i18n-t>
 
@@ -157,7 +158,7 @@ function onHardReset() {
       <div class="button-row">
         <button
           class="action-button danger-button"
-          :disabled="hardResetText !== 'RESET'"
+          :disabled="hardResetText !== HARD_RESET_CONFIRM_TEXT"
           @click="onHardReset"
         >
           {{ t("save.hardResetTitle") }}

@@ -19,6 +19,7 @@ export default {
       dreamCrystals: "梦境水晶",
       dreamCrystalUpgrades: "梦境水晶升级",
       dreamEnergyMilestones: "梦能里程碑",
+      strataOverview: "总览",
       currentStratum: "当前层级",
       lift: "Lift",
       numbers: "数值",
@@ -107,7 +108,7 @@ export default {
     hardResetTitle: "硬重置",
     hardResetWarning: "这会清除你当前的进度，并替换为一个全新的存档。",
     hardResetInstruction: "在下方输入 {resetText}，然后按下按钮。",
-    hardResetPlaceholder: '在这里输入 "RESET"',
+    hardResetPlaceholder: '在这里输入 "BTNB"',
     status: {
       savedToLocalStorage: "已保存到本地存储。",
       loadedFromLocalStorage: "已从本地存储读取存档。",
@@ -118,7 +119,7 @@ export default {
       pasteFirst: "请先粘贴存档字符串。",
       importSuccess: "导入存档成功。",
       importFailed: "导入失败。存档字符串可能无效。",
-      typeReset: '请输入 "RESET" 以启用硬重置。',
+      typeReset: '请输入 "BTNB" 以启用硬重置。',
       hardResetComplete: "硬重置完成。",
     },
   },
@@ -152,6 +153,10 @@ export default {
     ready: "可用",
     currentPosition: "当前位置",
     activeStratum: "激活层级",
+  },
+  strataOverview: {
+    reality: "现实",
+    active: "激活",
   },
   language: {
     english: "English",
