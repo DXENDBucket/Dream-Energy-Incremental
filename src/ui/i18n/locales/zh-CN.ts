@@ -162,14 +162,24 @@ export default {
     condenseUnavailable: "梦能不足，无法凝缩。",
   },
   entropy: {
-    display: "Entropy {value} | 调谐 {tuning} | 混沌 {chaos}",
+    label: "Entropy",
+    meta: "Tuning {tuning}",
   },
   strataOverview: {
     reality: "现实",
     dreamSeaFirst: "1st",
     active: "激活",
-    travelToFirstConfirm:
-      "前往 1st？本次会消耗 {cost} 调谐点数来加固 Lift。调谐指数将变为 {tuning}。",
+    needsCoherence: "需要 CP",
+    travelDialogKicker: "Lift Transit",
+    travelDialogTitle: "前往 1st",
+    travelDialogCopy: "Lift 将离开现实层，向梦境之海的第一层下潜。",
+    travelCostLabel: "本次加固消耗",
+    travelCostValue: "{cost} 调谐点数",
+    travelEntropyLabel: "Entropy",
+    travelEntropyValue: "Tuning {tuning}",
+    travelNoteWithCost: "这些调谐点数会从现实层移除，用来加固本次下潜。",
+    travelCancel: "取消",
+    travelConfirm: "启动 Lift",
   },
   language: {
     english: "English",

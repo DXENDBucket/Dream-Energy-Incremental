@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { GameState } from "@/engine/core/state";
 import { format, formatInt } from "@/engine/math/format";
@@ -28,8 +28,11 @@ const realityIsAvailable = computed(() => firstStratumId in props.game.state.str
 const dreamSeaFirstIsActive = computed(() => props.game.state.activeStratumId === dreamSeaFirstStratumId);
 const dreamSeaFirstIsVisible = computed(() => isDreamSeaFirstStratumVisible(props.game.state));
 const dreamSeaFirstCanTravel = computed(() => canTravelToDreamSeaFirstStratum(props.game.state));
+const travelDialogOpen = ref(false);
+const dreamSeaFirstEntryCost = computed(() => getDreamSeaFirstEntryCoherenceCost(props.game.state));
+const dreamSeaFirstNodeDisabled = computed(() => !dreamSeaFirstIsActive.value && !dreamSeaFirstCanTravel.value);
 const dreamSeaFirstCostText = computed(() => {
-  return formatInt(getDreamSeaFirstEntryCoherenceCost(props.game.state));
+  return formatInt(dreamSeaFirstEntryCost.value);
 });
 const dreamSeaFirstTuningText = computed(() => {
   return format(getDreamSeaFirstEntryTuningExponent(props.game.state));
@@ -44,16 +47,16 @@ function selectReality() {
 
 function selectDreamSeaFirst() {
   if (dreamSeaFirstIsActive.value || !dreamSeaFirstCanTravel.value) return;
+  travelDialogOpen.value = true;
+}
 
-  const confirmed = window.confirm(
-    t("strataOverview.travelToFirstConfirm", {
-      cost: dreamSeaFirstCostText.value,
-      tuning: dreamSeaFirstTuningText.value,
-    }),
-  );
+function closeTravelDialog() {
+  travelDialogOpen.value = false;
+}
 
-  if (!confirmed) return;
+function confirmTravelToDreamSeaFirst() {
   travelToDreamSeaFirstStratum(props.game.state);
+  travelDialogOpen.value = false;
 }
 </script>
 
@@ -105,15 +108,57 @@ function selectDreamSeaFirst() {
         v-if="dreamSeaFirstIsVisible"
         class="stratum-node dream-sea-node"
         :class="{ active: dreamSeaFirstIsActive }"
-        :disabled="!dreamSeaFirstCanTravel"
+        :disabled="dreamSeaFirstNodeDisabled"
         @click="selectDreamSeaFirst"
       >
         <span class="node-orbit" aria-hidden="true" />
         <span class="node-core">
           <span class="node-title">{{ t("strataOverview.dreamSeaFirst") }}</span>
           <span v-if="dreamSeaFirstIsActive" class="node-state">{{ t("strataOverview.active") }}</span>
+          <span v-else-if="!dreamSeaFirstCanTravel" class="node-state">{{ t("strataOverview.needsCoherence") }}</span>
         </span>
       </button>
+
+      <transition name="travel-dialog-fade">
+        <div
+          v-if="travelDialogOpen"
+          class="travel-dialog-backdrop"
+          @click.self="closeTravelDialog"
+        >
+          <div class="travel-dialog" role="dialog" aria-modal="true">
+            <div class="travel-dialog-glow" aria-hidden="true" />
+
+            <div class="travel-dialog-kicker">{{ t("strataOverview.travelDialogKicker") }}</div>
+            <h3 class="travel-dialog-title">{{ t("strataOverview.travelDialogTitle") }}</h3>
+            <p class="travel-dialog-copy">{{ t("strataOverview.travelDialogCopy") }}</p>
+
+            <div class="travel-readouts">
+              <div class="travel-readout">
+                <span>{{ t("strataOverview.travelCostLabel") }}</span>
+                <strong>{{ t("strataOverview.travelCostValue", { cost: dreamSeaFirstCostText }) }}</strong>
+              </div>
+
+              <div class="travel-readout">
+                <span>{{ t("strataOverview.travelEntropyLabel") }}</span>
+                <strong>{{ t("strataOverview.travelEntropyValue", { tuning: dreamSeaFirstTuningText }) }}</strong>
+              </div>
+            </div>
+
+            <p class="travel-note">
+              {{ t("strataOverview.travelNoteWithCost") }}
+            </p>
+
+            <div class="travel-actions">
+              <button class="travel-button secondary" @click="closeTravelDialog">
+                {{ t("strataOverview.travelCancel") }}
+              </button>
+              <button class="travel-button primary" @click="confirmTravelToDreamSeaFirst">
+                {{ t("strataOverview.travelConfirm") }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -295,6 +340,168 @@ function selectDreamSeaFirst() {
     linear-gradient(180deg, rgba(93, 72, 146, 0.95), rgba(27, 24, 73, 0.96));
 }
 
+.travel-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(151, 209, 255, 0.16), transparent 30%),
+    rgba(3, 6, 18, 0.64);
+  backdrop-filter: blur(5px);
+}
+
+.travel-dialog {
+  position: relative;
+  width: min(430px, 100%);
+  overflow: hidden;
+  padding: 24px;
+  border: 1px solid rgba(198, 224, 255, 0.62);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(19, 27, 54, 0.97) 0%, rgba(10, 12, 31, 0.98) 100%);
+  box-shadow:
+    0 18px 54px rgba(0, 0, 0, 0.44),
+    0 0 34px rgba(132, 201, 255, 0.18),
+    inset 0 0 26px rgba(210, 231, 255, 0.06);
+  color: #eef5ff;
+  text-align: left;
+}
+
+.travel-dialog-glow {
+  position: absolute;
+  inset: -35% 20% auto;
+  height: 130px;
+  background: radial-gradient(circle, rgba(157, 217, 255, 0.24), transparent 62%);
+  pointer-events: none;
+}
+
+.travel-dialog-kicker {
+  position: relative;
+  color: #9fe9ff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.travel-dialog-title {
+  position: relative;
+  margin: 6px 0 8px;
+  color: #ffffff;
+  font-family: "Georgia", "Times New Roman", "Noto Serif SC", serif;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.travel-dialog-copy,
+.travel-note {
+  position: relative;
+  margin: 0;
+  color: #b7c4e7;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.travel-readouts {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 18px 0 12px;
+}
+
+.travel-readout {
+  min-height: 74px;
+  padding: 12px;
+  border: 1px solid rgba(126, 168, 232, 0.34);
+  border-radius: 6px;
+  background:
+    linear-gradient(180deg, rgba(26, 43, 75, 0.72), rgba(12, 20, 41, 0.82));
+  box-shadow: inset 0 0 18px rgba(150, 201, 255, 0.05);
+}
+
+.travel-readout span {
+  display: block;
+  color: #8fa1cc;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.travel-readout strong {
+  display: block;
+  margin-top: 8px;
+  color: #f7fbff;
+  font-size: 1rem;
+  font-weight: 850;
+}
+
+.travel-actions {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.travel-button {
+  min-width: 92px;
+  height: 38px;
+  border: 1px solid rgba(150, 183, 237, 0.58);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.1s ease,
+    filter 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.travel-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.travel-button.secondary {
+  background: rgba(12, 20, 39, 0.86);
+  color: #c8d5f6;
+}
+
+.travel-button.primary {
+  border-color: rgba(159, 235, 255, 0.74);
+  background: linear-gradient(180deg, #8de9ff 0%, #4d86ff 100%);
+  color: #031226;
+  box-shadow: 0 0 20px rgba(107, 207, 255, 0.24);
+}
+
+.travel-dialog-fade-enter-active {
+  animation: travel-dialog-fade-in 0.16s ease-out;
+}
+
+.travel-dialog-fade-leave-active {
+  transition: opacity 0.12s ease;
+}
+
+.travel-dialog-fade-enter-from,
+.travel-dialog-fade-leave-to {
+  opacity: 0;
+}
+
+@keyframes travel-dialog-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes node-orbit {
   from {
     transform: rotate(0deg);
@@ -328,6 +535,10 @@ function selectDreamSeaFirst() {
 
   .stratum-node {
     width: 86px;
+  }
+
+  .travel-readouts {
+    grid-template-columns: 1fr;
   }
 }
 </style>

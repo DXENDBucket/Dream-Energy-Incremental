@@ -164,14 +164,24 @@ export default {
     condenseUnavailable: "Reach enough Dream Energy to condense.",
   },
   entropy: {
-    display: "Entropy {value} | Tuning {tuning} | Chaos {chaos}",
+    label: "Entropy",
+    meta: "Tuning {tuning}",
   },
   strataOverview: {
     reality: "Reality",
     dreamSeaFirst: "1st",
     active: "Active",
-    travelToFirstConfirm:
-      "Travel to 1st? This will spend {cost} Coherence Points to reinforce the Lift. Tuning exponent will become {tuning}.",
+    needsCoherence: "Needs CP",
+    travelDialogKicker: "Lift Transit",
+    travelDialogTitle: "Travel to 1st",
+    travelDialogCopy: "The Lift will leave Reality and descend into the first layer of the Dream Sea.",
+    travelCostLabel: "Reinforcement cost",
+    travelCostValue: "{cost} Coherence Points",
+    travelEntropyLabel: "Entropy",
+    travelEntropyValue: "Tuning {tuning}",
+    travelNoteWithCost: "These Coherence Points will be removed from Reality to reinforce this descent.",
+    travelCancel: "Cancel",
+    travelConfirm: "Start Lift",
   },
   language: {
     english: "English",

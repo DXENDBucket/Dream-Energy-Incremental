@@ -59,7 +59,6 @@ export function isDreamSeaFirstStratumVisible(state: GameState): boolean {
 
 export function canTravelToDreamSeaFirstStratum(state: GameState): boolean {
   if (!state.lift.isLiftUnlocked) return false;
-  if (dreamSeaFirstStratumId in state.strata) return true;
   return gt(getDreamSeaFirstEntryCoherenceCost(state), ZERO);
 }
 
@@ -77,11 +76,8 @@ export function travelToDreamSeaFirstStratum(state: GameState): boolean {
   const dreamSeaFirst = state.strata[dreamSeaFirstStratumId]!;
   const entropy = ensureEntropyState(dreamSeaFirst);
   entropy.formulaId = "dream-sea-first";
-
-  if (gt(cost, ZERO)) {
-    entropy.tuningExponent = tuningExponent;
-    reality.coherencePoints = ZERO;
-  }
+  entropy.tuningExponent = tuningExponent;
+  reality.coherencePoints = ZERO;
 
   state.activeStratumId = dreamSeaFirstStratumId;
   state.lift.currentLiftPosition = dreamSeaFirstStratumId;
