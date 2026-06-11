@@ -12,6 +12,7 @@ import {
   isDreamEnergySoftcapOneActive,
 } from "@/engine/strata/common/dream-energy";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
+import LiftPage from "./strata/LiftPage.vue";
 import SavePage from "./options/SavePage.vue";
 import ThemePage from "./options/ThemePage.vue";
 import { formatPercentagePerSecondText } from "@/ui/formatters/progression";
@@ -316,6 +317,10 @@ const secondaryTooltipStyle = computed(() => ({
         <div v-else-if="selectedSecondary === 'current-stratum'" class="page-card">
           <CurrentStratumPage :game="props.game" />
         </div>
+
+        <div v-else-if="selectedSecondary === 'lift'" class="lift-page-host">
+          <LiftPage :game="props.game" />
+        </div>
         
         <div v-else-if="selectedSecondary === 'save'" class="page-card">
           <SavePage :game="props.game" />
@@ -323,18 +328,6 @@ const secondaryTooltipStyle = computed(() => ({
 
         <div v-else-if="selectedSecondary === 'dc-upgrades'" class="page-card">
           {{ t("mainPage.placeholders.upgrades") }}
-        </div>
-
-        <div v-else-if="selectedSecondary === 'surface'" class="page-card">
-          {{ t("mainPage.placeholders.surface") }}
-        </div>
-
-        <div v-else-if="selectedSecondary === 'depth'" class="page-card">
-          {{ t("mainPage.placeholders.depth") }}
-        </div>
-
-        <div v-else-if="selectedSecondary === 'dream'" class="page-card">
-          {{ t("mainPage.placeholders.dream") }}
         </div>
 
         <div v-else-if="selectedSecondary === 'numbers'" class="page-card">
@@ -603,6 +596,12 @@ const secondaryTooltipStyle = computed(() => ({
     0 8px 30px var(--shadow-color);
   color: var(--text-dim);
   padding: 24px;
+}
+
+.lift-page-host {
+  width: min(1040px, 100%);
+  display: flex;
+  justify-content: center;
 }
 
 .submenu-slide-enter-active {
