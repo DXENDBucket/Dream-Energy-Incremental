@@ -31,7 +31,7 @@ export default {
   },
   resource: {
     dreamEnergy: "梦能",
-    coherencePoints: "Coherence Points",
+    coherencePoints: "调谐点数",
   },
   mainPage: {
     title: "梦能增量",
@@ -156,14 +156,20 @@ export default {
     activeStratum: "激活层级",
   },
   coherence: {
-    condense: "Condense +{value}",
-    productionLoss: "生产损耗 / {value}",
-    condenseAvailable: "将梦能凝缩为 Coherence Points。",
+    condense: "凝缩 +{value}",
+    productionLoss: "调谐生产损耗 / {value}",
+    condenseAvailable: "将梦能凝缩为调谐点数。",
     condenseUnavailable: "梦能不足，无法凝缩。",
+  },
+  entropy: {
+    display: "Entropy {value} | 调谐 {tuning} | 混沌 {chaos}",
   },
   strataOverview: {
     reality: "现实",
+    dreamSeaFirst: "1st",
     active: "激活",
+    travelToFirstConfirm:
+      "前往 1st？本次会消耗 {cost} 调谐点数来加固 Lift。调谐指数将变为 {tuning}。",
   },
   language: {
     english: "English",

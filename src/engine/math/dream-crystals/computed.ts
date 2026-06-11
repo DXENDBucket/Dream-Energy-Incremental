@@ -4,6 +4,7 @@ import { mul, ONE, pow, ZERO, div } from "@/engine/math/num";
 import type { StratumState } from "@/engine/strata/state";
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals/selectors";
 import { getCurrentDreamCrystalRefinementMultiplier } from "@/engine/strata/common/dream-crystals/refinement";
+import { applyEntropyToProduction } from "@/engine/strata/common/entropy";
 
 export function getDreamCrystalCost(tier: number, amountBought: Num) {
     const base = DREAM_CRYSTAL_BASE_COSTS[tier as keyof typeof DREAM_CRYSTAL_BASE_COSTS];
@@ -26,8 +27,7 @@ export function getDreamCrystalProduction(
     tier: number,
     dtSec: Num
 ) {
-    const amount = getDreamCrystalAmount(stratum.dreamCrystals, tier);
-    return mul(mul(amount, getDreamCrystalMultiplier(stratum, tier)), dtSec);
+    return mul(getDreamCrystalIncrement(stratum, tier - 1), dtSec);
 }
 
 // Multiplier
@@ -47,7 +47,7 @@ export function getDreamCrystalIncrement(
     if (tier == 8) { return ZERO }
     const multiplier = getDreamCrystalMultiplier(stratum, tier + 1);
     const amount = getDreamCrystalAmount(stratum.dreamCrystals, tier + 1);
-    return mul(multiplier, amount)
+    return applyEntropyToProduction(stratum, mul(multiplier, amount))
 }
 
 export function getDreamCrystalPercentageIncrement(

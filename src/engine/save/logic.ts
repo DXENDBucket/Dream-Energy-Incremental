@@ -1,6 +1,7 @@
 import type { GameState } from "@/engine/core/state";
 import { createNewState } from "@/engine/core/state";
 import { N, isNum, serializeNum } from "@/engine/math/num";
+import { normalizeGameState } from "@/engine/strata/manager/normalize";
 
 const SAVE_KEY = "dream-energy-incremental-save";
 const SAVE_PREFIX = "DreamEnergyIncremental";
@@ -167,7 +168,7 @@ export function importSave(raw: string): GameState {
   const fresh = createNewState();
   const restored = deserializeValue(parsed.state);
 
-  return deepMerge(fresh, restored);
+  return normalizeGameState(deepMerge(fresh, restored));
 }
 
 export function exportSave(state: GameState): string {

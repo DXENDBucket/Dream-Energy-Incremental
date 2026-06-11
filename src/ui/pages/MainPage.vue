@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { PRIMARY_TABS, UI_CONFIG } from "../uiConfig";
 import { format, formatInt } from "@/engine/math/format";
+import { mul } from "@/engine/math/num";
 import { getActiveDreamEnergy, getActiveStratum } from "@/engine/strata/manager/selectors";
 import DreamCrystalsPage from "./dream-crystals/DreamCrystalsPage.vue";
 import DreamEnergyMilestonesPage from "./milestones/DreamEnergyMilestones.vue";
@@ -18,6 +19,11 @@ import {
   getCoherencePoints,
   getCoherenceProductionLoss,
 } from "@/engine/strata/common/coherence";
+import {
+  getEntropyChaosExponent,
+  getEntropyTuningExponent,
+  getEntropyValue,
+} from "@/engine/strata/common/entropy";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
 import LiftPage from "./strata/LiftPage.vue";
 import StrataOverviewPage from "./strata/StrataOverviewPage.vue";
@@ -199,6 +205,22 @@ function onCondenseCoherence() {
   condenseCoherence(props.game.state);
 }
 
+const showEntropy = computed(() => {
+  return (activeStratum.value.entropy?.formulaId ?? "none") !== "none";
+});
+
+const entropyPercentText = computed(() => {
+  return `${format(mul(getEntropyValue(activeStratum.value), 100))}%`;
+});
+
+const entropyTuningText = computed(() => {
+  return format(getEntropyTuningExponent(activeStratum.value));
+});
+
+const entropyChaosText = computed(() => {
+  return format(getEntropyChaosExponent(activeStratum.value));
+});
+
 const rootStyle = computed(() => ({
   "--left-width": `${ui.sizes.leftWidth}px`,
   "--info-height": `${ui.sizes.infoHeight}px`,
@@ -341,6 +363,13 @@ const secondaryTooltipStyle = computed(() => ({
           {{ t("mainPage.activeStratum", { id: props.game.state.activeStratumId }) }}
         </div>
         <div class="top-sub-line">{{ t("mainPage.gain", { value: activeDreamEnergyPercentageText }) }}</div>
+        <div v-if="showEntropy" class="entropy-line">
+          {{ t("entropy.display", {
+            value: entropyPercentText,
+            tuning: entropyTuningText,
+            chaos: entropyChaosText,
+          }) }}
+        </div>
         <div v-if="isFirstDreamEnergySoftcapReached" class="top-softcap-line">
           {{ t("mainPage.softcapWarning") }}
         </div>
@@ -711,6 +740,20 @@ const secondaryTooltipStyle = computed(() => ({
   color: var(--text-dim);
   font-size: 0.95rem;
   color: #B03060
+}
+
+.entropy-line {
+  padding: 5px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.52);
+  color: #f8fbff;
+  font-size: 0.86rem;
+  font-weight: 700;
+  box-shadow:
+    0 0 18px rgba(255, 255, 255, 0.18),
+    inset 0 0 12px rgba(255, 255, 255, 0.05);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.34);
 }
 
 .bottom-panel {

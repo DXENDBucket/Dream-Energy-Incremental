@@ -163,9 +163,15 @@ export default {
     condenseAvailable: "Condense Dream Energy into Coherence Points.",
     condenseUnavailable: "Reach enough Dream Energy to condense.",
   },
+  entropy: {
+    display: "Entropy {value} | Tuning {tuning} | Chaos {chaos}",
+  },
   strataOverview: {
     reality: "Reality",
+    dreamSeaFirst: "1st",
     active: "Active",
+    travelToFirstConfirm:
+      "Travel to 1st? This will spend {cost} Coherence Points to reinforce the Lift. Tuning exponent will become {tuning}.",
   },
   language: {
     english: "English",

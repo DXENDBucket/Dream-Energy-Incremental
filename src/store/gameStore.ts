@@ -8,11 +8,12 @@ import {
   exportSave,
   importSave,
 } from "@/engine/save/logic";
+import { normalizeGameState } from "@/engine/strata/manager/normalize";
 
 export type GameStore = ReturnType<typeof createGameStore>;
 
 export function createGameStore() {
-  const initialState = loadGame() ?? createNewState();
+  const initialState = normalizeGameState(loadGame() ?? createNewState());
   const state = reactive(initialState);
   const engine = createEngine(state);
 

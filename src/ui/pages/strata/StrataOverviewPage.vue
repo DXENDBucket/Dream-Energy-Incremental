@@ -2,7 +2,19 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type { GameState } from "@/engine/core/state";
-import { firstStratumId } from "@/engine/strata/defs/ids";
+import { format, formatInt } from "@/engine/math/format";
+import {
+  dreamSeaFirstStratumId,
+  firstStratumId,
+} from "@/engine/strata/defs/ids";
+import {
+  canTravelToDreamSeaFirstStratum,
+  getDreamSeaFirstEntryCoherenceCost,
+  getDreamSeaFirstEntryTuningExponent,
+  isDreamSeaFirstStratumVisible,
+  travelToDreamSeaFirstStratum,
+  travelToRealityStratum,
+} from "@/engine/strata/lift";
 
 const props = defineProps<{
   game: {
@@ -13,12 +25,35 @@ const props = defineProps<{
 const { t } = useI18n();
 const realityIsActive = computed(() => props.game.state.activeStratumId === firstStratumId);
 const realityIsAvailable = computed(() => firstStratumId in props.game.state.strata);
+const dreamSeaFirstIsActive = computed(() => props.game.state.activeStratumId === dreamSeaFirstStratumId);
+const dreamSeaFirstIsVisible = computed(() => isDreamSeaFirstStratumVisible(props.game.state));
+const dreamSeaFirstCanTravel = computed(() => canTravelToDreamSeaFirstStratum(props.game.state));
+const dreamSeaFirstCostText = computed(() => {
+  return formatInt(getDreamSeaFirstEntryCoherenceCost(props.game.state));
+});
+const dreamSeaFirstTuningText = computed(() => {
+  return format(getDreamSeaFirstEntryTuningExponent(props.game.state));
+});
 const depthBands = Array.from({ length: 5 }, (_, index) => index);
 const shards = Array.from({ length: 14 }, (_, index) => index);
 
 function selectReality() {
   if (!realityIsAvailable.value) return;
-  props.game.state.activeStratumId = firstStratumId;
+  travelToRealityStratum(props.game.state);
+}
+
+function selectDreamSeaFirst() {
+  if (dreamSeaFirstIsActive.value || !dreamSeaFirstCanTravel.value) return;
+
+  const confirmed = window.confirm(
+    t("strataOverview.travelToFirstConfirm", {
+      cost: dreamSeaFirstCostText.value,
+      tuning: dreamSeaFirstTuningText.value,
+    }),
+  );
+
+  if (!confirmed) return;
+  travelToDreamSeaFirstStratum(props.game.state);
 }
 </script>
 
@@ -63,6 +98,20 @@ function selectReality() {
         <span class="node-core">
           <span class="node-title">{{ t("strataOverview.reality") }}</span>
           <span v-if="realityIsActive" class="node-state">{{ t("strataOverview.active") }}</span>
+        </span>
+      </button>
+
+      <button
+        v-if="dreamSeaFirstIsVisible"
+        class="stratum-node dream-sea-node"
+        :class="{ active: dreamSeaFirstIsActive }"
+        :disabled="!dreamSeaFirstCanTravel"
+        @click="selectDreamSeaFirst"
+      >
+        <span class="node-orbit" aria-hidden="true" />
+        <span class="node-core">
+          <span class="node-title">{{ t("strataOverview.dreamSeaFirst") }}</span>
+          <span v-if="dreamSeaFirstIsActive" class="node-state">{{ t("strataOverview.active") }}</span>
         </span>
       </button>
     </div>
@@ -169,6 +218,10 @@ function selectReality() {
   font: inherit;
 }
 
+.dream-sea-node {
+  top: 42%;
+}
+
 .stratum-node:disabled {
   cursor: not-allowed;
 }
@@ -224,6 +277,22 @@ function selectReality() {
   box-shadow:
     0 0 34px rgba(149, 218, 255, 0.44),
     inset 0 0 26px rgba(255, 255, 255, 0.1);
+}
+
+.dream-sea-node .node-orbit {
+  border-color: rgba(221, 213, 255, 0.62);
+  background:
+    conic-gradient(from 80deg, transparent, rgba(219, 121, 255, 0.34), transparent 28%, rgba(86, 229, 255, 0.28), transparent 62%, rgba(255, 255, 255, 0.2), transparent),
+    radial-gradient(circle, rgba(247, 240, 255, 0.15) 0 20%, transparent 58%);
+  box-shadow:
+    0 0 28px rgba(188, 119, 255, 0.24),
+    inset 0 0 24px rgba(255, 255, 255, 0.08);
+}
+
+.dream-sea-node .node-core {
+  background:
+    radial-gradient(circle at 50% 25%, rgba(255, 255, 255, 0.28), transparent 30%),
+    linear-gradient(180deg, rgba(93, 72, 146, 0.95), rgba(27, 24, 73, 0.96));
 }
 
 @keyframes node-orbit {

@@ -1,5 +1,5 @@
 import type { GameState } from "@/engine/core/state";
-import { TEN, ZERO, add, div, floor, gte, log10, pow, sub } from "@/engine/math/num";
+import { TEN, ZERO, add, div, floor, gt, gte, log10, pow, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
 import type { StratumState } from "@/engine/strata/state";
@@ -19,7 +19,7 @@ export function getCoherenceProductionLoss(stratum: StratumState): Num {
 }
 
 export function getCoherencePointGain(stratum: StratumState): Num {
-  if (!gte(stratum.dreamEnergy, COHERENCE_CONDENSE_REQUIREMENT)) return ZERO;
+  if (!gt(stratum.dreamEnergy, COHERENCE_CONDENSE_REQUIREMENT)) return ZERO;
 
   const exponent = sub(
     div(log10(stratum.dreamEnergy), getCoherenceProductionLoss(stratum)),

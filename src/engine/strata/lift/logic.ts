@@ -1,7 +1,17 @@
 import type { GameState } from "@/engine/core/state";
-import { ONE, ZERO, div, gte, log10, min, add } from "@/engine/math/num";
+import { ONE, ZERO, div, gt, gte, log10, min, add } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
-import { getActiveStratum } from "@/engine/strata/manager/selectors";
+import {
+  computeEntropyTuningExponentFromCoherence,
+  ensureEntropyState,
+} from "@/engine/strata/common/entropy";
+import { getCoherencePoints } from "@/engine/strata/common/coherence";
+import {
+  dreamSeaFirstStratumId,
+  realityStratumId,
+} from "@/engine/strata/defs/ids";
+import { getActiveStratum, getStratum } from "@/engine/strata/manager/selectors";
+import { createStratumState } from "@/engine/strata/state";
 import { LIFT_UNLOCK_REQUIREMENT } from "./balance";
 
 export function getLiftUnlockRequirement(): Num {
@@ -30,4 +40,58 @@ export function unlockLift(state: GameState): void {
 
   state.lift.isLiftUnlocked = true;
   state.lift.currentLiftPosition = state.activeStratumId;
+}
+
+export function getDreamSeaFirstEntryCoherenceCost(state: GameState): Num {
+  return getCoherencePoints(getStratum(state, realityStratumId));
+}
+
+export function getDreamSeaFirstEntryTuningExponent(state: GameState): Num {
+  return computeEntropyTuningExponentFromCoherence(getDreamSeaFirstEntryCoherenceCost(state));
+}
+
+export function isDreamSeaFirstStratumVisible(state: GameState): boolean {
+  return (
+    dreamSeaFirstStratumId in state.strata ||
+    gt(getDreamSeaFirstEntryCoherenceCost(state), ZERO)
+  );
+}
+
+export function canTravelToDreamSeaFirstStratum(state: GameState): boolean {
+  if (!state.lift.isLiftUnlocked) return false;
+  if (dreamSeaFirstStratumId in state.strata) return true;
+  return gt(getDreamSeaFirstEntryCoherenceCost(state), ZERO);
+}
+
+export function travelToDreamSeaFirstStratum(state: GameState): boolean {
+  if (!canTravelToDreamSeaFirstStratum(state)) return false;
+
+  const reality = getStratum(state, realityStratumId);
+  const cost = getDreamSeaFirstEntryCoherenceCost(state);
+  const tuningExponent = computeEntropyTuningExponentFromCoherence(cost);
+
+  state.strata[dreamSeaFirstStratumId] ??= createStratumState({
+    entropyFormulaId: "dream-sea-first",
+  });
+
+  const dreamSeaFirst = state.strata[dreamSeaFirstStratumId]!;
+  const entropy = ensureEntropyState(dreamSeaFirst);
+  entropy.formulaId = "dream-sea-first";
+
+  if (gt(cost, ZERO)) {
+    entropy.tuningExponent = tuningExponent;
+    reality.coherencePoints = ZERO;
+  }
+
+  state.activeStratumId = dreamSeaFirstStratumId;
+  state.lift.currentLiftPosition = dreamSeaFirstStratumId;
+  return true;
+}
+
+export function travelToRealityStratum(state: GameState): boolean {
+  if (!(realityStratumId in state.strata)) return false;
+
+  state.activeStratumId = realityStratumId;
+  state.lift.currentLiftPosition = realityStratumId;
+  return true;
 }

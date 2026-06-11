@@ -2,6 +2,7 @@ import type { StratumState } from "@/engine/strata";
 import { getDreamCrystalMultiplier } from "../dream-crystals";
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals";
 import { getDreamEnergy } from "@/engine/strata";
+import { applyEntropyToProduction } from "@/engine/strata/common/entropy";
 import { mul, div, ZERO, TEN, N, type Num, sub, ONE, add } from "../num";
 import { DREAM_ENERGY_SOFTCAP_ONE_DEFAULT_SCALE, DREAM_ENERGY_SOFTCAP_POWER_DISPLAY } from "./balance";
 
@@ -13,7 +14,7 @@ export function getDreamEnergyIncrement(
 ) {
     const multiplier = getDreamCrystalMultiplier(stratum, 1);
     const amount = getDreamCrystalAmount(stratum.dreamCrystals, 1);
-    return mul(multiplier, amount)
+    return applyEntropyToProduction(stratum, mul(multiplier, amount))
 }
 
 export function getDreamEnergyPercentageIncrement(
