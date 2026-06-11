@@ -31,6 +31,7 @@ export default {
   },
   resource: {
     dreamEnergy: "Dream Energy",
+    coherencePoints: "Coherence Points",
   },
   mainPage: {
     title: "Dream Energy Incremental",
@@ -155,6 +156,12 @@ export default {
     ready: "Available",
     currentPosition: "Current position",
     activeStratum: "Active stratum",
+  },
+  coherence: {
+    condense: "Condense +{value}",
+    productionLoss: "Production loss / {value}",
+    condenseAvailable: "Condense Dream Energy into Coherence Points.",
+    condenseUnavailable: "Reach enough Dream Energy to condense.",
   },
   strataOverview: {
     reality: "Reality",

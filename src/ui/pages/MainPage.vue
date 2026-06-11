@@ -2,7 +2,7 @@
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { PRIMARY_TABS, UI_CONFIG } from "../uiConfig";
-import { formatInt } from "@/engine/math/format";
+import { format, formatInt } from "@/engine/math/format";
 import { getActiveDreamEnergy, getActiveStratum } from "@/engine/strata/manager/selectors";
 import DreamCrystalsPage from "./dream-crystals/DreamCrystalsPage.vue";
 import DreamEnergyMilestonesPage from "./milestones/DreamEnergyMilestones.vue";
@@ -11,6 +11,13 @@ import {
   getDreamEnergyPercentageGainPerSecond,
   isDreamEnergySoftcapOneActive,
 } from "@/engine/strata/common/dream-energy";
+import {
+  canCondenseCoherence,
+  condenseCoherence,
+  getCoherencePointGain,
+  getCoherencePoints,
+  getCoherenceProductionLoss,
+} from "@/engine/strata/common/coherence";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
 import LiftPage from "./strata/LiftPage.vue";
 import StrataOverviewPage from "./strata/StrataOverviewPage.vue";
@@ -156,6 +163,8 @@ const currentPageTitle = computed(() => {
   return t("common.unknown");
 });
 
+const activeStratum = computed(() => getActiveStratum(props.game.state));
+
 const activeDreamEnergyText = computed(() => {
   return formatInt(getActiveDreamEnergy(props.game.state));
 });
@@ -169,6 +178,26 @@ const activeDreamEnergyPercentageText = computed(() => {
 const isFirstDreamEnergySoftcapReached = computed(() => {
   return isDreamEnergySoftcapOneActive(getActiveStratum(props.game.state))
 })
+
+const isLiftUnlocked = computed(() => props.game.state.lift.isLiftUnlocked);
+
+const coherencePointsText = computed(() => {
+  return formatInt(getCoherencePoints(activeStratum.value));
+});
+
+const coherencePointGainText = computed(() => {
+  return formatInt(getCoherencePointGain(activeStratum.value));
+});
+
+const coherenceProductionLossText = computed(() => {
+  return format(getCoherenceProductionLoss(activeStratum.value));
+});
+
+const canCondense = computed(() => canCondenseCoherence(props.game.state));
+
+function onCondenseCoherence() {
+  condenseCoherence(props.game.state);
+}
 
 const rootStyle = computed(() => ({
   "--left-width": `${ui.sizes.leftWidth}px`,
@@ -314,6 +343,24 @@ const secondaryTooltipStyle = computed(() => ({
         <div class="top-sub-line">{{ t("mainPage.gain", { value: activeDreamEnergyPercentageText }) }}</div>
         <div v-if="isFirstDreamEnergySoftcapReached" class="top-softcap-line">
           {{ t("mainPage.softcapWarning") }}
+        </div>
+
+        <div v-if="isLiftUnlocked" class="coherence-panel">
+          <div class="coherence-resource-line">
+            <span class="coherence-label">{{ t("resource.coherencePoints") }}</span>
+            <span class="coherence-amount">{{ coherencePointsText }}</span>
+          </div>
+          <button
+            class="condense-button"
+            :disabled="!canCondense"
+            :title="canCondense ? t('coherence.condenseAvailable') : t('coherence.condenseUnavailable')"
+            @click="onCondenseCoherence"
+          >
+            {{ t("coherence.condense", { value: coherencePointGainText }) }}
+          </button>
+          <div class="coherence-loss-line">
+            {{ t("coherence.productionLoss", { value: coherenceProductionLossText }) }}
+          </div>
         </div>
       </section>
 
@@ -543,6 +590,7 @@ const secondaryTooltipStyle = computed(() => ({
 }
 
 .top-panel {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -553,6 +601,85 @@ const secondaryTooltipStyle = computed(() => ({
     radial-gradient(circle at center, rgba(114, 88, 211, 0.08), transparent 45%),
     linear-gradient(180deg, var(--bg-right-top) 0%, #0d1427 100%);
   border-bottom: 1px solid var(--border-soft);
+}
+
+.coherence-panel {
+  position: absolute;
+  left: 75%;
+  top: 50%;
+  width: 218px;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  padding: 12px;
+  border: 1px solid rgba(142, 222, 255, 0.48);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(16, 39, 62, 0.92) 0%, rgba(8, 22, 40, 0.96) 100%);
+  box-shadow:
+    0 0 24px rgba(89, 194, 255, 0.16),
+    inset 0 0 20px rgba(153, 223, 255, 0.08);
+  text-align: left;
+}
+
+.coherence-resource-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.coherence-label {
+  color: #aeeaff;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.coherence-amount {
+  color: #eefcff;
+  font-family: var(--font-number);
+  font-size: 1.18rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 14px rgba(126, 226, 255, 0.36);
+}
+
+.condense-button {
+  width: 100%;
+  height: 36px;
+  margin-top: 10px;
+  border: 1px solid rgba(173, 236, 255, 0.62);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #57c8ee 0%, #247aab 100%);
+  color: #031221;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow:
+    0 0 18px rgba(84, 205, 255, 0.26),
+    inset 0 0 14px rgba(255, 255, 255, 0.18);
+  transition:
+    transform 0.1s ease,
+    filter 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.condense-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.condense-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  filter: grayscale(0.35);
+}
+
+.coherence-loss-line {
+  margin-top: 8px;
+  color: #8ecde7;
+  font-size: 0.76rem;
+  text-align: center;
 }
 
 .top-title {
@@ -677,6 +804,15 @@ const secondaryTooltipStyle = computed(() => ({
   to {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+  }
+}
+
+@media (max-width: 980px) {
+  .coherence-panel {
+    position: static;
+    width: min(360px, 100%);
+    transform: none;
+    margin-top: 6px;
   }
 }
 </style>

@@ -31,6 +31,7 @@ export default {
   },
   resource: {
     dreamEnergy: "梦能",
+    coherencePoints: "Coherence Points",
   },
   mainPage: {
     title: "梦能增量",
@@ -153,6 +154,12 @@ export default {
     ready: "可用",
     currentPosition: "当前位置",
     activeStratum: "激活层级",
+  },
+  coherence: {
+    condense: "Condense +{value}",
+    productionLoss: "生产损耗 / {value}",
+    condenseAvailable: "将梦能凝缩为 Coherence Points。",
+    condenseUnavailable: "梦能不足，无法凝缩。",
   },
   strataOverview: {
     reality: "现实",
