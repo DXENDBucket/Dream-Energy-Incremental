@@ -42,7 +42,8 @@ export default {
     haveDreamEnergy: "You have {amount} dream energy.",
     activeStratum: "Current active stratum: {id}",
     gain: "Gain: {value}",
-    softcapWarning: "You don't have enough storage, so your Dream Energy is repelling.",
+    softcapWarning: "Dream Energy is repelling itself, suppressing production.",
+    softcapTwoWarning: "The strong interaction is surfacing between Dream Energy, amplifying the repulsion.",
     placeholders: {
       upgrades: "Upgrades placeholder",
       numbers: "Numbers/statistics placeholder",
@@ -215,7 +216,7 @@ export default {
   currentStratum: {
     title: "Dream Energy Repulsion",
     underPressure: "Your Dream Energy storage is under pressure.",
-    strongInteraction: "The strong interaction is acting between Dream Energy, adding repulsion strength {value}.",
+    strongInteraction: "The strong interaction is acting between Dream Energy, amplifying repulsion to {value}.",
     detail:
       "Because you currently hold {current} Dream Energy, your raw production of {raw} is facing a repulsion strength of {power}.",
     reducedTo: "This reduces your production by {divisor} to {final}.",
@@ -223,10 +224,10 @@ export default {
     noRepulsion: "No repulsion is affecting Dream Energy production right now.",
     currentProduction: "Current production: {value}",
     softcapTwo: {
-      title: "Strong Interaction",
-      threshold: "Second softcap threshold: {value} Dream Energy",
-      excessExponent: "Base-10 exponent beyond the threshold: {value}",
-      strengthMultiplier: "Current first softcap strength multiplier: {value}",
+      title: "Dream Energy Strong Interaction",
+      threshold: "Once Dream Energy passes {value}, repulsion is no longer only storage pressure.",
+      excessExponent: "You have pushed {value} base-10 intervals beyond that boundary.",
+      strengthMultiplier: "This expands the repulsion strength above to {value}.",
     },
   },
   lift: {

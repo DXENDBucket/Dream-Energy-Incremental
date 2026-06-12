@@ -42,7 +42,8 @@ export default {
     haveDreamEnergy: "你拥有 {amount} 梦能。",
     activeStratum: "当前激活层级：{id}",
     gain: "增益：{value}",
-    softcapWarning: "你的储量不足，因此梦能正在发生排斥。",
+    softcapWarning: "梦能正在互相排斥，产出受到压制。",
+    softcapTwoWarning: "强相互作用力正在梦能之间显现，排斥被进一步放大。",
     placeholders: {
       upgrades: "升级页占位",
       numbers: "数值统计占位",
@@ -214,17 +215,17 @@ export default {
   currentStratum: {
     title: "梦能排斥",
     underPressure: "你的梦能储量正承受压力。",
-    strongInteraction: "强相互作用力开始在梦能之间发挥作用，额外排斥 strength {value}。",
+    strongInteraction: "强相互作用力开始在梦能之间发挥作用，排斥被进一步放大到 {value}。",
     detail: "由于你当前持有 {current} 梦能，你的原始产出 {raw} 正承受强度为 {power} 的排斥。",
     reducedTo: "这会将你的产出按 {divisor} 削减至 {final}。",
     stable: "你当前的梦能储量是稳定的。",
     noRepulsion: "当前没有排斥影响梦能产出。",
     currentProduction: "当前产出：{value}",
     softcapTwo: {
-      title: "强相互作用力",
-      threshold: "第二 softcap 阈值：{value} 梦能",
-      excessExponent: "超过阈值的 10 为底指数：{value}",
-      strengthMultiplier: "当前第一 softcap strength 倍率：{value}",
+      title: "梦能强相互作用",
+      threshold: "当梦能越过 {value} 后，排斥不再只是储量压力。",
+      excessExponent: "你已经在这个边界外推进了 {value} 个 10 倍区间。",
+      strengthMultiplier: "这会让上方排斥强度额外扩大到 {value}。",
     },
   },
   lift: {

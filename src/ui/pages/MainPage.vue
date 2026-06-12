@@ -14,6 +14,7 @@ import StratumSpeedPage from "./debug/StratumSpeedPage.vue";
 import {
   getDreamEnergyPercentageGainPerSecond,
   isDreamEnergySoftcapOneActive,
+  isDreamEnergySoftcapTwoActive,
 } from "@/engine/strata/common/dream-energy";
 import {
   isCoherenceUpgradesUnlocked,
@@ -243,8 +244,20 @@ const activeDreamEnergyPercentageText = computed(() => {
 });
 
 const isFirstDreamEnergySoftcapReached = computed(() => {
-  return isDreamEnergySoftcapOneActive(getActiveStratum(props.game.state))
-})
+  return isDreamEnergySoftcapOneActive(activeStratum.value);
+});
+
+const isSecondDreamEnergySoftcapReached = computed(() => {
+  return isDreamEnergySoftcapTwoActive(activeStratum.value);
+});
+
+const dreamEnergySoftcapWarningText = computed(() => {
+  return t(
+    isSecondDreamEnergySoftcapReached.value
+      ? "mainPage.softcapTwoWarning"
+      : "mainPage.softcapWarning",
+  );
+});
 
 const isLiftUnlocked = computed(() => props.game.state.lift.isLiftUnlocked);
 const showChaoticEther = computed(() => dreamSeaFirstStratumId in props.game.state.strata);
@@ -447,7 +460,7 @@ const secondaryTooltipStyle = computed(() => ({
           </div>
         </div>
         <div v-if="isFirstDreamEnergySoftcapReached" class="top-softcap-line">
-          {{ t("mainPage.softcapWarning") }}
+          {{ dreamEnergySoftcapWarningText }}
         </div>
 
         <div v-if="showChaoticEther" class="chaotic-ether-panel">
