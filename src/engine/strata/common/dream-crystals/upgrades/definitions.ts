@@ -52,7 +52,7 @@ export const DREAM_CRYSTAL_UPGRADE_DEFINITIONS = {
     id: DREAM_CRYSTAL_UPGRADE_REFINERY_EFFICIENCY_ID,
     kind: "repeatable",
     baseCost: N(5),
-    costScale: N(5),
+    costScale: N(2),
   },
 } as const satisfies Record<DreamCrystalUpgradeId, DreamCrystalUpgradeDefinition>;
 
