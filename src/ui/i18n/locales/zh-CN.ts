@@ -29,6 +29,7 @@ export default {
       history: "历史",
       save: "存档",
       theme: "主题",
+      debugProgression: "进度调试",
       stratumSpeed: "层级速度",
     },
   },
@@ -211,6 +212,89 @@ export default {
     title: "层级速度",
     currentSpeed: "当前速度",
     sliderHint: "最左端为 0，其余区间按对数刻度从 1 延伸到 1e4。",
+  },
+  debugProgression: {
+    groups: {
+      stages: "阶段推进",
+      mechanics: "机制解锁",
+      resources: "资源注入",
+    },
+    status: {
+      activeStratum: "当前层级",
+      lift: "Lift",
+      locked: "未解锁",
+      unlocked: "已解锁",
+      ready: "选择一个调试动作。",
+    },
+    actions: {
+      reachRefinement: {
+        title: "到达精炼阶段",
+        description: "当前层梦能至少达到 milestone1，并领取精炼里程碑。",
+      },
+      reachUpgrades: {
+        title: "到达升级阶段",
+        description: "当前层梦能至少达到 milestone2，并解锁梦境水晶升级。",
+      },
+      prepareDreamSea: {
+        title: "准备前往 1st",
+        description: "解锁 Lift，并给现实层添加 1000 CP。",
+      },
+      activateDreamSea: {
+        title: "直接进入 1st",
+        description: "创建并激活 1st，Lift 也会移动到那里。",
+      },
+      reachCoherenceUpgrades: {
+        title: "到达调谐升级阶段",
+        description: "当前层梦能至少达到 milestone3，并解锁调谐升级。",
+      },
+      unlockLift: {
+        title: "解锁 Lift",
+        description: "直接让 Lift 可用，不改变当前资源。",
+      },
+      unlockAutobuyer: {
+        title: "解锁水晶自动器",
+        description: "当前层直接获得 Dream Crystals Autobuyer。",
+      },
+      unlockCurrentMechanics: {
+        title: "解锁当前层机制",
+        description: "领取当前层全部已知里程碑，解锁 Lift 与水晶自动器。",
+      },
+      addActiveDE: {
+        title: "当前层 +1e40 DE",
+        description: "快速补一大段梦能，用于测试 softcap 和里程碑。",
+      },
+      addActiveCP: {
+        title: "当前层 +1000 CP",
+        description: "给当前层添加调谐点数。",
+      },
+      addActiveCE: {
+        title: "当前层 +1000 CE",
+        description: "给当前层添加混沌以太，并计入累计获得量。",
+      },
+      addRealityCP: {
+        title: "现实层 +1000 CP",
+        description: "给现实层添加调谐点数，方便测试进入 1st。",
+      },
+      addRealityCE: {
+        title: "现实层 +1000 CE",
+        description: "给现实层添加混沌以太，并计入累计获得量。",
+      },
+    },
+    done: {
+      "reach-refinement": "已推进到精炼阶段。",
+      "reach-upgrades": "已推进到梦境水晶升级阶段。",
+      "unlock-lift": "Lift 已解锁。",
+      "prepare-dream-sea": "已准备前往 1st。",
+      "activate-dream-sea": "已直接进入 1st。",
+      "reach-coherence-upgrades": "已推进到调谐升级阶段。",
+      "unlock-autobuyer": "水晶自动器已解锁。",
+      "unlock-current-mechanics": "当前层机制已解锁。",
+      "add-active-de": "已给当前层添加 DE。",
+      "add-active-cp": "已给当前层添加 CP。",
+      "add-active-ce": "已给当前层添加 CE。",
+      "add-reality-cp": "已给现实层添加 CP。",
+      "add-reality-ce": "已给现实层添加 CE。",
+    },
   },
   currentStratum: {
     title: "梦能排斥",

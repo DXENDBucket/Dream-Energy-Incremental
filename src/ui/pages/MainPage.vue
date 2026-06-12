@@ -11,6 +11,7 @@ import CoherenceUpgradesPage from "./upgrades/CoherenceUpgradesPage.vue";
 import DreamCrystalAutobuyersPage from "./autobuyers/DreamCrystalAutobuyersPage.vue";
 import DreamEnergyMilestonesPage from "./milestones/DreamEnergyMilestones.vue";
 import StratumSpeedPage from "./debug/StratumSpeedPage.vue";
+import DebugProgressionPage from "./debug/DebugProgressionPage.vue";
 import {
   getDreamEnergyPercentageGainPerSecond,
   isDreamEnergySoftcapOneActive,
@@ -514,6 +515,10 @@ const secondaryTooltipStyle = computed(() => ({
 
         <div v-else-if="selectedSecondary === 'stratum-speed'" class="dream-crystals-page">
           <StratumSpeedPage :game="props.game" />
+        </div>
+
+        <div v-else-if="selectedSecondary === 'debug-progression'" class="dream-crystals-page">
+          <DebugProgressionPage :game="props.game" />
         </div>
 
         <div v-else-if="selectedSecondary === 'strata-overview'" class="strata-overview-host">

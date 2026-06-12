@@ -138,6 +138,7 @@ export const PRIMARY_TABS = [
     borderColor: "#f44e6d",
     textColor: "#ffb2ea",
     children: [
+      { id: "debug-progression", icon: "D", labelKey: "navigation.secondary.debugProgression" },
       { id: "stratum-speed", icon: "»", labelKey: "navigation.secondary.stratumSpeed" },
     ],
   },

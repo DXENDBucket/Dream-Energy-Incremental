@@ -29,6 +29,7 @@ export default {
       history: "History",
       save: "Save",
       theme: "Theme",
+      debugProgression: "Progression Debug",
       stratumSpeed: "Stratum Speed",
     },
   },
@@ -212,6 +213,89 @@ export default {
     title: "Stratum Speed",
     currentSpeed: "Current speed",
     sliderHint: "Left end is 0. The rest of the slider is logarithmic from 1 to 1e4.",
+  },
+  debugProgression: {
+    groups: {
+      stages: "Stage Presets",
+      mechanics: "Mechanics",
+      resources: "Resource Grants",
+    },
+    status: {
+      activeStratum: "Active stratum",
+      lift: "Lift",
+      locked: "Locked",
+      unlocked: "Unlocked",
+      ready: "Choose a debug action.",
+    },
+    actions: {
+      reachRefinement: {
+        title: "Reach Refinement",
+        description: "Raise current stratum DE to milestone 1 and claim refinement.",
+      },
+      reachUpgrades: {
+        title: "Reach Upgrades",
+        description: "Raise current stratum DE to milestone 2 and unlock Dream Crystal Upgrades.",
+      },
+      prepareDreamSea: {
+        title: "Prepare 1st Entry",
+        description: "Unlock the Lift and add 1000 CP to Reality.",
+      },
+      activateDreamSea: {
+        title: "Enter 1st",
+        description: "Create and activate 1st, moving the Lift there too.",
+      },
+      reachCoherenceUpgrades: {
+        title: "Reach Coherence Upgrades",
+        description: "Raise current stratum DE to milestone 3 and unlock Coherence Upgrades.",
+      },
+      unlockLift: {
+        title: "Unlock Lift",
+        description: "Make the Lift available without changing resources.",
+      },
+      unlockAutobuyer: {
+        title: "Unlock Crystal Autobuyer",
+        description: "Grant Dream Crystals Autobuyer in the current stratum.",
+      },
+      unlockCurrentMechanics: {
+        title: "Unlock Current Mechanics",
+        description: "Claim all known current-stratum milestones and unlock Lift plus autobuyer.",
+      },
+      addActiveDE: {
+        title: "Current +1e40 DE",
+        description: "Add a large amount of Dream Energy for softcap and milestone testing.",
+      },
+      addActiveCP: {
+        title: "Current +1000 CP",
+        description: "Add Coherence Points to the current stratum.",
+      },
+      addActiveCE: {
+        title: "Current +1000 CE",
+        description: "Add Chaotic Ether to the current stratum and total gained.",
+      },
+      addRealityCP: {
+        title: "Reality +1000 CP",
+        description: "Add Coherence Points to Reality for 1st entry testing.",
+      },
+      addRealityCE: {
+        title: "Reality +1000 CE",
+        description: "Add Chaotic Ether to Reality and total gained.",
+      },
+    },
+    done: {
+      "reach-refinement": "Reached the refinement stage.",
+      "reach-upgrades": "Reached the Dream Crystal Upgrades stage.",
+      "unlock-lift": "Lift unlocked.",
+      "prepare-dream-sea": "Prepared 1st entry.",
+      "activate-dream-sea": "Entered 1st directly.",
+      "reach-coherence-upgrades": "Reached the Coherence Upgrades stage.",
+      "unlock-autobuyer": "Crystal autobuyer unlocked.",
+      "unlock-current-mechanics": "Current stratum mechanics unlocked.",
+      "add-active-de": "Added DE to the current stratum.",
+      "add-active-cp": "Added CP to the current stratum.",
+      "add-active-ce": "Added CE to the current stratum.",
+      "add-reality-cp": "Added CP to Reality.",
+      "add-reality-ce": "Added CE to Reality.",
+    },
   },
   currentStratum: {
     title: "Dream Energy Repulsion",
