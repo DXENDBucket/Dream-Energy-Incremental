@@ -11,6 +11,7 @@ export default {
       upgrades: "Upgrades",
       milestones: "Milestones",
       strata: "Strata",
+      autobuyers: "Autobuyer",
       stats: "Stats",
       options: "Options",
       debug: "Debug",
@@ -22,6 +23,7 @@ export default {
       strataOverview: "Overview",
       currentStratum: "Current Stratum",
       lift: "Lift",
+      dreamCrystalAutobuyers: "Dream Crystal Autobuyers",
       numbers: "Numbers",
       history: "History",
       save: "Save",
@@ -78,10 +80,8 @@ export default {
     buy: "Buy",
     buyRepeatable: "Buy Again",
     purchased: "Purchased",
-    pending: "Pending",
-    notReady: "Not ready",
     repeatableStatus: "Bought {count} times | Current n = {bonus}",
-    refineryFormula: "Current formula: log10(raw + 1) + 1",
+    refineryStatus: "Bought {count} times | Current total x{multiplier}",
     items: {
       "first-tier-triple": {
         title: "Primal Prism",
@@ -92,8 +92,8 @@ export default {
         description: "Buy and Buy Max no longer spend Dream Energy.",
       },
       placeholder: {
-        title: "Blank Bloom",
-        description: "Placeholder upgrade. Purchase state is kept.",
+        title: "Astral Automation",
+        description: "Unlock Dream Crystals Autobuyer.",
       },
       "bought-power": {
         title: "Bought Beacon",
@@ -101,7 +101,7 @@ export default {
       },
       "refinery-efficiency": {
         title: "Refinery Resonance",
-        description: "Will improve refinery efficiency. Effect pending.",
+        description: "Overall *2 to the refinery result multiplier.",
       },
     },
   },
@@ -124,6 +124,14 @@ export default {
         reward: "Unlock Dream Crystal Upgrades.",
         description: "Dream crystal upgrades enhance production.",
       },
+    },
+  },
+  autobuyers: {
+    enabled: "Enabled",
+    disabled: "Disabled",
+    dreamCrystals: {
+      title: "Dream Crystals Autobuyer",
+      interval: "Automatically tries Buy Max every {interval}s. Next: {remaining}s",
     },
   },
   save: {
@@ -219,8 +227,8 @@ export default {
     returnDialogCopy: "The Lift will carry the Chaotic Ether condensed in the Dream Sea back to Reality.",
     travelCostLabel: "Reinforcement cost",
     travelCostValue: "{cost} Coherence Points",
-    travelEntropyLabel: "Entropy",
-    travelEntropyValue: "Tuning {tuning}",
+    travelEntropyLabel: "Entropy growth",
+    travelEntropyValue: "x{value}",
     returnCarryLabel: "Carried back",
     returnCarryValue: "{value} CE",
     returnResetLabel: "1st reset",

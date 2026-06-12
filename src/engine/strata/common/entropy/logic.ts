@@ -1,5 +1,5 @@
 import type { Num } from "@/engine/math/num";
-import { ONE, ZERO, add, gt, lte, max, min, mul, pow, sqrt } from "@/engine/math/num";
+import { ONE, ZERO, add, div, gt, log10, lte, max, min, mul, pow } from "@/engine/math/num";
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals";
 import type { StratumState } from "@/engine/strata/state";
 import {
@@ -15,6 +15,7 @@ export function ensureEntropyState(stratum: StratumState) {
   stratum.entropy.formulaId ??= "none";
   stratum.entropy.tuningExponent ??= ENTROPY_DEFAULT_TUNING_EXPONENT;
   stratum.entropy.chaosExponent ??= ENTROPY_DEFAULT_CHAOS_EXPONENT;
+  stratum.entropy.growthRateMultiplier ??= ONE;
   return stratum.entropy;
 }
 
@@ -30,8 +31,12 @@ export function getEntropyChaosExponent(stratum: StratumState): Num {
   return ensureEntropyState(stratum).chaosExponent;
 }
 
-export function computeEntropyTuningExponentFromCoherence(coherencePoints: Num): Num {
-  return mul(ENTROPY_DEFAULT_TUNING_EXPONENT, add(sqrt(max(coherencePoints, ZERO)), ONE));
+export function getEntropyGrowthRateMultiplier(stratum: StratumState): Num {
+  return ensureEntropyState(stratum).growthRateMultiplier;
+}
+
+export function computeEntropyGrowthRateMultiplierFromCoherence(coherencePoints: Num): Num {
+  return div(ONE, add(log10(max(coherencePoints, ONE)), ONE));
 }
 
 export function hasAnyDreamCrystal(stratum: StratumState): boolean {

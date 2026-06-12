@@ -3,6 +3,7 @@ import { N } from "@/engine/math/num";
 export const DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID = "first-tier-triple";
 export const DREAM_CRYSTAL_UPGRADE_FREE_PURCHASES_ID = "free-purchases";
 export const DREAM_CRYSTAL_UPGRADE_PLACEHOLDER_ID = "placeholder";
+export const DREAM_CRYSTAL_UPGRADE_AUTOBUYER_ID = DREAM_CRYSTAL_UPGRADE_PLACEHOLDER_ID;
 export const DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID = "bought-power";
 export const DREAM_CRYSTAL_UPGRADE_REFINERY_EFFICIENCY_ID = "refinery-efficiency";
 
@@ -16,7 +17,7 @@ export const DREAM_CRYSTAL_UPGRADE_ROW_ONE = [
 
 export type DreamCrystalUpgradeId = (typeof DREAM_CRYSTAL_UPGRADE_ROW_ONE)[number];
 
-export type DreamCrystalUpgradeKind = "single" | "repeatable" | "placeholder";
+export type DreamCrystalUpgradeKind = "single" | "repeatable";
 
 export interface DreamCrystalUpgradeDefinition {
   id: DreamCrystalUpgradeId;
@@ -44,13 +45,14 @@ export const DREAM_CRYSTAL_UPGRADE_DEFINITIONS = {
   [DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID]: {
     id: DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID,
     kind: "repeatable",
-    baseCost: N(10),
+    baseCost: N(5),
     costScale: N(10),
   },
   [DREAM_CRYSTAL_UPGRADE_REFINERY_EFFICIENCY_ID]: {
     id: DREAM_CRYSTAL_UPGRADE_REFINERY_EFFICIENCY_ID,
-    kind: "placeholder",
-    baseCost: N(0),
+    kind: "repeatable",
+    baseCost: N(10),
+    costScale: N(10),
   },
 } as const satisfies Record<DreamCrystalUpgradeId, DreamCrystalUpgradeDefinition>;
 

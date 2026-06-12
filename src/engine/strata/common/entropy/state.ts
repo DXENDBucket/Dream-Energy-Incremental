@@ -1,5 +1,5 @@
 import type { Num } from "@/engine/math/num";
-import { ZERO } from "@/engine/math/num";
+import { ONE, ZERO } from "@/engine/math/num";
 import {
   ENTROPY_DEFAULT_CHAOS_EXPONENT,
   ENTROPY_DEFAULT_TUNING_EXPONENT,
@@ -13,6 +13,7 @@ export interface EntropyState {
   formulaId: EntropyFormulaId;
   tuningExponent: Num;
   chaosExponent: Num;
+  growthRateMultiplier: Num;
 }
 
 export function createEntropyState(formulaId: EntropyFormulaId = "none"): EntropyState {
@@ -22,5 +23,6 @@ export function createEntropyState(formulaId: EntropyFormulaId = "none"): Entrop
     formulaId,
     tuningExponent: ENTROPY_DEFAULT_TUNING_EXPONENT,
     chaosExponent: ENTROPY_DEFAULT_CHAOS_EXPONENT,
+    growthRateMultiplier: ONE,
   };
 }

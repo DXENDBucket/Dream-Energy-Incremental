@@ -5,8 +5,10 @@ import type { StratumState } from "@/engine/strata/state";
 import { getDreamCrystalBought } from "../selectors";
 import {
   DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID,
+  DREAM_CRYSTAL_UPGRADE_AUTOBUYER_ID,
   DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID,
   DREAM_CRYSTAL_UPGRADE_FREE_PURCHASES_ID,
+  DREAM_CRYSTAL_UPGRADE_REFINERY_EFFICIENCY_ID,
   type DreamCrystalUpgradeId,
   getDreamCrystalUpgradeDefinition,
 } from "./definitions";
@@ -46,7 +48,6 @@ export function getDreamCrystalUpgradeCost(stratum: StratumState, id: DreamCryst
 
 export function canBuyDreamCrystalUpgrade(stratum: StratumState, id: DreamCrystalUpgradeId): boolean {
   const definition = getDreamCrystalUpgradeDefinition(id);
-  if (definition.kind === "placeholder") return false;
   if (definition.kind === "single" && hasDreamCrystalUpgrade(stratum, id)) return false;
 
   return gte(getChaoticEther(stratum), getDreamCrystalUpgradeCost(stratum, id));
@@ -73,6 +74,10 @@ export function isDreamCrystalFreePurchasesUnlocked(stratum: StratumState): bool
   return hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_FREE_PURCHASES_ID);
 }
 
+export function isDreamCrystalAutobuyerUnlocked(stratum: StratumState): boolean {
+  return hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_AUTOBUYER_ID);
+}
+
 export function getDreamCrystalFirstTierUpgradeMultiplier(stratum: StratumState, tier: number): Num {
   if (tier !== 1) return ONE;
   return hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID) ? N(3) : ONE;
@@ -90,4 +95,14 @@ export function getDreamCrystalBoughtPowerMultiplier(stratum: StratumState, tier
   if (bought.lte(ZERO)) return ONE;
 
   return pow(getDreamCrystalBoughtPowerBase(stratum), getDreamCrystalBought(stratum.dreamCrystals, tier));
+}
+
+export function getDreamCrystalRefineryEfficiencyMultiplier(stratum: StratumState): Num {
+  const bought = getDreamCrystalRepeatableUpgradeBought(
+    stratum,
+    DREAM_CRYSTAL_UPGRADE_REFINERY_EFFICIENCY_ID,
+  );
+
+  if (bought.lte(ZERO)) return ONE;
+  return pow(N(2), bought);
 }

@@ -11,6 +11,7 @@ import {
   buyDreamCrystalUpgrade,
   canBuyDreamCrystalUpgrade,
   getDreamCrystalBoughtPowerBase,
+  getDreamCrystalRefineryEfficiencyMultiplier,
   getDreamCrystalRepeatableUpgradeBought,
   getDreamCrystalUpgradeCost,
   getDreamCrystalUpgradeDefinition,
@@ -42,10 +43,7 @@ const upgradeRows = computed(() => {
         title: t(`dreamCrystalUpgrades.items.${id}.title`),
         description: t(`dreamCrystalUpgrades.items.${id}.description`),
         footer: getUpgradeFooter(id),
-        costText:
-          definition.kind === "placeholder"
-            ? t("dreamCrystalUpgrades.pending")
-            : t("dreamCrystalUpgrades.cost", { value: costText }),
+        costText: t("dreamCrystalUpgrades.cost", { value: costText }),
         stateText: getUpgradeStateText(id),
         canBuy,
         isBought,
@@ -66,7 +64,13 @@ function getUpgradeFooter(id: DreamCrystalUpgradeId): string {
   }
 
   if (id === DREAM_CRYSTAL_UPGRADE_REFINERY_EFFICIENCY_ID) {
-    return t("dreamCrystalUpgrades.refineryFormula");
+    const bought = getDreamCrystalRepeatableUpgradeBought(activeStratum.value, id);
+    const multiplier = getDreamCrystalRefineryEfficiencyMultiplier(activeStratum.value);
+
+    return t("dreamCrystalUpgrades.refineryStatus", {
+      count: formatInt(bought),
+      multiplier: format(multiplier),
+    });
   }
 
   return "";
@@ -74,10 +78,6 @@ function getUpgradeFooter(id: DreamCrystalUpgradeId): string {
 
 function getUpgradeStateText(id: DreamCrystalUpgradeId): string {
   const definition = getDreamCrystalUpgradeDefinition(id);
-
-  if (definition.kind === "placeholder") {
-    return t("dreamCrystalUpgrades.notReady");
-  }
 
   if (definition.kind === "repeatable") {
     return t("dreamCrystalUpgrades.buyRepeatable");

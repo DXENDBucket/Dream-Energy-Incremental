@@ -12,7 +12,7 @@ import {
 import {
   canTravelToDreamSeaFirstStratum,
   getDreamSeaFirstEntryCoherenceCost,
-  getDreamSeaFirstEntryTuningExponent,
+  getDreamSeaFirstEntryEntropyGrowthRateMultiplier,
   isDreamSeaFirstStratumVisible,
   travelToDreamSeaFirstStratum,
   travelToRealityStratum,
@@ -39,8 +39,8 @@ const dreamSeaFirstNodeDisabled = computed(() => !dreamSeaFirstIsActive.value &&
 const dreamSeaFirstCostText = computed(() => {
   return formatInt(dreamSeaFirstEntryCost.value);
 });
-const dreamSeaFirstTuningText = computed(() => {
-  return format(getDreamSeaFirstEntryTuningExponent(props.game.state));
+const dreamSeaFirstEntropyRateText = computed(() => {
+  return format(getDreamSeaFirstEntryEntropyGrowthRateMultiplier(props.game.state));
 });
 const returnChaoticEtherText = computed(() => {
   const dreamSeaFirst = props.game.state.strata[dreamSeaFirstStratumId];
@@ -170,7 +170,7 @@ function confirmTravel() {
 
               <div class="travel-readout">
                 <span>{{ t("strataOverview.travelEntropyLabel") }}</span>
-                <strong>{{ t("strataOverview.travelEntropyValue", { tuning: dreamSeaFirstTuningText }) }}</strong>
+                <strong>{{ t("strataOverview.travelEntropyValue", { value: dreamSeaFirstEntropyRateText }) }}</strong>
               </div>
             </div>
 

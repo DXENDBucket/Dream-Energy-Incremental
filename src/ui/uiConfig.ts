@@ -103,6 +103,15 @@ export const PRIMARY_TABS = [
     ],
   },
   {
+    id: "autobuyers",
+    labelKey: "navigation.primary.autobuyers",
+    borderColor: "#48d8d2",
+    textColor: "#d7fffb",
+    children: [
+      { id: "dc-autobuyers", icon: "A", labelKey: "navigation.secondary.dreamCrystalAutobuyers" },
+    ],
+  },
+  {
     id: "stats",
     labelKey: "navigation.primary.stats",
     borderColor: "#39c0b2",

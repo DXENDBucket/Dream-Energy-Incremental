@@ -2,7 +2,7 @@ import type { Num } from "@/engine/math/num";
 import { ONE, add, min, mul } from "@/engine/math/num";
 import type { StratumState } from "@/engine/strata/state";
 import { ENTROPY_GAIN_PER_SECOND } from "./balance";
-import { ensureEntropyState, hasAnyDreamCrystal } from "./logic";
+import { ensureEntropyState, getEntropyGrowthRateMultiplier, hasAnyDreamCrystal } from "./logic";
 
 export function tickEntropy(stratum: StratumState, dtSec: Num): void {
   const entropy = ensureEntropyState(stratum);
@@ -14,5 +14,11 @@ export function tickEntropy(stratum: StratumState, dtSec: Num): void {
 
   if (!entropy.isStarted) return;
 
-  entropy.value = min(ONE, add(entropy.value, mul(ENTROPY_GAIN_PER_SECOND, dtSec)));
+  entropy.value = min(
+    ONE,
+    add(
+      entropy.value,
+      mul(mul(ENTROPY_GAIN_PER_SECOND, getEntropyGrowthRateMultiplier(stratum)), dtSec),
+    ),
+  );
 }

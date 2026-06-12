@@ -1,8 +1,12 @@
 import type { GameState } from "@/engine/core/state";
 import { ZERO } from "@/engine/math/num";
 import { COHERENCE_DEFAULT_PRODUCTION_LOSS } from "@/engine/strata/common/coherence/balance";
+import { ensureDreamCrystalAutobuyersState } from "@/engine/strata/common/dream-crystals/autobuyers";
 import { ensureDreamCrystalUpgradesState } from "@/engine/strata/common/dream-crystals/upgrades";
-import { ensureEntropyState } from "@/engine/strata/common/entropy";
+import {
+  ENTROPY_DEFAULT_TUNING_EXPONENT,
+  ensureEntropyState,
+} from "@/engine/strata/common/entropy";
 import {
   dreamSeaFirstStratumId,
   realityStratumId,
@@ -17,9 +21,13 @@ export function normalizeGameState(state: GameState): GameState {
     stratum.coherenceProductionLoss ??= COHERENCE_DEFAULT_PRODUCTION_LOSS;
     stratum.chaoticEther ??= ZERO;
     ensureDreamCrystalUpgradesState(stratum);
+    ensureDreamCrystalAutobuyersState(stratum);
 
     const entropy = ensureEntropyState(stratum);
     entropy.formulaId = id === dreamSeaFirstStratumId ? "dream-sea-first" : "none";
+    if (id === dreamSeaFirstStratumId) {
+      entropy.tuningExponent = ENTROPY_DEFAULT_TUNING_EXPONENT;
+    }
   }
 
   if (!(state.activeStratumId in state.strata)) {

@@ -11,6 +11,7 @@ export default {
       upgrades: "升级",
       milestones: "里程碑",
       strata: "层级",
+      autobuyers: "自动器",
       stats: "统计",
       options: "选项",
       debug: "调试",
@@ -22,6 +23,7 @@ export default {
       strataOverview: "总览",
       currentStratum: "当前层级",
       lift: "Lift",
+      dreamCrystalAutobuyers: "梦境水晶自动器",
       numbers: "数值",
       history: "历史",
       save: "存档",
@@ -78,10 +80,8 @@ export default {
     buy: "购买",
     buyRepeatable: "再次购买",
     purchased: "已购买",
-    pending: "待设计",
-    notReady: "暂未开放",
     repeatableStatus: "已购买 {count} 次｜当前 n = {bonus}",
-    refineryFormula: "当前公式：log10(raw + 1) + 1",
+    refineryStatus: "已购买 {count} 次｜当前总倍率 x{multiplier}",
     items: {
       "first-tier-triple": {
         title: "原初棱镜",
@@ -92,8 +92,8 @@ export default {
         description: "Buy 和 Buy Max 不再消耗梦能。",
       },
       placeholder: {
-        title: "空白绽放",
-        description: "暂时占位，购买后保留状态。",
+        title: "星界自动",
+        description: "解锁 Dream Crystals Autobuyer。",
       },
       "bought-power": {
         title: "购入信标",
@@ -101,7 +101,7 @@ export default {
       },
       "refinery-efficiency": {
         title: "精炼共振",
-        description: "用于增强 refinery 效率，效果待定。",
+        description: "refinery 计算结果 multiplier 整体 *2。",
       },
     },
   },
@@ -123,6 +123,14 @@ export default {
         reward: "解锁梦境水晶升级。",
         description: "梦境水晶升级会强化产出。",
       },
+    },
+  },
+  autobuyers: {
+    enabled: "已开启",
+    disabled: "已关闭",
+    dreamCrystals: {
+      title: "Dream Crystals Autobuyer",
+      interval: "每 {interval} 秒自动尝试 Buy Max。下一次：{remaining} 秒",
     },
   },
   save: {
@@ -217,8 +225,8 @@ export default {
     returnDialogCopy: "Lift 将带着梦境之海中凝结的混沌以太回到现实层。",
     travelCostLabel: "本次加固消耗",
     travelCostValue: "{cost} 调谐点数",
-    travelEntropyLabel: "Entropy",
-    travelEntropyValue: "Tuning {tuning}",
+    travelEntropyLabel: "Entropy 增长速度",
+    travelEntropyValue: "x{value}",
     returnCarryLabel: "带回资源",
     returnCarryValue: "{value} CE",
     returnResetLabel: "1st 重置",

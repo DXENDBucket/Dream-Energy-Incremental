@@ -7,6 +7,7 @@ import { mul } from "@/engine/math/num";
 import { getActiveDreamEnergy, getActiveStratum } from "@/engine/strata/manager/selectors";
 import DreamCrystalsPage from "./dream-crystals/DreamCrystalsPage.vue";
 import DreamCrystalUpgradesPage from "./upgrades/DreamCrystalUpgradesPage.vue";
+import DreamCrystalAutobuyersPage from "./autobuyers/DreamCrystalAutobuyersPage.vue";
 import DreamEnergyMilestonesPage from "./milestones/DreamEnergyMilestones.vue";
 import StratumSpeedPage from "./debug/StratumSpeedPage.vue";
 import {
@@ -31,6 +32,7 @@ import {
   getEntropyTuningExponent,
   getEntropyValue,
 } from "@/engine/strata/common/entropy";
+import { isDreamCrystalAutobuyerUnlocked } from "@/engine/strata/common/dream-crystals/upgrades";
 import { dreamSeaFirstStratumId } from "@/engine/strata/defs/ids";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
 import LiftPage from "./strata/LiftPage.vue";
@@ -50,8 +52,9 @@ const ui = UI_CONFIG;
 const activeStratum = computed(() => getActiveStratum(props.game.state));
 const availablePrimaryTabs = computed(() => {
   return PRIMARY_TABS.filter(tab => {
-    if (tab.id !== "upgrades") return true;
-    return isUpgradesUnlocked(activeStratum.value);
+    if (tab.id === "upgrades") return isUpgradesUnlocked(activeStratum.value);
+    if (tab.id === "autobuyers") return isDreamCrystalAutobuyerUnlocked(activeStratum.value);
+    return true;
   });
 });
 
@@ -488,6 +491,10 @@ const secondaryTooltipStyle = computed(() => ({
 
         <div v-else-if="selectedSecondary === 'dc-upgrades'" class="dream-crystals-page">
           <DreamCrystalUpgradesPage :game="props.game" />
+        </div>
+
+        <div v-else-if="selectedSecondary === 'dc-autobuyers'" class="dream-crystals-page">
+          <DreamCrystalAutobuyersPage :game="props.game" />
         </div>
 
         <div v-else-if="selectedSecondary === 'numbers'" class="page-card">

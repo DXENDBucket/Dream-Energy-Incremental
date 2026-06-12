@@ -3,8 +3,9 @@ import { ONE, TEN, ZERO, div, gt, gte, log10, min, add } from "@/engine/math/num
 import type { Num } from "@/engine/math/num";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
 import {
-  computeEntropyTuningExponentFromCoherence,
+  computeEntropyGrowthRateMultiplierFromCoherence,
   createEntropyState,
+  ENTROPY_DEFAULT_TUNING_EXPONENT,
   ensureEntropyState,
 } from "@/engine/strata/common/entropy";
 import { getChaoticEther } from "@/engine/strata/common/chaotic-ether";
@@ -49,8 +50,8 @@ export function getDreamSeaFirstEntryCoherenceCost(state: GameState): Num {
   return getCoherencePoints(getStratum(state, realityStratumId));
 }
 
-export function getDreamSeaFirstEntryTuningExponent(state: GameState): Num {
-  return computeEntropyTuningExponentFromCoherence(getDreamSeaFirstEntryCoherenceCost(state));
+export function getDreamSeaFirstEntryEntropyGrowthRateMultiplier(state: GameState): Num {
+  return computeEntropyGrowthRateMultiplierFromCoherence(getDreamSeaFirstEntryCoherenceCost(state));
 }
 
 export function isDreamSeaFirstStratumVisible(state: GameState): boolean {
@@ -70,7 +71,7 @@ export function travelToDreamSeaFirstStratum(state: GameState): boolean {
 
   const reality = getStratum(state, realityStratumId);
   const cost = getDreamSeaFirstEntryCoherenceCost(state);
-  const tuningExponent = computeEntropyTuningExponentFromCoherence(cost);
+  const entropyGrowthRateMultiplier = computeEntropyGrowthRateMultiplierFromCoherence(cost);
 
   state.strata[dreamSeaFirstStratumId] ??= createStratumState({
     entropyFormulaId: "dream-sea-first",
@@ -79,7 +80,8 @@ export function travelToDreamSeaFirstStratum(state: GameState): boolean {
   const dreamSeaFirst = state.strata[dreamSeaFirstStratumId]!;
   const entropy = ensureEntropyState(dreamSeaFirst);
   entropy.formulaId = "dream-sea-first";
-  entropy.tuningExponent = tuningExponent;
+  entropy.tuningExponent = ENTROPY_DEFAULT_TUNING_EXPONENT;
+  entropy.growthRateMultiplier = entropyGrowthRateMultiplier;
   reality.coherencePoints = ZERO;
 
   state.activeStratumId = dreamSeaFirstStratumId;
