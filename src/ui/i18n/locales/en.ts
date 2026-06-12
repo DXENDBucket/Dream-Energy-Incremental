@@ -32,6 +32,7 @@ export default {
   resource: {
     dreamEnergy: "Dream Energy",
     coherencePoints: "Coherence Points",
+    chaoticEther: "Chaotic Ether",
   },
   mainPage: {
     title: "Dream Energy Incremental",
@@ -162,6 +163,12 @@ export default {
     productionLoss: "Production loss / {value}",
     condenseAvailable: "Condense Dream Energy into Coherence Points.",
     condenseUnavailable: "Reach enough Dream Energy to condense.",
+  },
+  chaoticEther: {
+    extract: "Extract +{value}",
+    extractAvailable: "Extract current Dream Energy into Chaotic Ether and push Entropy to 100%.",
+    extractUnavailable: "Chaotic Ether cannot be extracted right now.",
+    realityStorage: "Stored in Reality after being carried back from 1st.",
   },
   entropy: {
     label: "Entropy",

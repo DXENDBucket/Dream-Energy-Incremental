@@ -14,6 +14,7 @@ export function normalizeGameState(state: GameState): GameState {
   for (const [id, stratum] of Object.entries(state.strata)) {
     stratum.coherencePoints ??= ZERO;
     stratum.coherenceProductionLoss ??= COHERENCE_DEFAULT_PRODUCTION_LOSS;
+    stratum.chaoticEther ??= ZERO;
 
     const entropy = ensureEntropyState(stratum);
     entropy.formulaId = id === dreamSeaFirstStratumId ? "dream-sea-first" : "none";

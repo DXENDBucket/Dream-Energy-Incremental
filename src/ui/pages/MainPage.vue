@@ -20,9 +20,16 @@ import {
   getCoherenceProductionLoss,
 } from "@/engine/strata/common/coherence";
 import {
+  canExtractChaoticEther,
+  extractChaoticEther,
+  getChaoticEther,
+  getChaoticEtherGain,
+} from "@/engine/strata/common/chaotic-ether";
+import {
   getEntropyTuningExponent,
   getEntropyValue,
 } from "@/engine/strata/common/entropy";
+import { dreamSeaFirstStratumId } from "@/engine/strata/defs/ids";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
 import LiftPage from "./strata/LiftPage.vue";
 import StrataOverviewPage from "./strata/StrataOverviewPage.vue";
@@ -169,6 +176,7 @@ const currentPageTitle = computed(() => {
 });
 
 const activeStratum = computed(() => getActiveStratum(props.game.state));
+const isDreamSeaFirstActive = computed(() => props.game.state.activeStratumId === dreamSeaFirstStratumId);
 
 const activeDreamEnergyText = computed(() => {
   return formatInt(getActiveDreamEnergy(props.game.state));
@@ -185,6 +193,21 @@ const isFirstDreamEnergySoftcapReached = computed(() => {
 })
 
 const isLiftUnlocked = computed(() => props.game.state.lift.isLiftUnlocked);
+const showChaoticEther = computed(() => dreamSeaFirstStratumId in props.game.state.strata);
+
+const chaoticEtherText = computed(() => {
+  return format(getChaoticEther(activeStratum.value));
+});
+
+const chaoticEtherGainText = computed(() => {
+  return format(getChaoticEtherGain(activeStratum.value));
+});
+
+const canExtractCE = computed(() => canExtractChaoticEther(props.game.state));
+
+function onExtractChaoticEther() {
+  extractChaoticEther(props.game.state);
+}
 
 const coherencePointsText = computed(() => {
   return formatInt(getCoherencePoints(activeStratum.value));
@@ -371,6 +394,25 @@ const secondaryTooltipStyle = computed(() => ({
         </div>
         <div v-if="isFirstDreamEnergySoftcapReached" class="top-softcap-line">
           {{ t("mainPage.softcapWarning") }}
+        </div>
+
+        <div v-if="showChaoticEther" class="chaotic-ether-panel">
+          <div class="chaotic-ether-resource-line">
+            <span class="chaotic-ether-label">{{ t("resource.chaoticEther") }}</span>
+            <span class="chaotic-ether-amount">{{ chaoticEtherText }}</span>
+          </div>
+          <button
+            v-if="isDreamSeaFirstActive"
+            class="chaotic-ether-button"
+            :disabled="!canExtractCE"
+            :title="canExtractCE ? t('chaoticEther.extractAvailable') : t('chaoticEther.extractUnavailable')"
+            @click="onExtractChaoticEther"
+          >
+            {{ t("chaoticEther.extract", { value: chaoticEtherGainText }) }}
+          </button>
+          <div v-else class="chaotic-ether-note">
+            {{ t("chaoticEther.realityStorage") }}
+          </div>
         </div>
 
         <div v-if="isLiftUnlocked" class="coherence-panel">
@@ -649,7 +691,32 @@ const secondaryTooltipStyle = computed(() => ({
   text-align: left;
 }
 
+.chaotic-ether-panel {
+  position: absolute;
+  left: 25%;
+  top: 50%;
+  width: 218px;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  padding: 12px;
+  border: 1px solid rgba(255, 180, 88, 0.54);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(66, 34, 15, 0.92) 0%, rgba(31, 17, 10, 0.96) 100%);
+  box-shadow:
+    0 0 24px rgba(255, 139, 61, 0.16),
+    inset 0 0 20px rgba(255, 191, 117, 0.08);
+  text-align: left;
+}
+
 .coherence-resource-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.chaotic-ether-resource-line {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -662,6 +729,12 @@ const secondaryTooltipStyle = computed(() => ({
   font-weight: 700;
 }
 
+.chaotic-ether-label {
+  color: #ffd19a;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .coherence-amount {
   color: #eefcff;
   font-family: var(--font-number);
@@ -669,6 +742,15 @@ const secondaryTooltipStyle = computed(() => ({
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   text-shadow: 0 0 14px rgba(126, 226, 255, 0.36);
+}
+
+.chaotic-ether-amount {
+  color: #fff5e8;
+  font-family: var(--font-number);
+  font-size: 1.18rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 14px rgba(255, 157, 80, 0.36);
 }
 
 .condense-button {
@@ -703,10 +785,49 @@ const secondaryTooltipStyle = computed(() => ({
   filter: grayscale(0.35);
 }
 
+.chaotic-ether-button {
+  width: 100%;
+  height: 36px;
+  margin-top: 10px;
+  border: 1px solid rgba(255, 208, 147, 0.66);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ffb053 0%, #c95e21 100%);
+  color: #1b0903;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow:
+    0 0 18px rgba(255, 127, 54, 0.26),
+    inset 0 0 14px rgba(255, 255, 255, 0.18);
+  transition:
+    transform 0.1s ease,
+    filter 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.chaotic-ether-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.chaotic-ether-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  filter: grayscale(0.35);
+}
+
 .coherence-loss-line {
   margin-top: 8px;
   color: #8ecde7;
   font-size: 0.76rem;
+  text-align: center;
+}
+
+.chaotic-ether-note {
+  margin-top: 10px;
+  color: #f0a76e;
+  font-size: 0.78rem;
   text-align: center;
 }
 
@@ -875,6 +996,21 @@ const secondaryTooltipStyle = computed(() => ({
 }
 
 @media (max-width: 980px) {
+  .right-area {
+    grid-template-rows: auto 1fr;
+  }
+
+  .top-panel {
+    min-height: var(--right-top-height);
+  }
+
+  .chaotic-ether-panel {
+    position: static;
+    width: min(360px, 100%);
+    transform: none;
+    margin-top: 6px;
+  }
+
   .coherence-panel {
     position: static;
     width: min(360px, 100%);

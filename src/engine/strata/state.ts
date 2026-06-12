@@ -19,6 +19,7 @@ export interface StratumState {
   dreamEnergy: Num;
   coherencePoints: Num;
   coherenceProductionLoss: Num;
+  chaoticEther: Num;
   entropy: EntropyState;
   dreamCrystals: DreamCrystalsState;
   milestones: MilestonesState;
@@ -34,6 +35,7 @@ export function createStratumState(options: CreateStratumStateOptions = {}): Str
     dreamEnergy: N(10),
     coherencePoints: ZERO,
     coherenceProductionLoss: COHERENCE_DEFAULT_PRODUCTION_LOSS,
+    chaoticEther: ZERO,
     entropy: createEntropyState(options.entropyFormulaId),
     dreamCrystals: createDreamCrystalsState(),
     milestones: createMilestonesState(),

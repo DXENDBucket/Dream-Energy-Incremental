@@ -5,6 +5,7 @@ import {
   computeEntropyTuningExponentFromCoherence,
   ensureEntropyState,
 } from "@/engine/strata/common/entropy";
+import { getChaoticEther } from "@/engine/strata/common/chaotic-ether";
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
 import {
   dreamSeaFirstStratumId,
@@ -86,6 +87,21 @@ export function travelToDreamSeaFirstStratum(state: GameState): boolean {
 
 export function travelToRealityStratum(state: GameState): boolean {
   if (!(realityStratumId in state.strata)) return false;
+
+  const reality = getStratum(state, realityStratumId);
+
+  if (state.activeStratumId === dreamSeaFirstStratumId && dreamSeaFirstStratumId in state.strata) {
+    const dreamSeaFirst = state.strata[dreamSeaFirstStratumId]!;
+    const carriedChaoticEther = getChaoticEther(dreamSeaFirst);
+
+    if (gt(carriedChaoticEther, ZERO)) {
+      reality.chaoticEther = add(reality.chaoticEther ?? ZERO, carriedChaoticEther);
+    }
+
+    state.strata[dreamSeaFirstStratumId] = createStratumState({
+      entropyFormulaId: "dream-sea-first",
+    });
+  }
 
   state.activeStratumId = realityStratumId;
   state.lift.currentLiftPosition = realityStratumId;

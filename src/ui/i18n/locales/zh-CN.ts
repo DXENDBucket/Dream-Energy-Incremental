@@ -32,6 +32,7 @@ export default {
   resource: {
     dreamEnergy: "梦能",
     coherencePoints: "调谐点数",
+    chaoticEther: "混沌以太",
   },
   mainPage: {
     title: "梦能增量",
@@ -160,6 +161,12 @@ export default {
     productionLoss: "调谐生产损耗 / {value}",
     condenseAvailable: "将梦能凝缩为调谐点数。",
     condenseUnavailable: "梦能不足，无法凝缩。",
+  },
+  chaoticEther: {
+    extract: "萃取 +{value}",
+    extractAvailable: "将当前梦能萃取为混沌以太，并使 Entropy 到达 100%。",
+    extractUnavailable: "当前无法萃取混沌以太。",
+    realityStorage: "从 1st 带回现实层的储量。",
   },
   entropy: {
     label: "Entropy",
