@@ -1,16 +1,19 @@
 import type { GameState } from "@/engine/core/state";
-import { ONE, TEN, ZERO, add, div, gt, gte, log10, min } from "@/engine/math/num";
+import { ONE, TEN, ZERO, add, div, gt, gte, log10, max, min } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
 import {
   computeEntropyGrowthRateMultiplierFromCoherence,
   createEntropyState,
-  ENTROPY_DEFAULT_TUNING_EXPONENT,
   ensureEntropyState,
 } from "@/engine/strata/common/entropy";
 import { addChaoticEther, getChaoticEther } from "@/engine/strata/common/chaotic-ether";
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
-import { getCoherenceDeeperInitialDreamEnergyBonus } from "@/engine/strata/common/coherence/upgrades";
+import {
+  getCoherenceDeeperInitialDreamEnergyBonus,
+  getCoherenceEntropyTuningExponent,
+  getCoherenceNextDreamCrystalMultiplierBonus,
+} from "@/engine/strata/common/coherence/upgrades";
 import {
   dreamSeaFirstStratumId,
   realityStratumId,
@@ -73,6 +76,8 @@ export function travelToDreamSeaFirstStratum(state: GameState): boolean {
   const reality = getStratum(state, realityStratumId);
   const cost = getDreamSeaFirstEntryCoherenceCost(state);
   const entropyGrowthRateMultiplier = computeEntropyGrowthRateMultiplierFromCoherence(cost);
+  const entropyTuningExponent = getCoherenceEntropyTuningExponent(reality, cost);
+  const dreamCrystalMultiplierBonus = getCoherenceNextDreamCrystalMultiplierBonus(reality);
 
   state.strata[dreamSeaFirstStratumId] ??= createStratumState({
     entropyFormulaId: "dream-sea-first",
@@ -82,8 +87,12 @@ export function travelToDreamSeaFirstStratum(state: GameState): boolean {
   const initialDreamEnergyBonus = getCoherenceDeeperInitialDreamEnergyBonus(reality);
   const entropy = ensureEntropyState(dreamSeaFirst);
   entropy.formulaId = "dream-sea-first";
-  entropy.tuningExponent = ENTROPY_DEFAULT_TUNING_EXPONENT;
+  entropy.tuningExponent = entropyTuningExponent;
   entropy.growthRateMultiplier = entropyGrowthRateMultiplier;
+  dreamSeaFirst.coherenceDreamCrystalMultiplier = max(
+    dreamSeaFirst.coherenceDreamCrystalMultiplier ?? ONE,
+    dreamCrystalMultiplierBonus,
+  );
   if (gt(initialDreamEnergyBonus, ZERO)) {
     dreamSeaFirst.dreamEnergy = add(dreamSeaFirst.dreamEnergy, initialDreamEnergyBonus);
   }

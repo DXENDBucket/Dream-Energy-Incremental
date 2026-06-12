@@ -6,15 +6,22 @@ import { format, formatInt } from "@/engine/math/format";
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
 import {
   COHERENCE_UPGRADE_DEEPER_INITIAL_DREAM_ENERGY_ID,
+  COHERENCE_UPGRADE_ENTROPY_TUNING_ID,
+  COHERENCE_UPGRADE_NEXT_DREAM_CRYSTAL_MULTIPLIER_ID,
   COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID,
   COHERENCE_UPGRADE_ROW_ONE,
+  COHERENCE_UPGRADE_SOFTCAP_TWO_SLOWDOWN_ID,
   buyCoherenceUpgrade,
   canBuyCoherenceUpgrade,
   getCoherenceDeeperInitialDreamEnergyBonus,
+  getCoherenceEntropyTuningExponent,
+  getCoherenceNextDreamCrystalMultiplierBonus,
   getCoherencePointGainMultiplier,
   getCoherenceRepeatableUpgradeBought,
+  getCoherenceSoftcapTwoStrengthMultiplier,
   getCoherenceUpgradeCost,
   getCoherenceUpgradeDefinition,
+  hasCoherenceUpgrade,
   type CoherenceUpgradeId,
 } from "@/engine/strata/common/coherence/upgrades";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
@@ -34,25 +41,45 @@ const upgradeRows = computed(() => {
   return [
     COHERENCE_UPGRADE_ROW_ONE.map((id) => {
       const definition = getCoherenceUpgradeDefinition(id);
+      const isBought = definition.kind === "single" && hasCoherenceUpgrade(activeStratum.value, id);
 
       return {
         id: definition.id,
         title: t(`coherenceUpgrades.items.${definition.id}.title`),
         description: t(`coherenceUpgrades.items.${definition.id}.description`),
         footer: getUpgradeFooter(definition.id),
-        costText: definition.kind === "repeatable"
+        costText: definition.kind !== "placeholder"
           ? t("coherenceUpgrades.cost", {
             value: formatInt(getCoherenceUpgradeCost(activeStratum.value, definition.id)),
           })
           : "",
         stateText: getUpgradeStateText(definition.id),
         canBuy: canBuyCoherenceUpgrade(activeStratum.value, definition.id),
+        isBought,
       };
     }),
   ];
 });
 
 function getUpgradeFooter(id: CoherenceUpgradeId): string {
+  if (id === COHERENCE_UPGRADE_ENTROPY_TUNING_ID) {
+    return t("coherenceUpgrades.entropyTuningStatus", {
+      value: format(getCoherenceEntropyTuningExponent(activeStratum.value, getCoherencePoints(activeStratum.value))),
+    });
+  }
+
+  if (id === COHERENCE_UPGRADE_NEXT_DREAM_CRYSTAL_MULTIPLIER_ID) {
+    return t("coherenceUpgrades.nextDreamCrystalMultiplierStatus", {
+      value: format(getCoherenceNextDreamCrystalMultiplierBonus(activeStratum.value)),
+    });
+  }
+
+  if (id === COHERENCE_UPGRADE_SOFTCAP_TWO_SLOWDOWN_ID) {
+    return t("coherenceUpgrades.softcapTwoSlowdownStatus", {
+      value: format(getCoherenceSoftcapTwoStrengthMultiplier(activeStratum.value)),
+    });
+  }
+
   if (id === COHERENCE_UPGRADE_DEEPER_INITIAL_DREAM_ENERGY_ID) {
     const bought = getCoherenceRepeatableUpgradeBought(activeStratum.value, id);
     const bonus = getCoherenceDeeperInitialDreamEnergyBonus(activeStratum.value);
@@ -78,7 +105,13 @@ function getUpgradeFooter(id: CoherenceUpgradeId): string {
 
 function getUpgradeStateText(id: CoherenceUpgradeId): string {
   const definition = getCoherenceUpgradeDefinition(id);
-  if (definition.kind !== "repeatable") return t("coherenceUpgrades.pending");
+  if (definition.kind === "placeholder") return t("coherenceUpgrades.pending");
+
+  if (definition.kind === "single") {
+    return hasCoherenceUpgrade(activeStratum.value, id)
+      ? t("coherenceUpgrades.purchased")
+      : t("coherenceUpgrades.buy");
+  }
 
   const bought = getCoherenceRepeatableUpgradeBought(activeStratum.value, id);
   return bought.gt(0)

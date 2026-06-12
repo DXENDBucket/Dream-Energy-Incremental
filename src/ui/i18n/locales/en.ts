@@ -146,21 +146,25 @@ export default {
     cost: "Cost: {value} CP",
     buy: "Buy",
     buyRepeatable: "Buy Again",
+    purchased: "Purchased",
     pending: "Pending",
+    entropyTuningStatus: "Next-stratum Entropy Tuning: {value}",
+    nextDreamCrystalMultiplierStatus: "Next-stratum Dream Crystal multiplier: ×{value}",
+    softcapTwoSlowdownStatus: "Current second-stage repulsion growth: ×{value}",
     deeperInitialDreamEnergyStatus: "Bought {count} times | Next stratum starts with +{value} DE",
     pointGainMultiplierStatus: "Bought {count} times | Current Coherence Point gain ×{value}",
     items: {
       "coherence-upgrade-1": {
         title: "Lucid Lattice",
-        description: "Placeholder upgrade. Effect pending.",
+        description: "CP slightly reduces the Entropy suppression in the next stratum.",
       },
       "coherence-upgrade-2": {
         title: "Azure Anchor",
-        description: "Placeholder upgrade. Effect pending.",
+        description: "Permanently multiply all Dream Crystal multipliers in the next stratum by 1.5.",
       },
       "coherence-upgrade-3": {
         title: "Mirror Matrix",
-        description: "Placeholder upgrade. Effect pending.",
+        description: "Current CP further slows the second-stage repulsion in this stratum.",
       },
       "coherence-upgrade-4": {
         title: "Still Sigil",

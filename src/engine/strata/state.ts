@@ -1,4 +1,4 @@
-import { N, ZERO } from "../math/num";
+import { N, ONE, ZERO } from "../math/num";
 import type { Num } from "../math/num";
 import { COHERENCE_DEFAULT_PRODUCTION_LOSS } from "./common/coherence/balance";
 import {
@@ -31,6 +31,7 @@ export interface StratumState {
   dreamEnergy: Num;
   coherencePoints: Num;
   coherenceProductionLoss: Num;
+  coherenceDreamCrystalMultiplier: Num;
   chaoticEther: Num;
   totalChaoticEtherGained: Num;
   coherenceUpgrades: CoherenceUpgradesState;
@@ -51,6 +52,7 @@ export function createStratumState(options: CreateStratumStateOptions = {}): Str
     dreamEnergy: N(10),
     coherencePoints: ZERO,
     coherenceProductionLoss: COHERENCE_DEFAULT_PRODUCTION_LOSS,
+    coherenceDreamCrystalMultiplier: ONE,
     chaoticEther: ZERO,
     totalChaoticEtherGained: ZERO,
     coherenceUpgrades: createCoherenceUpgradesState(),

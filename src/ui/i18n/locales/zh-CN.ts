@@ -146,21 +146,25 @@ export default {
     cost: "消耗：{value} CP",
     buy: "购买",
     buyRepeatable: "再次购买",
+    purchased: "已购买",
     pending: "待定",
+    entropyTuningStatus: "进入下一层时 Entropy Tuning：{value}",
+    nextDreamCrystalMultiplierStatus: "下一层梦能水晶 multiplier：×{value}",
+    softcapTwoSlowdownStatus: "当前第二段排斥增长：×{value}",
     deeperInitialDreamEnergyStatus: "已购买 {count} 次；进入下一层初始 +{value} DE",
     pointGainMultiplierStatus: "已购买 {count} 次；当前调谐点数获取 ×{value}",
     items: {
       "coherence-upgrade-1": {
         title: "浅梦回声",
-        description: "占位升级，效果待定。",
+        description: "CP 会略微降低下一层 Entropy 的压制效果。",
       },
       "coherence-upgrade-2": {
         title: "澄蓝锚点",
-        description: "占位升级，效果待定。",
+        description: "下一层所有梦能水晶的 multiplier 永久 ×1.5。",
       },
       "coherence-upgrade-3": {
         title: "镜潮纹理",
-        description: "占位升级，效果待定。",
+        description: "本层现有 CP 会额外减缓本层第二段排斥。",
       },
       "coherence-upgrade-4": {
         title: "静滞棱面",

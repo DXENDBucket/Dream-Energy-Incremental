@@ -43,6 +43,7 @@ export function getDreamCrystalMultiplier(
     multiplier = mul(multiplier,getCurrentDreamCrystalRefinementMultiplier(stratum, tier))
     multiplier = mul(multiplier, getDreamCrystalFirstTierUpgradeMultiplier(stratum, tier))
     multiplier = mul(multiplier, getDreamCrystalBoughtPowerMultiplier(stratum, tier))
+    multiplier = mul(multiplier, stratum.coherenceDreamCrystalMultiplier ?? ONE)
     return multiplier;
 }
 
