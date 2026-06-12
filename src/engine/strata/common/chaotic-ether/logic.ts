@@ -1,11 +1,16 @@
 import type { GameState } from "@/engine/core/state";
-import { N, ONE, TEN, ZERO, add, div, floor, gt, log10 } from "@/engine/math/num";
+import { ONE, TEN, ZERO, add, div, floor, gt, gte, log10, pow, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
 import { ensureEntropyState } from "@/engine/strata/common/entropy";
 import { dreamSeaFirstStratumId } from "@/engine/strata/defs/ids";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import type { StratumState } from "@/engine/strata/state";
+import {
+  CHAOTIC_ETHER_EXTRACT_EXPONENT_OFFSET,
+  CHAOTIC_ETHER_EXTRACT_LOG_DIVISOR,
+  CHAOTIC_ETHER_EXTRACT_REQUIREMENT,
+} from "./balance";
 
 export function getChaoticEther(stratum: StratumState): Num {
   return stratum.chaoticEther ?? ZERO;
@@ -21,8 +26,14 @@ export function addChaoticEther(stratum: StratumState, amount: Num): void {
 }
 
 export function getChaoticEtherGain(stratum: StratumState): Num {
-  if (!gt(stratum.dreamEnergy, ONE)) return ZERO;
-  return floor(div(log10(stratum.dreamEnergy), N(1.4)));
+  if (!gte(stratum.dreamEnergy, CHAOTIC_ETHER_EXTRACT_REQUIREMENT)) return ZERO;
+
+  const exponent = sub(
+    div(log10(stratum.dreamEnergy), CHAOTIC_ETHER_EXTRACT_LOG_DIVISOR),
+    CHAOTIC_ETHER_EXTRACT_EXPONENT_OFFSET,
+  );
+
+  return floor(pow(TEN, exponent));
 }
 
 export function canExtractChaoticEther(state: GameState): boolean {
