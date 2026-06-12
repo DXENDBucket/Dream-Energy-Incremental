@@ -174,6 +174,8 @@ export default {
   milestones: {
     claim: "Claim",
     claimed: "Claimed",
+    reachable: "Reachable",
+    unreached: "Unreached",
     unknownRequirement: "Unknown requirement.",
     requirements: {
       reachDreamEnergy: "Reach {amount} Dream Energy.",

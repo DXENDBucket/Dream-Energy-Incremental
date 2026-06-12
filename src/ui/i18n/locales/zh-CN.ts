@@ -174,6 +174,8 @@ export default {
   milestones: {
     claim: "领取",
     claimed: "已领取",
+    reachable: "可领取",
+    unreached: "未达成",
     unknownRequirement: "未知条件。",
     requirements: {
       reachDreamEnergy: "达到 {amount} 梦能。",
