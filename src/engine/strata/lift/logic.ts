@@ -1,5 +1,5 @@
 import type { GameState } from "@/engine/core/state";
-import { ONE, TEN, ZERO, div, gt, gte, log10, min } from "@/engine/math/num";
+import { ONE, TEN, ZERO, add, div, gt, gte, log10, min } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
 import {
