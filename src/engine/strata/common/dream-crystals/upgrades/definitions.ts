@@ -45,14 +45,14 @@ export const DREAM_CRYSTAL_UPGRADE_DEFINITIONS = {
   [DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID]: {
     id: DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID,
     kind: "repeatable",
-    baseCost: N(5),
+    baseCost: N(3),
     costScale: N(10),
   },
   [DREAM_CRYSTAL_UPGRADE_REFINERY_EFFICIENCY_ID]: {
     id: DREAM_CRYSTAL_UPGRADE_REFINERY_EFFICIENCY_ID,
     kind: "repeatable",
-    baseCost: N(10),
-    costScale: N(10),
+    baseCost: N(5),
+    costScale: N(5),
   },
 } as const satisfies Record<DreamCrystalUpgradeId, DreamCrystalUpgradeDefinition>;
 
