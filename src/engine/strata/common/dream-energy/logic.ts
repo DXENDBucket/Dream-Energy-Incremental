@@ -8,6 +8,10 @@ import {
     DREAM_ENERGY_SOFTCAP_TWO_STRENGTH_GROWTH,
 } from "@/engine/math/dream-energy/balance";
 import { convertDreamEnergySoftcapOneToPower, getDreamEnergyIncrement } from "@/engine/math/dream-energy/computed";
+import {
+    getDreamCrystalSoftcapOneStrengthMultiplier,
+    getDreamCrystalSoftcapTwoStrengthMultiplier,
+} from "@/engine/strata/common/dream-crystals/upgrades";
 import { getDreamEnergy } from "../../manager/selectors";
 
 export function getDreamEnergyGain(stratum: StratumState) {
@@ -34,7 +38,7 @@ export function getDreamEnergySoftcapOneDivisor(stratum: StratumState) {
     const dreamEnergy = getDreamEnergy(stratum)
 
     const ratio = getDreamEnergySoftCapOneRatio(dreamEnergy);
-    const power = getDreamEnergySoftCapOneBasePower();
+    const power = getDreamEnergySoftCapOneBasePower(stratum);
     let divisor = pow(ratio, power);
 
     if (isDreamEnergySoftcapTwoActive(stratum)) {
@@ -82,8 +86,13 @@ export function getDreamEnergySoftcapTwoRatio(raw: Num) {
     return div(raw, DREAM_ENERGY_SOFTCAP_TWO_START);
 }
 
-export function getDreamEnergySoftCapOneBasePower() {
-    return convertDreamEnergySoftcapOneToPower(DREAM_ENERGY_SOFTCAP_POWER_DISPLAY);
+export function getDreamEnergySoftcapOneBaseStrengthDisplay(stratum?: StratumState) {
+    if (!stratum) return DREAM_ENERGY_SOFTCAP_POWER_DISPLAY;
+    return mul(DREAM_ENERGY_SOFTCAP_POWER_DISPLAY, getDreamCrystalSoftcapOneStrengthMultiplier(stratum));
+}
+
+export function getDreamEnergySoftCapOneBasePower(stratum?: StratumState) {
+    return convertDreamEnergySoftcapOneToPower(getDreamEnergySoftcapOneBaseStrengthDisplay(stratum));
 }
 
 export function getDreamEnergySoftCapOnePower(stratum?: StratumState) {
@@ -100,15 +109,28 @@ export function getDreamEnergySoftcapTwoExcessExponent(stratum: StratumState) {
 
 export function getDreamEnergySoftcapTwoStrengthMultiplier(stratum: StratumState) {
     if (!isDreamEnergySoftcapTwoActive(stratum)) return ONE;
-    return pow(DREAM_ENERGY_SOFTCAP_TWO_STRENGTH_GROWTH, getDreamEnergySoftcapTwoExcessExponent(stratum));
+    return pow(getDreamEnergySoftcapTwoStrengthGrowth(stratum), getDreamEnergySoftcapTwoExcessExponent(stratum));
+}
+
+export function getDreamEnergySoftcapTwoStrengthBase() {
+    return DREAM_ENERGY_SOFTCAP_TWO_STRENGTH_BASE;
+}
+
+export function getDreamEnergySoftcapTwoStrengthGrowth(stratum?: StratumState) {
+    if (!stratum) return DREAM_ENERGY_SOFTCAP_TWO_STRENGTH_GROWTH;
+    return mul(
+        DREAM_ENERGY_SOFTCAP_TWO_STRENGTH_GROWTH,
+        getDreamCrystalSoftcapTwoStrengthMultiplier(stratum),
+    );
 }
 
 export function getDreamEnergySoftcapTwoExtraPower(stratum: StratumState) {
     if (!isDreamEnergySoftcapTwoActive(stratum)) return ZERO;
-    return sub(getDreamEnergySoftCapOnePower(stratum), getDreamEnergySoftCapOneBasePower());
+    return sub(getDreamEnergySoftCapOnePower(stratum), getDreamEnergySoftCapOneBasePower(stratum));
 }
 
 export function getDreamEnergySoftcapOnePowerDisplay(stratum?: StratumState) {
-    if (!stratum) return DREAM_ENERGY_SOFTCAP_POWER_DISPLAY;
-    return mul(DREAM_ENERGY_SOFTCAP_POWER_DISPLAY, getDreamEnergySoftcapTwoStrengthMultiplier(stratum));
+    const baseStrength = getDreamEnergySoftcapOneBaseStrengthDisplay(stratum);
+    if (!stratum) return baseStrength;
+    return mul(baseStrength, getDreamEnergySoftcapTwoStrengthMultiplier(stratum));
 }

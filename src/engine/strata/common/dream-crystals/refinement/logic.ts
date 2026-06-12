@@ -2,6 +2,7 @@ import type { StratumState } from "@/engine/strata/state";
 import { ZERO, N, add, div, mul, pow, max, sub, lte, gt } from "@/engine/math/num";
 import { getDreamCrystalAmount } from "../selectors";
 import { isRefineUnlocked } from "../../milestones";
+import { isDreamCrystalRefineKeepCrystalsUnlocked } from "../upgrades";
 
 export function getPendingDreamCrystalRefinement(stratum: StratumState, tier: number) {
   let refinement = ZERO;
@@ -41,12 +42,15 @@ export function refineDreamCrystal(stratum: StratumState, tier:number) {
     const increment = getDreamCrystalRefinementIncrement(stratum, tier);
     const crystal = stratum.dreamCrystals.tiers;
 
-    for (let otherTier = 1; otherTier <= 8; otherTier++) {
-        if (otherTier === tier) continue;
-        
-        crystal[otherTier]!.bought = ZERO
-        crystal[otherTier]!.amount = ZERO
+    if (!isDreamCrystalRefineKeepCrystalsUnlocked(stratum)) {
+        for (let otherTier = 1; otherTier <= 8; otherTier++) {
+            if (otherTier === tier) continue;
+
+            crystal[otherTier]!.bought = ZERO
+            crystal[otherTier]!.amount = ZERO
+        }
     }
+
     crystal[tier]!.refinement = add(crystal[tier]!.refinement, increment)
 }
 

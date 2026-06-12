@@ -83,9 +83,21 @@ export default {
     buy: "Buy",
     buyRepeatable: "Buy Again",
     purchased: "Purchased",
+    rowLocked: "Previous row singles required",
     repeatableStatus: "Bought {count} times | Current n = {bonus}",
     refineryStatus: "Bought {count} times | Current total x{multiplier}",
     currentMultiplier: "Current x{value}",
+    softcapTwoStatus: "Second-stage repulsion strength per 10x interval: ×{value}",
+    refineKeepStatus: {
+      enabled: "Refine no longer resets DC amounts.",
+      disabled: "Purchase to keep DC amounts after Refine.",
+    },
+    refineAutobuyerStatus: {
+      enabled: "Refine Autobuyer unlocked.",
+      disabled: "Purchase to unlock Refine Autobuyer.",
+    },
+    refineryLogBaseStatus: "Bought {count} times | Current log base {value}",
+    softcapOneStatus: "Bought {count} times | Current first softcap strength {value}",
     items: {
       "first-tier-triple": {
         title: "Primal Prism",
@@ -106,6 +118,26 @@ export default {
       "refinery-efficiency": {
         title: "Refinery Resonance",
         description: "Overall *2 to the refinery result multiplier.",
+      },
+      "softcap-two-weaken": {
+        title: "Friction Fracture",
+        description: "Halve the second-stage repulsion strength.",
+      },
+      "refine-keep-crystals": {
+        title: "Refined Retention",
+        description: "Refine no longer resets any Dream Crystal amounts.",
+      },
+      "refine-autobuyer": {
+        title: "Refinery Relay",
+        description: "Unlock Refine Autobuyer.",
+      },
+      "refinery-log-base": {
+        title: "Logarithmic Loom",
+        description: "Push the refinery log base closer to 1.",
+      },
+      "softcap-one-weaken": {
+        title: "Pressure Palliation",
+        description: "Halve the first-stage repulsion strength.",
       },
     },
   },
@@ -163,6 +195,11 @@ export default {
         reward: "Unlock Coherence Upgrades.",
         description: "Coherence Upgrades belong to the current stratum and will mainly strengthen the next one.",
       },
+      milestoneFourPlaceholder: {
+        title: "Milestone 4",
+        reward: "Placeholder unlock.",
+        description: "For now, this only records that you have reached deeper Dream Energy pressure.",
+      },
     },
   },
   autobuyers: {
@@ -171,6 +208,10 @@ export default {
     dreamCrystals: {
       title: "Dream Crystals Autobuyer",
       interval: "Automatically tries Buy Max every {interval}s. Next: {remaining}s",
+    },
+    refinement: {
+      title: "Refine Autobuyer",
+      interval: "Automatically tries Refine every {interval}s. Next: {remaining}s",
     },
   },
   save: {
@@ -315,7 +356,8 @@ export default {
       title: "Dream Energy Strong Interaction",
       threshold: "Once Dream Energy passes {value}, repulsion is no longer only storage pressure.",
       excessExponent: "You have pushed {value} base-10 intervals beyond that boundary.",
-      strengthMultiplier: "This expands the repulsion strength above to {value}.",
+      strengthBase: "This stage advances once per {base}x interval, with each interval currently adding strength {growth}.",
+      strengthMultiplier: "This further expands the repulsion strength above to {value}.",
     },
   },
   lift: {

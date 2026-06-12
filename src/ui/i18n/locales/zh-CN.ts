@@ -83,9 +83,21 @@ export default {
     buy: "购买",
     buyRepeatable: "再次购买",
     purchased: "已购买",
+    rowLocked: "需要上一行一次性升级",
     repeatableStatus: "已购买 {count} 次｜当前 n = {bonus}",
     refineryStatus: "已购买 {count} 次｜当前总倍率 x{multiplier}",
     currentMultiplier: "当前收益 x{value}",
+    softcapTwoStatus: "第二段排斥每 10 倍区间的强度：×{value}",
+    refineKeepStatus: {
+      enabled: "Refine 不再重置 DC 数量。",
+      disabled: "购买后 Refine 会保留 DC 数量。",
+    },
+    refineAutobuyerStatus: {
+      enabled: "Refine Autobuyer 已解锁。",
+      disabled: "购买后解锁 Refine Autobuyer。",
+    },
+    refineryLogBaseStatus: "已购买 {count} 次｜当前 log 底数 {value}",
+    softcapOneStatus: "已购买 {count} 次｜当前第一 softcap strength {value}",
     items: {
       "first-tier-triple": {
         title: "原初棱镜",
@@ -106,6 +118,26 @@ export default {
       "refinery-efficiency": {
         title: "精炼共振",
         description: "refinery 计算结果 multiplier 整体 *2。",
+      },
+      "softcap-two-weaken": {
+        title: "强力缓释",
+        description: "将第二段排斥的强度减半。",
+      },
+      "refine-keep-crystals": {
+        title: "精炼留存",
+        description: "Refine 不再重置任何梦境水晶数量。",
+      },
+      "refine-autobuyer": {
+        title: "精炼自动",
+        description: "解锁 Refine Autobuyer。",
+      },
+      "refinery-log-base": {
+        title: "底数折光",
+        description: "将 refinery 公式中 log 底数向 1 推近。",
+      },
+      "softcap-one-weaken": {
+        title: "排斥削弱",
+        description: "将第一段排斥的强度减半。",
       },
     },
   },
@@ -162,6 +194,11 @@ export default {
         reward: "解锁调谐升级。",
         description: "调谐升级属于当前层级，未来会主要用于强化下一层。",
       },
+      milestoneFourPlaceholder: {
+        title: "里程碑 4",
+        reward: "占位解锁内容。",
+        description: "这里暂时只记录你已经触及更深的梦能压力。",
+      },
     },
   },
   autobuyers: {
@@ -170,6 +207,10 @@ export default {
     dreamCrystals: {
       title: "Dream Crystals Autobuyer",
       interval: "每 {interval} 秒自动尝试 Buy Max。下一次：{remaining} 秒",
+    },
+    refinement: {
+      title: "Refine Autobuyer",
+      interval: "每 {interval} 秒自动尝试 Refine。下一次：{remaining} 秒",
     },
   },
   save: {
@@ -313,7 +354,8 @@ export default {
       title: "梦能强相互作用",
       threshold: "当梦能越过 {value} 后，排斥不再只是储量压力。",
       excessExponent: "你已经在这个边界外推进了 {value} 个 10 倍区间。",
-      strengthMultiplier: "这会让上方排斥强度额外扩大到 {value}。",
+      strengthBase: "这一段排斥以每 {base} 倍为一阶，当前每阶强度为 {growth}。",
+      strengthMultiplier: "这会让上方排斥的强度额外扩大到 {value}。",
     },
   },
   lift: {

@@ -10,6 +10,8 @@ import {
   getDreamEnergySoftcapOneDivisor,
   getDreamEnergySoftcapOnePowerDisplay,
   getDreamEnergySoftcapTwoExcessExponent,
+  getDreamEnergySoftcapTwoStrengthBase,
+  getDreamEnergySoftcapTwoStrengthGrowth,
   getDreamEnergySoftcapTwoStrengthMultiplier,
   isDreamEnergySoftcapOneActive,
   isDreamEnergySoftcapTwoActive,
@@ -64,6 +66,14 @@ const softcapTwoThresholdText = computed(() => {
 
 const softcapTwoExcessExponentText = computed(() => {
   return format(getDreamEnergySoftcapTwoExcessExponent(activeStratum.value));
+});
+
+const softcapTwoStrengthBaseText = computed(() => {
+  return format(getDreamEnergySoftcapTwoStrengthBase());
+});
+
+const softcapTwoStrengthGrowthText = computed(() => {
+  return format(getDreamEnergySoftcapTwoStrengthGrowth(activeStratum.value));
 });
 </script>
 
@@ -122,6 +132,15 @@ const softcapTwoExcessExponentText = computed(() => {
       <i18n-t keypath="currentStratum.softcapTwo.excessExponent" tag="div" class="detail-line softcap-two-line">
         <template #value>
           <span class="detail-number softcap-two-number">{{ softcapTwoExcessExponentText }}</span>
+        </template>
+      </i18n-t>
+
+      <i18n-t keypath="currentStratum.softcapTwo.strengthBase" tag="div" class="detail-line softcap-two-line">
+        <template #base>
+          <span class="detail-number softcap-two-number">{{ softcapTwoStrengthBaseText }}</span>
+        </template>
+        <template #growth>
+          <span class="detail-number softcap-two-number">×{{ softcapTwoStrengthGrowthText }}</span>
         </template>
       </i18n-t>
 

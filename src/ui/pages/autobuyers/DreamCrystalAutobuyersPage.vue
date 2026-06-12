@@ -6,11 +6,18 @@ import { format } from "@/engine/math/format";
 import type { GameState } from "@/engine/core/state";
 import {
   DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC,
+  DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC,
   getDreamCrystalAutobuyerRemainingSec,
+  getDreamCrystalRefineAutobuyerRemainingSec,
   isDreamCrystalAutobuyerEnabled,
+  isDreamCrystalRefineAutobuyerEnabled,
   toggleDreamCrystalAutobuyer,
+  toggleDreamCrystalRefineAutobuyer,
 } from "@/engine/strata/common/dream-crystals/autobuyers";
-import { isDreamCrystalAutobuyerUnlocked } from "@/engine/strata/common/dream-crystals/upgrades";
+import {
+  isDreamCrystalAutobuyerUnlocked,
+  isDreamCrystalRefineAutobuyerUnlocked,
+} from "@/engine/strata/common/dream-crystals/upgrades";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import { getDreamCrystalTitle } from "@/ui/meta/dreamCrystals";
 
@@ -23,8 +30,11 @@ const props = defineProps<{
 const { t } = useI18n();
 const activeStratum = computed(() => getActiveStratum(props.game.state));
 const unlocked = computed(() => isDreamCrystalAutobuyerUnlocked(activeStratum.value));
+const refineUnlocked = computed(() => isDreamCrystalRefineAutobuyerUnlocked(activeStratum.value));
 const remainingText = computed(() => format(getDreamCrystalAutobuyerRemainingSec(activeStratum.value)));
+const refineRemainingText = computed(() => format(getDreamCrystalRefineAutobuyerRemainingSec(activeStratum.value)));
 const intervalText = computed(() => format(DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC));
+const refineIntervalText = computed(() => format(DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC));
 
 const rows = computed(() => {
   return DREAM_CRYSTAL_TIERS.map((tier) => ({
@@ -34,8 +44,20 @@ const rows = computed(() => {
   }));
 });
 
+const refineRows = computed(() => {
+  return DREAM_CRYSTAL_TIERS.map((tier) => ({
+    tier,
+    title: getDreamCrystalTitle(t, tier as DreamCrystalTier),
+    enabled: isDreamCrystalRefineAutobuyerEnabled(activeStratum.value, tier),
+  }));
+});
+
 function onToggle(tier: number) {
   toggleDreamCrystalAutobuyer(activeStratum.value, tier);
+}
+
+function onToggleRefine(tier: number) {
+  toggleDreamCrystalRefineAutobuyer(activeStratum.value, tier);
 }
 </script>
 
@@ -63,6 +85,30 @@ function onToggle(tier: number) {
         </span>
       </button>
     </div>
+
+    <template v-if="refineUnlocked">
+      <div class="autobuyers-header refine-header">
+        <div class="autobuyers-title">{{ t("autobuyers.refinement.title") }}</div>
+        <div class="autobuyers-sub">
+          {{ t("autobuyers.refinement.interval", { interval: refineIntervalText, remaining: refineRemainingText }) }}
+        </div>
+      </div>
+
+      <div class="autobuyer-grid">
+        <button
+          v-for="row in refineRows"
+          :key="row.tier"
+          class="autobuyer-button"
+          :class="{ enabled: row.enabled }"
+          @click="onToggleRefine(row.tier)"
+        >
+          <span class="autobuyer-title">{{ row.title }}</span>
+          <span class="autobuyer-state">
+            {{ row.enabled ? t("autobuyers.enabled") : t("autobuyers.disabled") }}
+          </span>
+        </button>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -86,6 +132,10 @@ function onToggle(tier: number) {
   margin-top: 5px;
   color: #aeb8da;
   font-size: 0.86rem;
+}
+
+.refine-header {
+  margin-top: 24px;
 }
 
 .autobuyer-grid {

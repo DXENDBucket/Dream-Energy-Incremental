@@ -1,5 +1,7 @@
 import type { Num } from "@/engine/math/num";
 import {
+  MILESTONE_FOUR_PLACEHOLDER_ID,
+  MILESTONE_FOUR_PLACEHOLDER_REQUIREMENT,
   UNLOCK_COHERENCE_UPGRADES_MILESTONE_ID,
   UNLOCK_COHERENCE_UPGRADES_REQUIREMENT,
   UNLOCK_REFINE_MILESTONE_ID,
@@ -12,6 +14,7 @@ export const MILESTONE_ORDER = [
   UNLOCK_REFINE_MILESTONE_ID,
   UNLOCK_UPGRADES_MILESTONE_ID,
   UNLOCK_COHERENCE_UPGRADES_MILESTONE_ID,
+  MILESTONE_FOUR_PLACEHOLDER_ID,
 ] as const;
 
 export type MilestoneId = (typeof MILESTONE_ORDER)[number];
@@ -39,6 +42,12 @@ export const MILESTONE_DEFINITIONS = {
     requirement: {
       type: "reach-dream-energy",
       amount: UNLOCK_COHERENCE_UPGRADES_REQUIREMENT,
+    },
+  },
+  [MILESTONE_FOUR_PLACEHOLDER_ID]: {
+    requirement: {
+      type: "reach-dream-energy",
+      amount: MILESTONE_FOUR_PLACEHOLDER_REQUIREMENT,
     },
   },
 } as const satisfies Record<MilestoneId, { requirement: MilestoneRequirement }>;

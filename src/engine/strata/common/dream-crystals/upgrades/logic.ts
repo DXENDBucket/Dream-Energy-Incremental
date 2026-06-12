@@ -9,6 +9,12 @@ import {
   DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID,
   DREAM_CRYSTAL_UPGRADE_FREE_PURCHASES_ID,
   DREAM_CRYSTAL_UPGRADE_REFINERY_EFFICIENCY_ID,
+  DREAM_CRYSTAL_UPGRADE_REFINERY_LOG_BASE_ID,
+  DREAM_CRYSTAL_UPGRADE_REFINE_AUTOBUYER_ID,
+  DREAM_CRYSTAL_UPGRADE_REFINE_KEEP_CRYSTALS_ID,
+  DREAM_CRYSTAL_UPGRADE_ROWS,
+  DREAM_CRYSTAL_UPGRADE_SOFTCAP_ONE_WEAKEN_ID,
+  DREAM_CRYSTAL_UPGRADE_SOFTCAP_TWO_WEAKEN_ID,
   type DreamCrystalUpgradeId,
   getDreamCrystalUpgradeDefinition,
 } from "./definitions";
@@ -46,7 +52,37 @@ export function getDreamCrystalUpgradeCost(stratum: StratumState, id: DreamCryst
   return definition.baseCost;
 }
 
+export function getDreamCrystalUpgradeRowIndex(id: DreamCrystalUpgradeId): number {
+  return DREAM_CRYSTAL_UPGRADE_ROWS.findIndex(row => row.some(rowId => rowId === id));
+}
+
+export function isDreamCrystalUpgradeRowUnlocked(stratum: StratumState, rowIndex: number): boolean {
+  if (rowIndex <= 0) return true;
+
+  for (let previousRowIndex = 0; previousRowIndex < rowIndex; previousRowIndex++) {
+    const previousRow = DREAM_CRYSTAL_UPGRADE_ROWS[previousRowIndex] ?? [];
+
+    for (const previousId of previousRow) {
+      const definition = getDreamCrystalUpgradeDefinition(previousId);
+      if (definition.kind === "single" && !hasDreamCrystalUpgrade(stratum, previousId)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+export function isDreamCrystalUpgradeUnlockedForPurchase(
+  stratum: StratumState,
+  id: DreamCrystalUpgradeId,
+): boolean {
+  return isDreamCrystalUpgradeRowUnlocked(stratum, getDreamCrystalUpgradeRowIndex(id));
+}
+
 export function canBuyDreamCrystalUpgrade(stratum: StratumState, id: DreamCrystalUpgradeId): boolean {
+  if (!isDreamCrystalUpgradeUnlockedForPurchase(stratum, id)) return false;
+
   const definition = getDreamCrystalUpgradeDefinition(id);
   if (definition.kind === "single" && hasDreamCrystalUpgrade(stratum, id)) return false;
 
@@ -78,6 +114,30 @@ export function isDreamCrystalAutobuyerUnlocked(stratum: StratumState): boolean 
   return hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_AUTOBUYER_ID);
 }
 
+export function isDreamCrystalRefineKeepCrystalsUnlocked(stratum: StratumState): boolean {
+  return hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_REFINE_KEEP_CRYSTALS_ID);
+}
+
+export function isDreamCrystalRefineAutobuyerUnlocked(stratum: StratumState): boolean {
+  return hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_REFINE_AUTOBUYER_ID);
+}
+
+export function getDreamCrystalSoftcapOneStrengthMultiplier(stratum: StratumState): Num {
+  const bought = getDreamCrystalRepeatableUpgradeBought(
+    stratum,
+    DREAM_CRYSTAL_UPGRADE_SOFTCAP_ONE_WEAKEN_ID,
+  );
+
+  if (bought.lte(ZERO)) return ONE;
+  return pow(N(0.5), bought);
+}
+
+export function getDreamCrystalSoftcapTwoStrengthMultiplier(stratum: StratumState): Num {
+  return hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_SOFTCAP_TWO_WEAKEN_ID)
+    ? N(0.5)
+    : ONE;
+}
+
 export function getDreamCrystalFirstTierUpgradeMultiplier(stratum: StratumState, tier: number): Num {
   if (tier !== 1) return ONE;
   if (!hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID)) return ONE;
@@ -106,4 +166,13 @@ export function getDreamCrystalRefineryEfficiencyMultiplier(stratum: StratumStat
 
   if (bought.lte(ZERO)) return ONE;
   return pow(N(2), bought);
+}
+
+export function getDreamCrystalRefineryLogBase(stratum: StratumState): Num {
+  const bought = getDreamCrystalRepeatableUpgradeBought(
+    stratum,
+    DREAM_CRYSTAL_UPGRADE_REFINERY_LOG_BASE_ID,
+  );
+
+  return add(ONE, mul(N(4), pow(N(0.9), bought)));
 }

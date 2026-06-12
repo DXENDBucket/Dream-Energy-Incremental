@@ -4,6 +4,7 @@ import type {
   MilestoneRequirement,
 } from "@/engine/strata/common/milestones";
 import {
+  MILESTONE_FOUR_PLACEHOLDER_ID,
   UNLOCK_COHERENCE_UPGRADES_MILESTONE_ID,
   UNLOCK_REFINE_MILESTONE_ID,
   UNLOCK_UPGRADES_MILESTONE_ID,
@@ -26,6 +27,11 @@ const MILESTONE_UI_KEYS = {
     titleKey: "milestones.content.unlockCoherenceUpgrades.title",
     rewardKey: "milestones.content.unlockCoherenceUpgrades.reward",
     descriptionKey: "milestones.content.unlockCoherenceUpgrades.description",
+  },
+  [MILESTONE_FOUR_PLACEHOLDER_ID]: {
+    titleKey: "milestones.content.milestoneFourPlaceholder.title",
+    rewardKey: "milestones.content.milestoneFourPlaceholder.reward",
+    descriptionKey: "milestones.content.milestoneFourPlaceholder.description",
   },
 } as const satisfies Record<
   MilestoneId,

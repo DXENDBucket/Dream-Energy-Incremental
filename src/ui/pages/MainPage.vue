@@ -38,7 +38,10 @@ import {
   getEntropyTuningExponent,
   getEntropyValue,
 } from "@/engine/strata/common/entropy";
-import { isDreamCrystalAutobuyerUnlocked } from "@/engine/strata/common/dream-crystals/upgrades";
+import {
+  isDreamCrystalAutobuyerUnlocked,
+  isDreamCrystalRefineAutobuyerUnlocked,
+} from "@/engine/strata/common/dream-crystals/upgrades";
 import { dreamSeaFirstStratumId } from "@/engine/strata/defs/ids";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
 import LiftPage from "./strata/LiftPage.vue";
@@ -60,7 +63,12 @@ const availablePrimaryTabs = computed(() => {
   return PRIMARY_TABS
     .filter(tab => {
       if (tab.id === "upgrades") return isUpgradesUnlocked(activeStratum.value);
-      if (tab.id === "autobuyers") return isDreamCrystalAutobuyerUnlocked(activeStratum.value);
+      if (tab.id === "autobuyers") {
+        return (
+          isDreamCrystalAutobuyerUnlocked(activeStratum.value) ||
+          isDreamCrystalRefineAutobuyerUnlocked(activeStratum.value)
+        );
+      }
       return true;
     })
     .map(tab => {
