@@ -1,7 +1,8 @@
 import type { GameState } from "@/engine/core/state";
-import { TEN, ZERO, add, div, floor, gt, gte, log10, pow, sub } from "@/engine/math/num";
+import { TEN, ZERO, add, div, floor, gt, gte, log10, mul, pow, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
+import { getCoherencePointGainMultiplier } from "@/engine/strata/common/coherence/upgrades";
 import type { StratumState } from "@/engine/strata/state";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import {
@@ -26,7 +27,7 @@ export function getCoherencePointGain(stratum: StratumState): Num {
     COHERENCE_CONDENSE_EXPONENT_OFFSET,
   );
 
-  return floor(pow(TEN, exponent));
+  return floor(mul(pow(TEN, exponent), getCoherencePointGainMultiplier(stratum)));
 }
 
 export function canCondenseCoherence(state: GameState): boolean {

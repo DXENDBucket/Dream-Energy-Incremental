@@ -32,6 +32,7 @@ import {
   getDreamEnergySoftcapTwoStrengthGrowth,
 } from "@/engine/strata/common/dream-energy";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
+import UpgradeGridPage from "./UpgradeGridPage.vue";
 
 const props = defineProps<{
   game: {
@@ -156,161 +157,20 @@ function getUpgradeStateText(id: DreamCrystalUpgradeId, rowUnlocked: boolean): s
   return t("dreamCrystalUpgrades.buy");
 }
 
-function onBuyUpgrade(id: DreamCrystalUpgradeId) {
-  buyDreamCrystalUpgrade(activeStratum.value, id);
+const resourceText = computed(() => {
+  return t("dreamCrystalUpgrades.availableCE", { value: chaoticEtherText.value });
+});
+
+function onBuyUpgrade(id: string) {
+  buyDreamCrystalUpgrade(activeStratum.value, id as DreamCrystalUpgradeId);
 }
 </script>
 
 <template>
-  <div class="dc-upgrades-page">
-    <div class="dc-upgrades-resource">
-      {{ t("dreamCrystalUpgrades.availableCE", { value: chaoticEtherText }) }}
-    </div>
-
-    <div class="upgrade-grid" role="list">
-      <template v-for="(row, rowIndex) in upgradeRows" :key="rowIndex">
-        <button
-          v-for="upgrade in row"
-          :key="upgrade.id"
-          class="upgrade-button"
-          :class="{ purchased: upgrade.isBought }"
-          :disabled="!upgrade.canBuy"
-          role="listitem"
-          @click="onBuyUpgrade(upgrade.id)"
-        >
-          <span class="upgrade-title">{{ upgrade.title }}</span>
-          <span class="upgrade-description">{{ upgrade.description }}</span>
-          <span class="upgrade-bottom">
-            <span v-if="upgrade.footer" class="upgrade-footer">{{ upgrade.footer }}</span>
-            <span class="upgrade-cost">{{ upgrade.costText }}</span>
-            <span class="upgrade-state">{{ upgrade.stateText }}</span>
-          </span>
-        </button>
-      </template>
-    </div>
-  </div>
+  <UpgradeGridPage
+    :resource-text="resourceText"
+    :rows="upgradeRows"
+    theme="dream"
+    @buy="onBuyUpgrade"
+  />
 </template>
-
-<style scoped>
-.dc-upgrades-page {
-  width: min(1180px, 100%);
-}
-
-.dc-upgrades-resource {
-  margin-bottom: 14px;
-  color: #ffd19a;
-  font-size: 0.92rem;
-  font-weight: 800;
-  text-align: center;
-  text-shadow: 0 0 12px rgba(255, 151, 72, 0.28);
-}
-
-.upgrade-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(178px, 220px));
-  gap: 12px;
-  width: fit-content;
-  max-width: 100%;
-  margin: 0 auto;
-  justify-content: center;
-  align-items: stretch;
-}
-
-.upgrade-button {
-  width: 100%;
-  min-height: 210px;
-  padding: 12px 10px;
-  border: 1px solid rgba(80, 102, 159, 0.82);
-  border-radius: 6px;
-  background:
-    linear-gradient(180deg, rgba(22, 32, 59, 0.96) 0%, rgba(12, 18, 34, 0.98) 100%);
-  color: #eef3ff;
-  font: inherit;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  box-shadow:
-    0 8px 26px rgba(0, 0, 0, 0.28),
-    inset 0 0 20px rgba(110, 150, 255, 0.06);
-  transition:
-    transform 0.1s ease,
-    border-color 0.15s ease,
-    filter 0.15s ease,
-    opacity 0.15s ease;
-}
-
-.upgrade-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  border-color: rgba(255, 179, 93, 0.72);
-  filter: brightness(1.06);
-}
-
-.upgrade-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.58;
-}
-
-.upgrade-button.purchased {
-  border-color: rgba(128, 231, 174, 0.74);
-  background:
-    linear-gradient(180deg, rgba(25, 61, 42, 0.95) 0%, rgba(13, 29, 22, 0.98) 100%);
-}
-
-.upgrade-title {
-  color: #ffffff;
-  font-size: 0.96rem;
-  font-weight: 900;
-  line-height: 1.2;
-}
-
-.upgrade-description {
-  color: #b7c3e7;
-  font-size: 0.78rem;
-  line-height: 1.35;
-}
-
-.upgrade-bottom {
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-}
-
-.upgrade-footer {
-  color: #ffd19a;
-  font-size: 0.76rem;
-  font-weight: 800;
-  line-height: 1.3;
-}
-
-.upgrade-cost {
-  color: #f4af73;
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.upgrade-state {
-  color: #eff6ff;
-  font-size: 0.78rem;
-  font-weight: 900;
-}
-
-@media (max-width: 1080px) {
-  .upgrade-grid {
-    grid-template-columns: repeat(3, minmax(170px, 1fr));
-    width: min(100%, 720px);
-  }
-}
-
-@media (max-width: 700px) {
-  .upgrade-grid {
-    grid-template-columns: 1fr;
-    width: min(100%, 360px);
-  }
-}
-</style>

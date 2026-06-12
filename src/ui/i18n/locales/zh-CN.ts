@@ -148,6 +148,7 @@ export default {
     buyRepeatable: "再次购买",
     pending: "待定",
     deeperInitialDreamEnergyStatus: "已购买 {count} 次；进入下一层初始 +{value} DE",
+    pointGainMultiplierStatus: "已购买 {count} 次；当前调谐点数获取 ×{value}",
     items: {
       "coherence-upgrade-1": {
         title: "浅梦回声",
@@ -167,7 +168,7 @@ export default {
       },
       "coherence-upgrade-5": {
         title: "远层折光",
-        description: "占位升级，效果待定。",
+        description: "调谐点数获取量 ×2。",
       },
     },
   },

@@ -4,6 +4,7 @@ import type { Num } from "@/engine/math/num";
 import { getCoherencePoints } from "../logic";
 import {
   COHERENCE_UPGRADE_DEEPER_INITIAL_DREAM_ENERGY_ID,
+  COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID,
   type CoherenceUpgradeId,
   getCoherenceUpgradeDefinition,
 } from "./definitions";
@@ -68,4 +69,14 @@ export function getCoherenceDeeperInitialDreamEnergyBonus(stratum: StratumState)
 
   if (bought.lte(ZERO)) return ZERO;
   return mul(N(100), pow(N(10), sub(bought, ONE)));
+}
+
+export function getCoherencePointGainMultiplier(stratum: StratumState): Num {
+  const bought = getCoherenceRepeatableUpgradeBought(
+    stratum,
+    COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID,
+  );
+
+  if (bought.lte(ZERO)) return ONE;
+  return pow(N(2), bought);
 }

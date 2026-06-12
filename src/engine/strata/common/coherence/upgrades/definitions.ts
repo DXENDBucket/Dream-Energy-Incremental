@@ -6,6 +6,7 @@ export const COHERENCE_UPGRADE_PLACEHOLDER_THREE_ID = "coherence-upgrade-3";
 export const COHERENCE_UPGRADE_PLACEHOLDER_FOUR_ID = "coherence-upgrade-4";
 export const COHERENCE_UPGRADE_PLACEHOLDER_FIVE_ID = "coherence-upgrade-5";
 export const COHERENCE_UPGRADE_DEEPER_INITIAL_DREAM_ENERGY_ID = COHERENCE_UPGRADE_PLACEHOLDER_FOUR_ID;
+export const COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID = COHERENCE_UPGRADE_PLACEHOLDER_FIVE_ID;
 
 export const COHERENCE_UPGRADE_ROW_ONE = [
   COHERENCE_UPGRADE_PLACEHOLDER_ONE_ID,
@@ -46,7 +47,9 @@ export const COHERENCE_UPGRADE_DEFINITIONS = {
   },
   [COHERENCE_UPGRADE_PLACEHOLDER_FIVE_ID]: {
     id: COHERENCE_UPGRADE_PLACEHOLDER_FIVE_ID,
-    kind: "placeholder",
+    kind: "repeatable",
+    baseCost: N(100),
+    costScale: N(10),
   },
 } as const satisfies Record<CoherenceUpgradeId, CoherenceUpgradeDefinition>;
 

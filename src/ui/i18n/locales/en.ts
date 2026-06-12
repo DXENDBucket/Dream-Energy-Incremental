@@ -148,6 +148,7 @@ export default {
     buyRepeatable: "Buy Again",
     pending: "Pending",
     deeperInitialDreamEnergyStatus: "Bought {count} times | Next stratum starts with +{value} DE",
+    pointGainMultiplierStatus: "Bought {count} times | Current Coherence Point gain ×{value}",
     items: {
       "coherence-upgrade-1": {
         title: "Lucid Lattice",
@@ -167,7 +168,7 @@ export default {
       },
       "coherence-upgrade-5": {
         title: "Distant Diffraction",
-        description: "Placeholder upgrade. Effect pending.",
+        description: "Multiply Coherence Point gain by 2.",
       },
     },
   },
