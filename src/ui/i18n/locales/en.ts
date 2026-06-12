@@ -72,6 +72,39 @@ export default {
       8: { title: "8th Dream Crystal" },
     },
   },
+  dreamCrystalUpgrades: {
+    availableCE: "Current stratum CE: {value}",
+    cost: "Cost: {value} CE",
+    buy: "Buy",
+    buyRepeatable: "Buy Again",
+    purchased: "Purchased",
+    pending: "Pending",
+    notReady: "Not ready",
+    repeatableStatus: "Bought {count} times | Current n = {bonus}",
+    refineryFormula: "Current formula: log10(raw + 1) + 1",
+    items: {
+      "first-tier-triple": {
+        title: "Primal Prism",
+        description: "1st Dream Crystal multiplier *3.",
+      },
+      "free-purchases": {
+        title: "Costless Conjuring",
+        description: "Buy and Buy Max no longer spend Dream Energy.",
+      },
+      placeholder: {
+        title: "Blank Bloom",
+        description: "Placeholder upgrade. Purchase state is kept.",
+      },
+      "bought-power": {
+        title: "Bought Beacon",
+        description: "All Dream Crystals gain n^x multiplier from their own bought count.",
+      },
+      "refinery-efficiency": {
+        title: "Refinery Resonance",
+        description: "Will improve refinery efficiency. Effect pending.",
+      },
+    },
+  },
   milestones: {
     claim: "Claim",
     claimed: "Claimed",

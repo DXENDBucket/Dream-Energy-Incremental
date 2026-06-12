@@ -1,6 +1,7 @@
 import type { GameState } from "@/engine/core/state";
 import { ZERO } from "@/engine/math/num";
 import { COHERENCE_DEFAULT_PRODUCTION_LOSS } from "@/engine/strata/common/coherence/balance";
+import { ensureDreamCrystalUpgradesState } from "@/engine/strata/common/dream-crystals/upgrades";
 import { ensureEntropyState } from "@/engine/strata/common/entropy";
 import {
   dreamSeaFirstStratumId,
@@ -15,6 +16,7 @@ export function normalizeGameState(state: GameState): GameState {
     stratum.coherencePoints ??= ZERO;
     stratum.coherenceProductionLoss ??= COHERENCE_DEFAULT_PRODUCTION_LOSS;
     stratum.chaoticEther ??= ZERO;
+    ensureDreamCrystalUpgradesState(stratum);
 
     const entropy = ensureEntropyState(stratum);
     entropy.formulaId = id === dreamSeaFirstStratumId ? "dream-sea-first" : "none";

@@ -27,3 +27,7 @@ export function claimMilestone(stratum: StratumState, id: string): void {
 export function isRefineUnlocked(stratum: StratumState): boolean {
   return hasMilestone(stratum.milestones, UNLOCK_REFINE_MILESTONE_ID);
 }
+
+export function isUpgradesUnlocked(stratum: StratumState): boolean {
+  return hasMilestone(stratum.milestones, UNLOCK_UPGRADES_MILESTONE_ID);
+}

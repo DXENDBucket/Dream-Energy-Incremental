@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { PRIMARY_TABS, UI_CONFIG } from "../uiConfig";
 import { format, formatInt } from "@/engine/math/format";
 import { mul } from "@/engine/math/num";
 import { getActiveDreamEnergy, getActiveStratum } from "@/engine/strata/manager/selectors";
 import DreamCrystalsPage from "./dream-crystals/DreamCrystalsPage.vue";
+import DreamCrystalUpgradesPage from "./upgrades/DreamCrystalUpgradesPage.vue";
 import DreamEnergyMilestonesPage from "./milestones/DreamEnergyMilestones.vue";
 import StratumSpeedPage from "./debug/StratumSpeedPage.vue";
 import {
   getDreamEnergyPercentageGainPerSecond,
   isDreamEnergySoftcapOneActive,
 } from "@/engine/strata/common/dream-energy";
+import { isUpgradesUnlocked } from "@/engine/strata/common/milestones";
 import {
   canCondenseCoherence,
   condenseCoherence,
@@ -45,14 +47,21 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const ui = UI_CONFIG;
+const activeStratum = computed(() => getActiveStratum(props.game.state));
+const availablePrimaryTabs = computed(() => {
+  return PRIMARY_TABS.filter(tab => {
+    if (tab.id !== "upgrades") return true;
+    return isUpgradesUnlocked(activeStratum.value);
+  });
+});
 
 function getDefaultSecondaryId(primaryId: string): string {
-  const tab = PRIMARY_TABS.find(x => x.id === primaryId);
+  const tab = availablePrimaryTabs.value.find(x => x.id === primaryId);
   return tab?.children[0]?.id ?? "dream-crystals";
 }
 
 function getNextSecondaryId(primaryId: string, currentSecondaryId: string): string {
-  const children = PRIMARY_TABS.find(x => x.id === primaryId)?.children ?? [];
+  const children = availablePrimaryTabs.value.find(x => x.id === primaryId)?.children ?? [];
   if (children.length === 0) return currentSecondaryId;
 
   const currentIndex = children.findIndex(child => child.id === currentSecondaryId);
@@ -136,11 +145,24 @@ function onPrimaryClick(primaryId: string) {
 }
 
 function openPage(primaryId: string, secondaryId: string) {
+  if (!availablePrimaryTabs.value.some(tab => tab.id === primaryId)) return;
+
   selectedPrimary.value = primaryId;
   selectedSecondary.value = secondaryId;
   lastSecondaryByPrimary.value[primaryId] = secondaryId;
   //hideSecondaryMenu();
 }
+
+watch(
+  availablePrimaryTabs,
+  (tabs) => {
+    if (tabs.some(tab => tab.id === selectedPrimary.value)) return;
+
+    selectedPrimary.value = "crystals";
+    selectedSecondary.value = getDefaultSecondaryId("crystals");
+  },
+  { immediate: true },
+);
 
 function onSecondaryButtonEnter(labelKey: string, index: number) {
   hoveredSecondaryLabelKey.value = labelKey;
@@ -164,18 +186,17 @@ const visiblePrimaryId = computed(() => {
 });
 
 const visibleSecondaryTabs = computed(() => {
-  return PRIMARY_TABS.find(tab => tab.id === visiblePrimaryId.value)?.children ?? [];
+  return availablePrimaryTabs.value.find(tab => tab.id === visiblePrimaryId.value)?.children ?? [];
 });
 
 const currentPageTitle = computed(() => {
-  for (const tab of PRIMARY_TABS) {
+  for (const tab of availablePrimaryTabs.value) {
     const child = tab.children.find(x => x.id === selectedSecondary.value);
     if (child) return t(child.labelKey);
   }
   return t("common.unknown");
 });
 
-const activeStratum = computed(() => getActiveStratum(props.game.state));
 const isDreamSeaFirstActive = computed(() => props.game.state.activeStratumId === dreamSeaFirstStratumId);
 
 const activeDreamEnergyText = computed(() => {
@@ -314,7 +335,7 @@ const secondaryTooltipStyle = computed(() => ({
 
       <div class="primary-menu" @mouseleave="onPrimaryMenuLeave">
         <button
-          v-for="(tab, index) in PRIMARY_TABS"
+          v-for="(tab, index) in availablePrimaryTabs"
           :key="tab.id"
           class="primary-button"
           :class="{ active: selectedPrimary === tab.id }"
@@ -465,8 +486,8 @@ const secondaryTooltipStyle = computed(() => ({
           <SavePage :game="props.game" />
         </div>
 
-        <div v-else-if="selectedSecondary === 'dc-upgrades'" class="page-card">
-          {{ t("mainPage.placeholders.upgrades") }}
+        <div v-else-if="selectedSecondary === 'dc-upgrades'" class="dream-crystals-page">
+          <DreamCrystalUpgradesPage :game="props.game" />
         </div>
 
         <div v-else-if="selectedSecondary === 'numbers'" class="page-card">

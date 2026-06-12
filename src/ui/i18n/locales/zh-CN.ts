@@ -72,6 +72,39 @@ export default {
       8: { title: "第 8 梦境水晶" },
     },
   },
+  dreamCrystalUpgrades: {
+    availableCE: "当前层级 CE：{value}",
+    cost: "消耗：{value} CE",
+    buy: "购买",
+    buyRepeatable: "再次购买",
+    purchased: "已购买",
+    pending: "待设计",
+    notReady: "暂未开放",
+    repeatableStatus: "已购买 {count} 次｜当前 n = {bonus}",
+    refineryFormula: "当前公式：log10(raw + 1) + 1",
+    items: {
+      "first-tier-triple": {
+        title: "原初棱镜",
+        description: "第 1 梦境水晶 multiplier *3。",
+      },
+      "free-purchases": {
+        title: "无耗塑形",
+        description: "Buy 和 Buy Max 不再消耗梦能。",
+      },
+      placeholder: {
+        title: "空白绽放",
+        description: "暂时占位，购买后保留状态。",
+      },
+      "bought-power": {
+        title: "购入信标",
+        description: "所有梦境水晶按各自 bought 获得 n^x multiplier。",
+      },
+      "refinery-efficiency": {
+        title: "精炼共振",
+        description: "用于增强 refinery 效率，效果待定。",
+      },
+    },
+  },
   milestones: {
     claim: "领取",
     claimed: "已领取",

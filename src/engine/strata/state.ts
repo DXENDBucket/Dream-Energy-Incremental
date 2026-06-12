@@ -11,6 +11,10 @@ import {
   type DreamCrystalsState,
 } from "./common/dream-crystals";
 import {
+  createDreamCrystalUpgradesState,
+  type DreamCrystalUpgradesState,
+} from "./common/dream-crystals/upgrades";
+import {
   createMilestonesState,
   type MilestonesState,
 } from "./common/milestones";
@@ -22,6 +26,7 @@ export interface StratumState {
   chaoticEther: Num;
   entropy: EntropyState;
   dreamCrystals: DreamCrystalsState;
+  dreamCrystalUpgrades: DreamCrystalUpgradesState;
   milestones: MilestonesState;
   stratumSpeed: Num;
 }
@@ -38,6 +43,7 @@ export function createStratumState(options: CreateStratumStateOptions = {}): Str
     chaoticEther: ZERO,
     entropy: createEntropyState(options.entropyFormulaId),
     dreamCrystals: createDreamCrystalsState(),
+    dreamCrystalUpgrades: createDreamCrystalUpgradesState(),
     milestones: createMilestonesState(),
     stratumSpeed: N(1),
   };

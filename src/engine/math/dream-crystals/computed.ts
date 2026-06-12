@@ -4,6 +4,10 @@ import { mul, ONE, pow, ZERO, div } from "@/engine/math/num";
 import type { StratumState } from "@/engine/strata/state";
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals/selectors";
 import { getCurrentDreamCrystalRefinementMultiplier } from "@/engine/strata/common/dream-crystals/refinement";
+import {
+    getDreamCrystalBoughtPowerMultiplier,
+    getDreamCrystalFirstTierUpgradeMultiplier,
+} from "@/engine/strata/common/dream-crystals/upgrades";
 import { applyEntropyToProduction } from "@/engine/strata/common/entropy";
 
 export function getDreamCrystalCost(tier: number, amountBought: Num) {
@@ -37,6 +41,8 @@ export function getDreamCrystalMultiplier(
 ) {
     let multiplier = ONE;
     multiplier = mul(multiplier,getCurrentDreamCrystalRefinementMultiplier(stratum, tier))
+    multiplier = mul(multiplier, getDreamCrystalFirstTierUpgradeMultiplier(stratum, tier))
+    multiplier = mul(multiplier, getDreamCrystalBoughtPowerMultiplier(stratum, tier))
     return multiplier;
 }
 
