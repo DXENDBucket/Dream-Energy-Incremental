@@ -180,9 +180,11 @@ function onBuyUpgrade(id: DreamCrystalUpgradeId) {
         >
           <span class="upgrade-title">{{ upgrade.title }}</span>
           <span class="upgrade-description">{{ upgrade.description }}</span>
-          <span v-if="upgrade.footer" class="upgrade-footer">{{ upgrade.footer }}</span>
-          <span class="upgrade-cost">{{ upgrade.costText }}</span>
-          <span class="upgrade-state">{{ upgrade.stateText }}</span>
+          <span class="upgrade-bottom">
+            <span v-if="upgrade.footer" class="upgrade-footer">{{ upgrade.footer }}</span>
+            <span class="upgrade-cost">{{ upgrade.costText }}</span>
+            <span class="upgrade-state">{{ upgrade.stateText }}</span>
+          </span>
         </button>
       </template>
     </div>
@@ -205,16 +207,18 @@ function onBuyUpgrade(id: DreamCrystalUpgradeId) {
 
 .upgrade-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(150px, 196px));
-  gap: 10px;
+  grid-template-columns: repeat(5, minmax(178px, 220px));
+  gap: 12px;
   width: fit-content;
   max-width: 100%;
   margin: 0 auto;
   justify-content: center;
+  align-items: stretch;
 }
 
 .upgrade-button {
-  min-height: 178px;
+  width: 100%;
+  min-height: 210px;
   padding: 12px 10px;
   border: 1px solid rgba(80, 102, 159, 0.82);
   border-radius: 6px;
@@ -268,8 +272,16 @@ function onBuyUpgrade(id: DreamCrystalUpgradeId) {
   line-height: 1.35;
 }
 
-.upgrade-footer {
+.upgrade-bottom {
   margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.upgrade-footer {
   color: #ffd19a;
   font-size: 0.76rem;
   font-weight: 800;
@@ -290,13 +302,15 @@ function onBuyUpgrade(id: DreamCrystalUpgradeId) {
 
 @media (max-width: 1080px) {
   .upgrade-grid {
-    grid-template-columns: repeat(3, minmax(132px, 1fr));
+    grid-template-columns: repeat(3, minmax(170px, 1fr));
+    width: min(100%, 720px);
   }
 }
 
 @media (max-width: 700px) {
   .upgrade-grid {
     grid-template-columns: 1fr;
+    width: min(100%, 360px);
   }
 }
 </style>
