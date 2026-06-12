@@ -111,7 +111,11 @@ export default {
   },
   coherenceUpgrades: {
     availableCP: "当前层级 CP：{value}",
+    cost: "消耗：{value} CP",
+    buy: "购买",
+    buyRepeatable: "再次购买",
     pending: "待定",
+    deeperInitialDreamEnergyStatus: "已购买 {count} 次；进入下一层初始 +{value} DE",
     items: {
       "coherence-upgrade-1": {
         title: "浅梦回声",
@@ -127,7 +131,7 @@ export default {
       },
       "coherence-upgrade-4": {
         title: "静滞棱面",
-        description: "占位升级，效果待定。",
+        description: "进入更深一层时，初始额外获得梦能。每次购买让这个数值 ×10。",
       },
       "coherence-upgrade-5": {
         title: "远层折光",

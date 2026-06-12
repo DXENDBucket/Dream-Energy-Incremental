@@ -111,7 +111,11 @@ export default {
   },
   coherenceUpgrades: {
     availableCP: "Current stratum CP: {value}",
+    cost: "Cost: {value} CP",
+    buy: "Buy",
+    buyRepeatable: "Buy Again",
     pending: "Pending",
+    deeperInitialDreamEnergyStatus: "Bought {count} times | Next stratum starts with +{value} DE",
     items: {
       "coherence-upgrade-1": {
         title: "Lucid Lattice",
@@ -127,7 +131,7 @@ export default {
       },
       "coherence-upgrade-4": {
         title: "Still Sigil",
-        description: "Placeholder upgrade. Effect pending.",
+        description: "Gain extra starting Dream Energy when entering one layer deeper. Each purchase multiplies it by 10.",
       },
       "coherence-upgrade-5": {
         title: "Distant Diffraction",

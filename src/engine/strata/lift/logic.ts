@@ -10,6 +10,7 @@ import {
 } from "@/engine/strata/common/entropy";
 import { addChaoticEther, getChaoticEther } from "@/engine/strata/common/chaotic-ether";
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
+import { getCoherenceDeeperInitialDreamEnergyBonus } from "@/engine/strata/common/coherence/upgrades";
 import {
   dreamSeaFirstStratumId,
   realityStratumId,
@@ -78,10 +79,14 @@ export function travelToDreamSeaFirstStratum(state: GameState): boolean {
   });
 
   const dreamSeaFirst = state.strata[dreamSeaFirstStratumId]!;
+  const initialDreamEnergyBonus = getCoherenceDeeperInitialDreamEnergyBonus(reality);
   const entropy = ensureEntropyState(dreamSeaFirst);
   entropy.formulaId = "dream-sea-first";
   entropy.tuningExponent = ENTROPY_DEFAULT_TUNING_EXPONENT;
   entropy.growthRateMultiplier = entropyGrowthRateMultiplier;
+  if (gt(initialDreamEnergyBonus, ZERO)) {
+    dreamSeaFirst.dreamEnergy = add(dreamSeaFirst.dreamEnergy, initialDreamEnergyBonus);
+  }
   reality.coherencePoints = ZERO;
 
   state.activeStratumId = dreamSeaFirstStratumId;
