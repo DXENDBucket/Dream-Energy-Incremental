@@ -3,6 +3,8 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { GameState } from "@/engine/core/state";
 import { format, formatInt } from "@/engine/math/format";
+import { ZERO } from "@/engine/math/num";
+import { getChaoticEther } from "@/engine/strata/common/chaotic-ether";
 import {
   dreamSeaFirstStratumId,
   firstStratumId,
@@ -23,12 +25,15 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n();
+type TravelDialogTarget = "reality" | "dreamSeaFirst";
+
 const realityIsActive = computed(() => props.game.state.activeStratumId === firstStratumId);
 const realityIsAvailable = computed(() => firstStratumId in props.game.state.strata);
 const dreamSeaFirstIsActive = computed(() => props.game.state.activeStratumId === dreamSeaFirstStratumId);
 const dreamSeaFirstIsVisible = computed(() => isDreamSeaFirstStratumVisible(props.game.state));
 const dreamSeaFirstCanTravel = computed(() => canTravelToDreamSeaFirstStratum(props.game.state));
-const travelDialogOpen = ref(false);
+const travelDialogTarget = ref<TravelDialogTarget | null>(null);
+const travelDialogOpen = computed(() => travelDialogTarget.value !== null);
 const dreamSeaFirstEntryCost = computed(() => getDreamSeaFirstEntryCoherenceCost(props.game.state));
 const dreamSeaFirstNodeDisabled = computed(() => !dreamSeaFirstIsActive.value && !dreamSeaFirstCanTravel.value);
 const dreamSeaFirstCostText = computed(() => {
@@ -37,26 +42,39 @@ const dreamSeaFirstCostText = computed(() => {
 const dreamSeaFirstTuningText = computed(() => {
   return format(getDreamSeaFirstEntryTuningExponent(props.game.state));
 });
+const returnChaoticEtherText = computed(() => {
+  const dreamSeaFirst = props.game.state.strata[dreamSeaFirstStratumId];
+  return format(dreamSeaFirst ? getChaoticEther(dreamSeaFirst) : ZERO);
+});
 const depthBands = Array.from({ length: 5 }, (_, index) => index);
 const shards = Array.from({ length: 14 }, (_, index) => index);
 
+function openTravelDialog(target: TravelDialogTarget) {
+  travelDialogTarget.value = target;
+}
+
 function selectReality() {
-  if (!realityIsAvailable.value) return;
-  travelToRealityStratum(props.game.state);
+  if (!realityIsAvailable.value || realityIsActive.value) return;
+  openTravelDialog("reality");
 }
 
 function selectDreamSeaFirst() {
   if (dreamSeaFirstIsActive.value || !dreamSeaFirstCanTravel.value) return;
-  travelDialogOpen.value = true;
+  openTravelDialog("dreamSeaFirst");
 }
 
 function closeTravelDialog() {
-  travelDialogOpen.value = false;
+  travelDialogTarget.value = null;
 }
 
-function confirmTravelToDreamSeaFirst() {
-  travelToDreamSeaFirstStratum(props.game.state);
-  travelDialogOpen.value = false;
+function confirmTravel() {
+  if (travelDialogTarget.value === "dreamSeaFirst") {
+    travelToDreamSeaFirstStratum(props.game.state);
+  } else if (travelDialogTarget.value === "reality") {
+    travelToRealityStratum(props.game.state);
+  }
+
+  closeTravelDialog();
 }
 </script>
 
@@ -129,10 +147,22 @@ function confirmTravelToDreamSeaFirst() {
             <div class="travel-dialog-glow" aria-hidden="true" />
 
             <div class="travel-dialog-kicker">{{ t("strataOverview.travelDialogKicker") }}</div>
-            <h3 class="travel-dialog-title">{{ t("strataOverview.travelDialogTitle") }}</h3>
-            <p class="travel-dialog-copy">{{ t("strataOverview.travelDialogCopy") }}</p>
+            <h3 class="travel-dialog-title">
+              {{
+                travelDialogTarget === "reality"
+                  ? t("strataOverview.returnDialogTitle")
+                  : t("strataOverview.travelDialogTitle")
+              }}
+            </h3>
+            <p class="travel-dialog-copy">
+              {{
+                travelDialogTarget === "reality"
+                  ? t("strataOverview.returnDialogCopy")
+                  : t("strataOverview.travelDialogCopy")
+              }}
+            </p>
 
-            <div class="travel-readouts">
+            <div v-if="travelDialogTarget === 'dreamSeaFirst'" class="travel-readouts">
               <div class="travel-readout">
                 <span>{{ t("strataOverview.travelCostLabel") }}</span>
                 <strong>{{ t("strataOverview.travelCostValue", { cost: dreamSeaFirstCostText }) }}</strong>
@@ -144,16 +174,36 @@ function confirmTravelToDreamSeaFirst() {
               </div>
             </div>
 
+            <div v-else-if="travelDialogTarget === 'reality'" class="travel-readouts">
+              <div class="travel-readout">
+                <span>{{ t("strataOverview.returnCarryLabel") }}</span>
+                <strong>{{ t("strataOverview.returnCarryValue", { value: returnChaoticEtherText }) }}</strong>
+              </div>
+
+              <div class="travel-readout">
+                <span>{{ t("strataOverview.returnResetLabel") }}</span>
+                <strong>{{ t("strataOverview.returnResetValue") }}</strong>
+              </div>
+            </div>
+
             <p class="travel-note">
-              {{ t("strataOverview.travelNoteWithCost") }}
+              {{
+                travelDialogTarget === "reality"
+                  ? t("strataOverview.returnNote")
+                  : t("strataOverview.travelNoteWithCost")
+              }}
             </p>
 
             <div class="travel-actions">
               <button class="travel-button secondary" @click="closeTravelDialog">
                 {{ t("strataOverview.travelCancel") }}
               </button>
-              <button class="travel-button primary" @click="confirmTravelToDreamSeaFirst">
-                {{ t("strataOverview.travelConfirm") }}
+              <button class="travel-button primary" @click="confirmTravel">
+                {{
+                  travelDialogTarget === "reality"
+                    ? t("strataOverview.returnConfirm")
+                    : t("strataOverview.travelConfirm")
+                }}
               </button>
             </div>
           </div>

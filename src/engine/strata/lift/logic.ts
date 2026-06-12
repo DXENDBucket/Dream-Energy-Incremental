@@ -1,8 +1,10 @@
 import type { GameState } from "@/engine/core/state";
-import { ONE, ZERO, div, gt, gte, log10, min, add } from "@/engine/math/num";
+import { ONE, TEN, ZERO, div, gt, gte, log10, min, add } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
+import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
 import {
   computeEntropyTuningExponentFromCoherence,
+  createEntropyState,
   ensureEntropyState,
 } from "@/engine/strata/common/entropy";
 import { getChaoticEther } from "@/engine/strata/common/chaotic-ether";
@@ -98,9 +100,10 @@ export function travelToRealityStratum(state: GameState): boolean {
       reality.chaoticEther = add(reality.chaoticEther ?? ZERO, carriedChaoticEther);
     }
 
-    state.strata[dreamSeaFirstStratumId] = createStratumState({
-      entropyFormulaId: "dream-sea-first",
-    });
+    dreamSeaFirst.dreamEnergy = TEN;
+    dreamSeaFirst.dreamCrystals = createDreamCrystalsState();
+    dreamSeaFirst.chaoticEther = ZERO;
+    dreamSeaFirst.entropy = createEntropyState("dream-sea-first");
   }
 
   state.activeStratumId = realityStratumId;
