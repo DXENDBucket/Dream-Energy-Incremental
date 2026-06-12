@@ -82,10 +82,11 @@ export default {
     purchased: "已购买",
     repeatableStatus: "已购买 {count} 次｜当前 n = {bonus}",
     refineryStatus: "已购买 {count} 次｜当前总倍率 x{multiplier}",
+    currentMultiplier: "当前收益 x{value}",
     items: {
       "first-tier-triple": {
         title: "原初棱镜",
-        description: "第 1 梦境水晶 multiplier *3。",
+        description: "第 1 梦境水晶 multiplier 基于累计获得 CE 提升。",
       },
       "free-purchases": {
         title: "无耗塑形",

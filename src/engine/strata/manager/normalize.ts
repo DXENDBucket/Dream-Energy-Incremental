@@ -20,6 +20,7 @@ export function normalizeGameState(state: GameState): GameState {
     stratum.coherencePoints ??= ZERO;
     stratum.coherenceProductionLoss ??= COHERENCE_DEFAULT_PRODUCTION_LOSS;
     stratum.chaoticEther ??= ZERO;
+    stratum.totalChaoticEtherGained ??= stratum.chaoticEther;
     ensureDreamCrystalUpgradesState(stratum);
     ensureDreamCrystalAutobuyersState(stratum);
 

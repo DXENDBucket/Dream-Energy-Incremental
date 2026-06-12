@@ -1,6 +1,6 @@
 import { N, ONE, ZERO, add, gte, mul, pow, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
-import { getChaoticEther } from "@/engine/strata/common/chaotic-ether";
+import { getChaoticEther, getTotalChaoticEtherGained } from "@/engine/strata/common/chaotic-ether";
 import type { StratumState } from "@/engine/strata/state";
 import { getDreamCrystalBought } from "../selectors";
 import {
@@ -80,7 +80,8 @@ export function isDreamCrystalAutobuyerUnlocked(stratum: StratumState): boolean 
 
 export function getDreamCrystalFirstTierUpgradeMultiplier(stratum: StratumState, tier: number): Num {
   if (tier !== 1) return ONE;
-  return hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID) ? N(3) : ONE;
+  if (!hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID)) return ONE;
+  return pow(N(3), getTotalChaoticEtherGained(stratum));
 }
 
 export function getDreamCrystalBoughtPowerBase(stratum: StratumState): Num {

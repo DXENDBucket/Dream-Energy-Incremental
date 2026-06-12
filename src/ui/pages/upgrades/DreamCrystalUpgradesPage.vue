@@ -6,11 +6,13 @@ import type { GameState } from "@/engine/core/state";
 import { getChaoticEther } from "@/engine/strata/common/chaotic-ether";
 import {
   DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID,
+  DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID,
   DREAM_CRYSTAL_UPGRADE_REFINERY_EFFICIENCY_ID,
   DREAM_CRYSTAL_UPGRADE_ROW_ONE,
   buyDreamCrystalUpgrade,
   canBuyDreamCrystalUpgrade,
   getDreamCrystalBoughtPowerBase,
+  getDreamCrystalFirstTierUpgradeMultiplier,
   getDreamCrystalRefineryEfficiencyMultiplier,
   getDreamCrystalRepeatableUpgradeBought,
   getDreamCrystalUpgradeCost,
@@ -53,6 +55,12 @@ const upgradeRows = computed(() => {
 });
 
 function getUpgradeFooter(id: DreamCrystalUpgradeId): string {
+  if (id === DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID) {
+    return t("dreamCrystalUpgrades.currentMultiplier", {
+      value: format(getDreamCrystalFirstTierUpgradeMultiplier(activeStratum.value, 1)),
+    });
+  }
+
   if (id === DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID) {
     const bought = getDreamCrystalRepeatableUpgradeBought(activeStratum.value, id);
     const base = getDreamCrystalBoughtPowerBase(activeStratum.value);

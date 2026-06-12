@@ -82,10 +82,11 @@ export default {
     purchased: "Purchased",
     repeatableStatus: "Bought {count} times | Current n = {bonus}",
     refineryStatus: "Bought {count} times | Current total x{multiplier}",
+    currentMultiplier: "Current x{value}",
     items: {
       "first-tier-triple": {
         title: "Primal Prism",
-        description: "1st Dream Crystal multiplier *3.",
+        description: "1st Dream Crystal multiplier scales with total CE gained.",
       },
       "free-purchases": {
         title: "Costless Conjuring",

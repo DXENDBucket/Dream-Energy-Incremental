@@ -11,6 +11,15 @@ export function getChaoticEther(stratum: StratumState): Num {
   return stratum.chaoticEther ?? ZERO;
 }
 
+export function getTotalChaoticEtherGained(stratum: StratumState): Num {
+  return stratum.totalChaoticEtherGained ?? ZERO;
+}
+
+export function addChaoticEther(stratum: StratumState, amount: Num): void {
+  stratum.chaoticEther = add(getChaoticEther(stratum), amount);
+  stratum.totalChaoticEtherGained = add(getTotalChaoticEtherGained(stratum), amount);
+}
+
 export function getChaoticEtherGain(stratum: StratumState): Num {
   if (!gt(stratum.dreamEnergy, ONE)) return ZERO;
   return floor(log10(sqrt(stratum.dreamEnergy)));
@@ -30,7 +39,7 @@ export function extractChaoticEther(state: GameState): void {
   const gain = getChaoticEtherGain(stratum);
   const entropy = ensureEntropyState(stratum);
 
-  stratum.chaoticEther = add(getChaoticEther(stratum), gain);
+  addChaoticEther(stratum, gain);
   stratum.dreamEnergy = TEN;
   stratum.dreamCrystals = createDreamCrystalsState();
   entropy.isStarted = true;
