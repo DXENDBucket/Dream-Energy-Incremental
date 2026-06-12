@@ -1,0 +1,41 @@
+export const COHERENCE_UPGRADE_PLACEHOLDER_ONE_ID = "coherence-upgrade-1";
+export const COHERENCE_UPGRADE_PLACEHOLDER_TWO_ID = "coherence-upgrade-2";
+export const COHERENCE_UPGRADE_PLACEHOLDER_THREE_ID = "coherence-upgrade-3";
+export const COHERENCE_UPGRADE_PLACEHOLDER_FOUR_ID = "coherence-upgrade-4";
+export const COHERENCE_UPGRADE_PLACEHOLDER_FIVE_ID = "coherence-upgrade-5";
+
+export const COHERENCE_UPGRADE_ROW_ONE = [
+  COHERENCE_UPGRADE_PLACEHOLDER_ONE_ID,
+  COHERENCE_UPGRADE_PLACEHOLDER_TWO_ID,
+  COHERENCE_UPGRADE_PLACEHOLDER_THREE_ID,
+  COHERENCE_UPGRADE_PLACEHOLDER_FOUR_ID,
+  COHERENCE_UPGRADE_PLACEHOLDER_FIVE_ID,
+] as const;
+
+export type CoherenceUpgradeId = (typeof COHERENCE_UPGRADE_ROW_ONE)[number];
+
+export interface CoherenceUpgradeDefinition {
+  id: CoherenceUpgradeId;
+}
+
+export const COHERENCE_UPGRADE_DEFINITIONS = {
+  [COHERENCE_UPGRADE_PLACEHOLDER_ONE_ID]: {
+    id: COHERENCE_UPGRADE_PLACEHOLDER_ONE_ID,
+  },
+  [COHERENCE_UPGRADE_PLACEHOLDER_TWO_ID]: {
+    id: COHERENCE_UPGRADE_PLACEHOLDER_TWO_ID,
+  },
+  [COHERENCE_UPGRADE_PLACEHOLDER_THREE_ID]: {
+    id: COHERENCE_UPGRADE_PLACEHOLDER_THREE_ID,
+  },
+  [COHERENCE_UPGRADE_PLACEHOLDER_FOUR_ID]: {
+    id: COHERENCE_UPGRADE_PLACEHOLDER_FOUR_ID,
+  },
+  [COHERENCE_UPGRADE_PLACEHOLDER_FIVE_ID]: {
+    id: COHERENCE_UPGRADE_PLACEHOLDER_FIVE_ID,
+  },
+} as const satisfies Record<CoherenceUpgradeId, CoherenceUpgradeDefinition>;
+
+export function getCoherenceUpgradeDefinition(id: CoherenceUpgradeId) {
+  return COHERENCE_UPGRADE_DEFINITIONS[id];
+}

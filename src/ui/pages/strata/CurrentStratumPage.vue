@@ -9,8 +9,12 @@ import {
   getRawDreamEnergyGainPerSecond,
   getDreamEnergySoftcapOneDivisor,
   getDreamEnergySoftcapOnePowerDisplay,
+  getDreamEnergySoftcapTwoExcessExponent,
+  getDreamEnergySoftcapTwoStrengthMultiplier,
   isDreamEnergySoftcapOneActive,
+  isDreamEnergySoftcapTwoActive,
 } from "@/engine/strata/common/dream-energy";
+import { DREAM_ENERGY_SOFTCAP_TWO_START } from "@/engine/math/dream-energy/balance";
 import { getDreamEnergy } from "@/engine/strata/manager/selectors";
 
 const props = defineProps<{
@@ -43,7 +47,23 @@ const softcapOneDivisorText = computed(() => {
 });
 
 const softcapOnePowerDisplayText = computed(() => {
-  return format(getDreamEnergySoftcapOnePowerDisplay());
+  return format(getDreamEnergySoftcapOnePowerDisplay(activeStratum.value));
+});
+
+const softcapTwoActive = computed(() => {
+  return isDreamEnergySoftcapTwoActive(activeStratum.value);
+});
+
+const softcapTwoMultiplierText = computed(() => {
+  return format(getDreamEnergySoftcapTwoStrengthMultiplier(activeStratum.value));
+});
+
+const softcapTwoThresholdText = computed(() => {
+  return format(DREAM_ENERGY_SOFTCAP_TWO_START);
+});
+
+const softcapTwoExcessExponentText = computed(() => {
+  return format(getDreamEnergySoftcapTwoExcessExponent(activeStratum.value));
 });
 </script>
 
@@ -89,6 +109,28 @@ const softcapOnePowerDisplayText = computed(() => {
         </i18n-t>
       </template>
     </div>
+
+    <div v-if="softcapTwoActive" class="detail-card softcap-two-card">
+      <div class="detail-title softcap-two-title">{{ t("currentStratum.softcapTwo.title") }}</div>
+
+      <i18n-t keypath="currentStratum.softcapTwo.threshold" tag="div" class="detail-line softcap-two-line">
+        <template #value>
+          <span class="detail-number softcap-two-number">{{ softcapTwoThresholdText }}</span>
+        </template>
+      </i18n-t>
+
+      <i18n-t keypath="currentStratum.softcapTwo.excessExponent" tag="div" class="detail-line softcap-two-line">
+        <template #value>
+          <span class="detail-number softcap-two-number">{{ softcapTwoExcessExponentText }}</span>
+        </template>
+      </i18n-t>
+
+      <i18n-t keypath="currentStratum.softcapTwo.strengthMultiplier" tag="div" class="detail-line softcap-two-line">
+        <template #value>
+          <span class="detail-number softcap-two-number">×{{ softcapTwoMultiplierText }}</span>
+        </template>
+      </i18n-t>
+    </div>
   </div>
 </template>
 
@@ -129,5 +171,30 @@ const softcapOnePowerDisplayText = computed(() => {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   margin: 0 0.18em;
+}
+
+.softcap-two-card {
+  margin-top: 14px;
+  border: 1px solid rgba(148, 35, 54, 0.78);
+  background:
+    linear-gradient(180deg, rgba(42, 8, 16, 0.95) 0%, rgba(17, 3, 8, 0.98) 100%);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.32),
+    0 0 22px rgba(176, 35, 62, 0.12),
+    inset 0 0 24px rgba(255, 79, 104, 0.06);
+}
+
+.softcap-two-title {
+  color: #ffd1d8;
+  text-shadow: 0 0 12px rgba(255, 91, 120, 0.28);
+}
+
+.softcap-two-line {
+  color: #c44663;
+}
+
+.softcap-two-number {
+  color: #ffd6e0;
+  text-shadow: 0 0 12px rgba(255, 102, 133, 0.26);
 }
 </style>

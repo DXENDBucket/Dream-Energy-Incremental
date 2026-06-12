@@ -88,7 +88,7 @@ export function getDreamCrystalBoughtPowerBase(stratum: StratumState): Num {
   const bought = getDreamCrystalRepeatableUpgradeBought(stratum, DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID);
   if (bought.lte(ZERO)) return ONE;
 
-  return add(N(1.04), mul(bought, N(0.01)));
+  return add(N(1.01), mul(bought, N(0.01)));
 }
 
 export function getDreamCrystalBoughtPowerMultiplier(stratum: StratumState, tier: number): Num {

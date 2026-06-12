@@ -1,5 +1,5 @@
 import type { GameState } from "@/engine/core/state";
-import { ONE, TEN, ZERO, add, floor, gt, log10, sqrt } from "@/engine/math/num";
+import { N, ONE, TEN, ZERO, add, div, floor, gt, log10 } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
 import { ensureEntropyState } from "@/engine/strata/common/entropy";
@@ -22,7 +22,7 @@ export function addChaoticEther(stratum: StratumState, amount: Num): void {
 
 export function getChaoticEtherGain(stratum: StratumState): Num {
   if (!gt(stratum.dreamEnergy, ONE)) return ZERO;
-  return floor(log10(sqrt(stratum.dreamEnergy)));
+  return floor(div(log10(stratum.dreamEnergy), N(1.4)));
 }
 
 export function canExtractChaoticEther(state: GameState): boolean {

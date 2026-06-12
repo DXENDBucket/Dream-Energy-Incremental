@@ -2,6 +2,7 @@ import type { StratumState } from "../../state";
 import { gte } from "@/engine/math/num";
 import { hasMilestone } from "./selectors";
 import {
+  UNLOCK_COHERENCE_UPGRADES_MILESTONE_ID,
   UNLOCK_REFINE_MILESTONE_ID,
   UNLOCK_UPGRADES_MILESTONE_ID,
 } from "@/engine/strata/common/milestones/balance";
@@ -30,4 +31,8 @@ export function isRefineUnlocked(stratum: StratumState): boolean {
 
 export function isUpgradesUnlocked(stratum: StratumState): boolean {
   return hasMilestone(stratum.milestones, UNLOCK_UPGRADES_MILESTONE_ID);
+}
+
+export function isCoherenceUpgradesUnlocked(stratum: StratumState): boolean {
+  return hasMilestone(stratum.milestones, UNLOCK_COHERENCE_UPGRADES_MILESTONE_ID);
 }

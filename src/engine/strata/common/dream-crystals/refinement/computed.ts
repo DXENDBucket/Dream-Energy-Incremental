@@ -1,8 +1,10 @@
-import { ONE, log10, add, max, div, mul } from "@/engine/math/num";
+import { N, ONE, add, div, logn, max, mul } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import type { StratumState } from "@/engine/strata/state";
 import { getDreamCrystalRefineryEfficiencyMultiplier } from "@/engine/strata/common/dream-crystals/upgrades";
 import { getCurrentDreamCrystalRefinement, getDreamCrystalRefinementIncrement, getPendingDreamCrystalRefinement } from "./logic";
+
+const REFINERY_LOG_BASE = N(5);
 
 export function getCurrentDreamCrystalRefinementMultiplier(stratum: StratumState, tier: number) {
     const refinement = getCurrentDreamCrystalRefinement(stratum, tier)
@@ -28,6 +30,6 @@ export function getDreamCrystalRefinementMultiplierGainRatio(stratum: StratumSta
 }
 
 export function computeDreamCrystalRefinmentMultiplier(raw: Num) {
-    let refinementMultiplier = add(log10(add(raw, ONE)), ONE)
+    let refinementMultiplier = add(logn(add(raw, ONE), REFINERY_LOG_BASE), ONE)
     return refinementMultiplier
 }

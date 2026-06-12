@@ -7,6 +7,7 @@ import { mul } from "@/engine/math/num";
 import { getActiveDreamEnergy, getActiveStratum } from "@/engine/strata/manager/selectors";
 import DreamCrystalsPage from "./dream-crystals/DreamCrystalsPage.vue";
 import DreamCrystalUpgradesPage from "./upgrades/DreamCrystalUpgradesPage.vue";
+import CoherenceUpgradesPage from "./upgrades/CoherenceUpgradesPage.vue";
 import DreamCrystalAutobuyersPage from "./autobuyers/DreamCrystalAutobuyersPage.vue";
 import DreamEnergyMilestonesPage from "./milestones/DreamEnergyMilestones.vue";
 import StratumSpeedPage from "./debug/StratumSpeedPage.vue";
@@ -14,7 +15,10 @@ import {
   getDreamEnergyPercentageGainPerSecond,
   isDreamEnergySoftcapOneActive,
 } from "@/engine/strata/common/dream-energy";
-import { isUpgradesUnlocked } from "@/engine/strata/common/milestones";
+import {
+  isCoherenceUpgradesUnlocked,
+  isUpgradesUnlocked,
+} from "@/engine/strata/common/milestones";
 import {
   canCondenseCoherence,
   condenseCoherence,
@@ -51,11 +55,22 @@ const { t } = useI18n();
 const ui = UI_CONFIG;
 const activeStratum = computed(() => getActiveStratum(props.game.state));
 const availablePrimaryTabs = computed(() => {
-  return PRIMARY_TABS.filter(tab => {
-    if (tab.id === "upgrades") return isUpgradesUnlocked(activeStratum.value);
-    if (tab.id === "autobuyers") return isDreamCrystalAutobuyerUnlocked(activeStratum.value);
-    return true;
-  });
+  return PRIMARY_TABS
+    .filter(tab => {
+      if (tab.id === "upgrades") return isUpgradesUnlocked(activeStratum.value);
+      if (tab.id === "autobuyers") return isDreamCrystalAutobuyerUnlocked(activeStratum.value);
+      return true;
+    })
+    .map(tab => {
+      if (tab.id !== "upgrades") return tab;
+
+      return {
+        ...tab,
+        children: tab.children.filter(child => {
+          return child.id !== "coherence-upgrades" || isCoherenceUpgradesUnlocked(activeStratum.value);
+        }),
+      };
+    });
 });
 
 function getDefaultSecondaryId(primaryId: string): string {
@@ -141,14 +156,19 @@ function onPrimaryClick(primaryId: string) {
 
   const rememberedSecondary =
     lastSecondaryByPrimary.value[primaryId] ?? getDefaultSecondaryId(primaryId);
+  const tab = availablePrimaryTabs.value.find(x => x.id === primaryId);
+  const nextSecondary = tab?.children.some(child => child.id === rememberedSecondary)
+    ? rememberedSecondary
+    : getDefaultSecondaryId(primaryId);
 
   selectedPrimary.value = primaryId;
-  selectedSecondary.value = rememberedSecondary;
-  lastSecondaryByPrimary.value[primaryId] = rememberedSecondary;
+  selectedSecondary.value = nextSecondary;
+  lastSecondaryByPrimary.value[primaryId] = nextSecondary;
 }
 
 function openPage(primaryId: string, secondaryId: string) {
-  if (!availablePrimaryTabs.value.some(tab => tab.id === primaryId)) return;
+  const tab = availablePrimaryTabs.value.find(x => x.id === primaryId);
+  if (!tab?.children.some(child => child.id === secondaryId)) return;
 
   selectedPrimary.value = primaryId;
   selectedSecondary.value = secondaryId;
@@ -159,7 +179,17 @@ function openPage(primaryId: string, secondaryId: string) {
 watch(
   availablePrimaryTabs,
   (tabs) => {
-    if (tabs.some(tab => tab.id === selectedPrimary.value)) return;
+    const currentPrimary = tabs.find(tab => tab.id === selectedPrimary.value);
+
+    if (currentPrimary) {
+      if (!currentPrimary.children.some(child => child.id === selectedSecondary.value)) {
+        const fallbackSecondary = getDefaultSecondaryId(selectedPrimary.value);
+        selectedSecondary.value = fallbackSecondary;
+        lastSecondaryByPrimary.value[selectedPrimary.value] = fallbackSecondary;
+      }
+
+      return;
+    }
 
     selectedPrimary.value = "crystals";
     selectedSecondary.value = getDefaultSecondaryId("crystals");
@@ -491,6 +521,10 @@ const secondaryTooltipStyle = computed(() => ({
 
         <div v-else-if="selectedSecondary === 'dc-upgrades'" class="dream-crystals-page">
           <DreamCrystalUpgradesPage :game="props.game" />
+        </div>
+
+        <div v-else-if="selectedSecondary === 'coherence-upgrades'" class="dream-crystals-page">
+          <CoherenceUpgradesPage :game="props.game" />
         </div>
 
         <div v-else-if="selectedSecondary === 'dc-autobuyers'" class="dream-crystals-page">

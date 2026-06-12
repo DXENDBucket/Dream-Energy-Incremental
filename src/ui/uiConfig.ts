@@ -80,6 +80,7 @@ export const PRIMARY_TABS = [
     textColor: "#dce6ff",
     children: [
       { id: "dc-upgrades", icon: "↑", labelKey: "navigation.secondary.dreamCrystalUpgrades" },
+      { id: "coherence-upgrades", icon: "U", labelKey: "navigation.secondary.coherenceUpgrades" },
     ],
   },
   {

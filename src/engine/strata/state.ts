@@ -2,6 +2,10 @@ import { N, ZERO } from "../math/num";
 import type { Num } from "../math/num";
 import { COHERENCE_DEFAULT_PRODUCTION_LOSS } from "./common/coherence/balance";
 import {
+  createCoherenceUpgradesState,
+  type CoherenceUpgradesState,
+} from "./common/coherence/upgrades";
+import {
   createEntropyState,
   type EntropyFormulaId,
   type EntropyState,
@@ -29,6 +33,7 @@ export interface StratumState {
   coherenceProductionLoss: Num;
   chaoticEther: Num;
   totalChaoticEtherGained: Num;
+  coherenceUpgrades: CoherenceUpgradesState;
   entropy: EntropyState;
   dreamCrystals: DreamCrystalsState;
   dreamCrystalUpgrades: DreamCrystalUpgradesState;
@@ -48,6 +53,7 @@ export function createStratumState(options: CreateStratumStateOptions = {}): Str
     coherenceProductionLoss: COHERENCE_DEFAULT_PRODUCTION_LOSS,
     chaoticEther: ZERO,
     totalChaoticEtherGained: ZERO,
+    coherenceUpgrades: createCoherenceUpgradesState(),
     entropy: createEntropyState(options.entropyFormulaId),
     dreamCrystals: createDreamCrystalsState(),
     dreamCrystalUpgrades: createDreamCrystalUpgradesState(),

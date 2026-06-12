@@ -19,6 +19,7 @@ export default {
     secondary: {
       dreamCrystals: "梦境水晶",
       dreamCrystalUpgrades: "梦境水晶升级",
+      coherenceUpgrades: "调谐升级",
       dreamEnergyMilestones: "梦能里程碑",
       strataOverview: "总览",
       currentStratum: "当前层级",
@@ -106,6 +107,32 @@ export default {
       },
     },
   },
+  coherenceUpgrades: {
+    availableCP: "当前层级 CP：{value}",
+    pending: "待定",
+    items: {
+      "coherence-upgrade-1": {
+        title: "浅梦回声",
+        description: "占位升级，效果待定。",
+      },
+      "coherence-upgrade-2": {
+        title: "澄蓝锚点",
+        description: "占位升级，效果待定。",
+      },
+      "coherence-upgrade-3": {
+        title: "镜潮纹理",
+        description: "占位升级，效果待定。",
+      },
+      "coherence-upgrade-4": {
+        title: "静滞棱面",
+        description: "占位升级，效果待定。",
+      },
+      "coherence-upgrade-5": {
+        title: "远层折光",
+        description: "占位升级，效果待定。",
+      },
+    },
+  },
   milestones: {
     claim: "领取",
     claimed: "已领取",
@@ -123,6 +150,11 @@ export default {
         title: "里程碑 2",
         reward: "解锁梦境水晶升级。",
         description: "梦境水晶升级会强化产出。",
+      },
+      unlockCoherenceUpgrades: {
+        title: "里程碑 3",
+        reward: "解锁调谐升级。",
+        description: "调谐升级属于当前层级，未来会主要用于强化下一层。",
       },
     },
   },
@@ -182,11 +214,18 @@ export default {
   currentStratum: {
     title: "梦能排斥",
     underPressure: "你的梦能储量正承受压力。",
+    strongInteraction: "强相互作用力开始在梦能之间发挥作用，额外排斥 strength {value}。",
     detail: "由于你当前持有 {current} 梦能，你的原始产出 {raw} 正承受强度为 {power} 的排斥。",
     reducedTo: "这会将你的产出按 {divisor} 削减至 {final}。",
     stable: "你当前的梦能储量是稳定的。",
     noRepulsion: "当前没有排斥影响梦能产出。",
     currentProduction: "当前产出：{value}",
+    softcapTwo: {
+      title: "强相互作用力",
+      threshold: "第二 softcap 阈值：{value} 梦能",
+      excessExponent: "超过阈值的 10 为底指数：{value}",
+      strengthMultiplier: "当前第一 softcap strength 倍率：{value}",
+    },
   },
   lift: {
     locked: "未解锁",

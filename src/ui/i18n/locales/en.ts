@@ -19,6 +19,7 @@ export default {
     secondary: {
       dreamCrystals: "Dream Crystals",
       dreamCrystalUpgrades: "Dream Crystal Upgrades",
+      coherenceUpgrades: "Coherence Upgrades",
       dreamEnergyMilestones: "Dream Energy Milestones",
       strataOverview: "Overview",
       currentStratum: "Current Stratum",
@@ -106,6 +107,32 @@ export default {
       },
     },
   },
+  coherenceUpgrades: {
+    availableCP: "Current stratum CP: {value}",
+    pending: "Pending",
+    items: {
+      "coherence-upgrade-1": {
+        title: "Lucid Lattice",
+        description: "Placeholder upgrade. Effect pending.",
+      },
+      "coherence-upgrade-2": {
+        title: "Azure Anchor",
+        description: "Placeholder upgrade. Effect pending.",
+      },
+      "coherence-upgrade-3": {
+        title: "Mirror Matrix",
+        description: "Placeholder upgrade. Effect pending.",
+      },
+      "coherence-upgrade-4": {
+        title: "Still Sigil",
+        description: "Placeholder upgrade. Effect pending.",
+      },
+      "coherence-upgrade-5": {
+        title: "Distant Diffraction",
+        description: "Placeholder upgrade. Effect pending.",
+      },
+    },
+  },
   milestones: {
     claim: "Claim",
     claimed: "Claimed",
@@ -124,6 +151,11 @@ export default {
         title: "Milestone 2",
         reward: "Unlock Dream Crystal Upgrades.",
         description: "Dream crystal upgrades enhance production.",
+      },
+      unlockCoherenceUpgrades: {
+        title: "Milestone 3",
+        reward: "Unlock Coherence Upgrades.",
+        description: "Coherence Upgrades belong to the current stratum and will mainly strengthen the next one.",
       },
     },
   },
@@ -183,12 +215,19 @@ export default {
   currentStratum: {
     title: "Dream Energy Repulsion",
     underPressure: "Your Dream Energy storage is under pressure.",
+    strongInteraction: "The strong interaction is acting between Dream Energy, adding repulsion strength {value}.",
     detail:
       "Because you currently hold {current} Dream Energy, your raw production of {raw} is facing a repulsion strength of {power}.",
     reducedTo: "This reduces your production by {divisor} to {final}.",
     stable: "Your current Dream Energy storage is stable.",
     noRepulsion: "No repulsion is affecting Dream Energy production right now.",
     currentProduction: "Current production: {value}",
+    softcapTwo: {
+      title: "Strong Interaction",
+      threshold: "Second softcap threshold: {value} Dream Energy",
+      excessExponent: "Base-10 exponent beyond the threshold: {value}",
+      strengthMultiplier: "Current first softcap strength multiplier: {value}",
+    },
   },
   lift: {
     locked: "Locked",

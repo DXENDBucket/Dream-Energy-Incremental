@@ -1,6 +1,7 @@
 import type { GameState } from "@/engine/core/state";
 import { ZERO } from "@/engine/math/num";
 import { COHERENCE_DEFAULT_PRODUCTION_LOSS } from "@/engine/strata/common/coherence/balance";
+import { ensureCoherenceUpgradesState } from "@/engine/strata/common/coherence/upgrades";
 import { ensureDreamCrystalAutobuyersState } from "@/engine/strata/common/dream-crystals/autobuyers";
 import { ensureDreamCrystalUpgradesState } from "@/engine/strata/common/dream-crystals/upgrades";
 import {
@@ -21,6 +22,7 @@ export function normalizeGameState(state: GameState): GameState {
     stratum.coherenceProductionLoss ??= COHERENCE_DEFAULT_PRODUCTION_LOSS;
     stratum.chaoticEther ??= ZERO;
     stratum.totalChaoticEtherGained ??= stratum.chaoticEther;
+    ensureCoherenceUpgradesState(stratum);
     ensureDreamCrystalUpgradesState(stratum);
     ensureDreamCrystalAutobuyersState(stratum);
 
