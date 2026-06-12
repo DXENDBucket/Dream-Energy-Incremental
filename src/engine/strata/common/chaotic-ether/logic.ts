@@ -1,6 +1,7 @@
 import type { GameState } from "@/engine/core/state";
-import { ONE, ZERO, add, floor, gt, log10, sqrt } from "@/engine/math/num";
+import { ONE, TEN, ZERO, add, floor, gt, log10, sqrt } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
+import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
 import { ensureEntropyState } from "@/engine/strata/common/entropy";
 import { dreamSeaFirstStratumId } from "@/engine/strata/defs/ids";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
@@ -19,9 +20,6 @@ export function canExtractChaoticEther(state: GameState): boolean {
   if (state.activeStratumId !== dreamSeaFirstStratumId) return false;
 
   const stratum = getActiveStratum(state);
-  const entropy = ensureEntropyState(stratum);
-  if (entropy.value.gte(ONE)) return false;
-
   return gt(getChaoticEtherGain(stratum), ZERO);
 }
 
@@ -33,6 +31,8 @@ export function extractChaoticEther(state: GameState): void {
   const entropy = ensureEntropyState(stratum);
 
   stratum.chaoticEther = add(getChaoticEther(stratum), gain);
+  stratum.dreamEnergy = TEN;
+  stratum.dreamCrystals = createDreamCrystalsState();
   entropy.isStarted = true;
   entropy.value = ONE;
 }
