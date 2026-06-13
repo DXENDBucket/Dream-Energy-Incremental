@@ -128,17 +128,18 @@ function closeTravelDialog() {
 }
 
 function confirmTravel() {
-  if (travelDialogTarget.value === "dreamSeaFirst") {
+  const target = travelDialogTarget.value;
+  closeTravelDialog();
+
+  if (target === "dreamSeaFirst") {
     travelToDreamSeaFirstStratum(props.game.state);
-  } else if (travelDialogTarget.value === "dreamSeaSecond") {
+  } else if (target === "dreamSeaSecond") {
     travelToDreamSeaSecondStratum(props.game.state);
-  } else if (travelDialogTarget.value === "dreamSeaFirstReturn") {
+  } else if (target === "dreamSeaFirstReturn") {
     travelBackToDreamSeaFirstStratum(props.game.state);
-  } else if (travelDialogTarget.value === "reality") {
+  } else if (target === "reality") {
     travelToRealityStratum(props.game.state);
   }
-
-  closeTravelDialog();
 }
 </script>
 

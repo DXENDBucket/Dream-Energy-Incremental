@@ -217,6 +217,7 @@ export function travelBackToDreamSeaFirstStratum(state: GameState): boolean {
 
 export function travelToRealityStratum(state: GameState): boolean {
   if (!(realityStratumId in state.strata)) return false;
+  if (!(dreamSeaFirstStratumId in state.strata)) return false;
   if (state.activeStratumId !== dreamSeaFirstStratumId) return false;
 
   const reality = getStratum(state, realityStratumId);
