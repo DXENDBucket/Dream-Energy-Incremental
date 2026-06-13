@@ -1,6 +1,11 @@
 import { N, ONE, ZERO, add, gte, mul, pow, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
-import { getChaoticEther, getTotalChaoticEtherGained } from "@/engine/strata/common/chaotic-ether";
+import {
+  getChaoticEther,
+  getDreamCrystalUpgradeChaoticEtherTier,
+  getTotalChaoticEtherGained,
+  setChaoticEther,
+} from "@/engine/strata/common/chaotic-ether";
 import type { StratumState } from "@/engine/strata/state";
 import { getDreamCrystalBought } from "../selectors";
 import {
@@ -86,7 +91,8 @@ export function canBuyDreamCrystalUpgrade(stratum: StratumState, id: DreamCrysta
   const definition = getDreamCrystalUpgradeDefinition(id);
   if (definition.kind === "single" && hasDreamCrystalUpgrade(stratum, id)) return false;
 
-  return gte(getChaoticEther(stratum), getDreamCrystalUpgradeCost(stratum, id));
+  const tier = getDreamCrystalUpgradeChaoticEtherTier(stratum);
+  return gte(getChaoticEther(stratum, tier), getDreamCrystalUpgradeCost(stratum, id));
 }
 
 export function buyDreamCrystalUpgrade(stratum: StratumState, id: DreamCrystalUpgradeId): void {
@@ -95,8 +101,9 @@ export function buyDreamCrystalUpgrade(stratum: StratumState, id: DreamCrystalUp
   const definition = getDreamCrystalUpgradeDefinition(id);
   const upgrades = ensureDreamCrystalUpgradesState(stratum);
   const cost = getDreamCrystalUpgradeCost(stratum, id);
+  const tier = getDreamCrystalUpgradeChaoticEtherTier(stratum);
 
-  stratum.chaoticEther = sub(getChaoticEther(stratum), cost);
+  setChaoticEther(stratum, tier, sub(getChaoticEther(stratum, tier), cost));
 
   if (definition.kind === "repeatable") {
     upgrades.repeatableBought[id] = add(getDreamCrystalRepeatableUpgradeBought(stratum, id), ONE);
@@ -141,7 +148,10 @@ export function getDreamCrystalSoftcapTwoStrengthMultiplier(stratum: StratumStat
 export function getDreamCrystalFirstTierUpgradeMultiplier(stratum: StratumState, tier: number): Num {
   if (tier !== 1) return ONE;
   if (!hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID)) return ONE;
-  return pow(N(3), getTotalChaoticEtherGained(stratum));
+  return pow(N(3), getTotalChaoticEtherGained(
+    stratum,
+    getDreamCrystalUpgradeChaoticEtherTier(stratum),
+  ));
 }
 
 export function getDreamCrystalBoughtPowerBase(stratum: StratumState): Num {

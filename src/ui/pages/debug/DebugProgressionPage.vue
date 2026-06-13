@@ -6,7 +6,11 @@ import { format } from "@/engine/math/format";
 import { N, add, max, type Num } from "@/engine/math/num";
 import { DREAM_CRYSTAL_UPGRADE_AUTOBUYER_ID, ensureDreamCrystalUpgradesState } from "@/engine/strata/common/dream-crystals/upgrades";
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
-import { addChaoticEther, getChaoticEther } from "@/engine/strata/common/chaotic-ether";
+import {
+  addChaoticEther,
+  getChaoticEther,
+  getDreamCrystalUpgradeChaoticEtherTier,
+} from "@/engine/strata/common/chaotic-ether";
 import { ensureEntropyState } from "@/engine/strata/common/entropy";
 import {
   UNLOCK_COHERENCE_UPGRADES_MILESTONE_ID,
@@ -65,7 +69,8 @@ const activeStratum = computed(() => getActiveStratum(props.game.state));
 const activeStratumIdText = computed(() => props.game.state.activeStratumId);
 const activeDreamEnergyText = computed(() => format(activeStratum.value.dreamEnergy));
 const activeCoherenceText = computed(() => format(getCoherencePoints(activeStratum.value)));
-const activeChaoticEtherText = computed(() => format(getChaoticEther(activeStratum.value)));
+const activeChaoticEtherTier = computed(() => getDreamCrystalUpgradeChaoticEtherTier(activeStratum.value));
+const activeChaoticEtherText = computed(() => format(getChaoticEther(activeStratum.value, activeChaoticEtherTier.value)));
 const liftStatusText = computed(() => {
   return props.game.state.lift.isLiftUnlocked
     ? t("debugProgression.status.unlocked")
@@ -257,7 +262,7 @@ function runAction(id: DebugActionId): void {
       addCoherencePoints(activeStratum.value, ACTIVE_CP_GRANT);
       break;
     case "add-active-ce":
-      addChaoticEther(activeStratum.value, ACTIVE_CE_GRANT);
+      addChaoticEther(activeStratum.value, ACTIVE_CE_GRANT, activeChaoticEtherTier.value);
       break;
     case "add-reality-cp":
       addCoherencePoints(ensureRealityStratum(), REALITY_CP_GRANT);
@@ -287,7 +292,7 @@ function runAction(id: DebugActionId): void {
         <span class="status-value">{{ activeCoherenceText }}</span>
       </div>
       <div class="status-item">
-        <span class="status-label">{{ t("resource.chaoticEther") }}</span>
+        <span class="status-label">{{ t("resource.chaoticEther") }} CE{{ activeChaoticEtherTier }}</span>
         <span class="status-value">{{ activeChaoticEtherText }}</span>
       </div>
       <div class="status-item">

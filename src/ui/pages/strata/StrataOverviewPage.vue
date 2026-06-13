@@ -7,14 +7,22 @@ import { ZERO } from "@/engine/math/num";
 import { getChaoticEther } from "@/engine/strata/common/chaotic-ether";
 import {
   dreamSeaFirstStratumId,
+  dreamSeaSecondStratumId,
   firstStratumId,
 } from "@/engine/strata/defs/ids";
 import {
+  canTravelBackToDreamSeaFirstStratum,
   canTravelToDreamSeaFirstStratum,
+  canTravelToDreamSeaSecondStratum,
   getDreamSeaFirstEntryCoherenceCost,
   getDreamSeaFirstEntryEntropyGrowthRateMultiplier,
+  getDreamSeaSecondEntryCoherenceCost,
+  getDreamSeaSecondEntryEntropyGrowthRateMultiplier,
   isDreamSeaFirstStratumVisible,
+  isDreamSeaSecondStratumVisible,
+  travelBackToDreamSeaFirstStratum,
   travelToDreamSeaFirstStratum,
+  travelToDreamSeaSecondStratum,
   travelToRealityStratum,
 } from "@/engine/strata/lift";
 
@@ -25,26 +33,68 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n();
-type TravelDialogTarget = "reality" | "dreamSeaFirst";
+type TravelDialogTarget = "reality" | "dreamSeaFirst" | "dreamSeaFirstReturn" | "dreamSeaSecond";
 
 const realityIsActive = computed(() => props.game.state.activeStratumId === firstStratumId);
 const realityIsAvailable = computed(() => firstStratumId in props.game.state.strata);
+const realityNodeDisabled = computed(() => !realityIsAvailable.value || realityIsActive.value || !dreamSeaFirstIsActive.value);
 const dreamSeaFirstIsActive = computed(() => props.game.state.activeStratumId === dreamSeaFirstStratumId);
 const dreamSeaFirstIsVisible = computed(() => isDreamSeaFirstStratumVisible(props.game.state));
 const dreamSeaFirstCanTravel = computed(() => canTravelToDreamSeaFirstStratum(props.game.state));
+const dreamSeaFirstCanReturnTo = computed(() => canTravelBackToDreamSeaFirstStratum(props.game.state));
+const dreamSeaFirstNodeDisabled = computed(() => {
+  if (dreamSeaFirstIsActive.value) return true;
+  if (dreamSeaFirstCanReturnTo.value) return false;
+  return !dreamSeaFirstCanTravel.value;
+});
+const dreamSeaSecondIsActive = computed(() => props.game.state.activeStratumId === dreamSeaSecondStratumId);
+const dreamSeaSecondIsVisible = computed(() => isDreamSeaSecondStratumVisible(props.game.state));
+const dreamSeaSecondCanTravel = computed(() => canTravelToDreamSeaSecondStratum(props.game.state));
 const travelDialogTarget = ref<TravelDialogTarget | null>(null);
 const travelDialogOpen = computed(() => travelDialogTarget.value !== null);
 const dreamSeaFirstEntryCost = computed(() => getDreamSeaFirstEntryCoherenceCost(props.game.state));
-const dreamSeaFirstNodeDisabled = computed(() => !dreamSeaFirstIsActive.value && !dreamSeaFirstCanTravel.value);
+const dreamSeaSecondEntryCost = computed(() => getDreamSeaSecondEntryCoherenceCost(props.game.state));
 const dreamSeaFirstCostText = computed(() => {
   return formatInt(dreamSeaFirstEntryCost.value);
+});
+const dreamSeaSecondCostText = computed(() => {
+  return formatInt(dreamSeaSecondEntryCost.value);
 });
 const dreamSeaFirstEntropyRateText = computed(() => {
   return format(getDreamSeaFirstEntryEntropyGrowthRateMultiplier(props.game.state));
 });
+const dreamSeaSecondEntropyRateText = computed(() => {
+  return format(getDreamSeaSecondEntryEntropyGrowthRateMultiplier(props.game.state));
+});
 const returnChaoticEtherText = computed(() => {
   const dreamSeaFirst = props.game.state.strata[dreamSeaFirstStratumId];
-  return format(dreamSeaFirst ? getChaoticEther(dreamSeaFirst) : ZERO);
+  return format(dreamSeaFirst ? getChaoticEther(dreamSeaFirst, 1) : ZERO);
+});
+const returnToFirstChaoticEtherText = computed(() => {
+  const dreamSeaSecond = props.game.state.strata[dreamSeaSecondStratumId];
+  return format(dreamSeaSecond ? getChaoticEther(dreamSeaSecond, 2) : ZERO);
+});
+const travelDialogTitle = computed(() => {
+  if (travelDialogTarget.value === "reality") return t("strataOverview.returnDialogTitle");
+  if (travelDialogTarget.value === "dreamSeaFirstReturn") return t("strataOverview.returnToFirstDialogTitle");
+  if (travelDialogTarget.value === "dreamSeaSecond") return t("strataOverview.travelSecondDialogTitle");
+  return t("strataOverview.travelDialogTitle");
+});
+const travelDialogCopy = computed(() => {
+  if (travelDialogTarget.value === "reality") return t("strataOverview.returnDialogCopy");
+  if (travelDialogTarget.value === "dreamSeaFirstReturn") return t("strataOverview.returnToFirstDialogCopy");
+  if (travelDialogTarget.value === "dreamSeaSecond") return t("strataOverview.travelSecondDialogCopy");
+  return t("strataOverview.travelDialogCopy");
+});
+const travelDialogNote = computed(() => {
+  if (travelDialogTarget.value === "reality") return t("strataOverview.returnNote");
+  if (travelDialogTarget.value === "dreamSeaFirstReturn") return t("strataOverview.returnToFirstNote");
+  return t("strataOverview.travelNoteWithCost");
+});
+const travelDialogConfirmText = computed(() => {
+  if (travelDialogTarget.value === "reality") return t("strataOverview.returnConfirm");
+  if (travelDialogTarget.value === "dreamSeaFirstReturn") return t("strataOverview.returnToFirstConfirm");
+  return t("strataOverview.travelConfirm");
 });
 const depthBands = Array.from({ length: 5 }, (_, index) => index);
 const shards = Array.from({ length: 14 }, (_, index) => index);
@@ -54,13 +104,23 @@ function openTravelDialog(target: TravelDialogTarget) {
 }
 
 function selectReality() {
-  if (!realityIsAvailable.value || realityIsActive.value) return;
+  if (realityNodeDisabled.value) return;
   openTravelDialog("reality");
 }
 
 function selectDreamSeaFirst() {
-  if (dreamSeaFirstIsActive.value || !dreamSeaFirstCanTravel.value) return;
+  if (dreamSeaFirstIsActive.value) return;
+  if (dreamSeaFirstCanReturnTo.value) {
+    openTravelDialog("dreamSeaFirstReturn");
+    return;
+  }
+  if (!dreamSeaFirstCanTravel.value) return;
   openTravelDialog("dreamSeaFirst");
+}
+
+function selectDreamSeaSecond() {
+  if (dreamSeaSecondIsActive.value || !dreamSeaSecondCanTravel.value) return;
+  openTravelDialog("dreamSeaSecond");
 }
 
 function closeTravelDialog() {
@@ -70,6 +130,10 @@ function closeTravelDialog() {
 function confirmTravel() {
   if (travelDialogTarget.value === "dreamSeaFirst") {
     travelToDreamSeaFirstStratum(props.game.state);
+  } else if (travelDialogTarget.value === "dreamSeaSecond") {
+    travelToDreamSeaSecondStratum(props.game.state);
+  } else if (travelDialogTarget.value === "dreamSeaFirstReturn") {
+    travelBackToDreamSeaFirstStratum(props.game.state);
   } else if (travelDialogTarget.value === "reality") {
     travelToRealityStratum(props.game.state);
   }
@@ -112,7 +176,7 @@ function confirmTravel() {
       <button
         class="stratum-node reality-node"
         :class="{ active: realityIsActive }"
-        :disabled="!realityIsAvailable"
+        :disabled="realityNodeDisabled"
         @click="selectReality"
       >
         <span class="node-orbit" aria-hidden="true" />
@@ -133,7 +197,24 @@ function confirmTravel() {
         <span class="node-core">
           <span class="node-title">{{ t("strataOverview.dreamSeaFirst") }}</span>
           <span v-if="dreamSeaFirstIsActive" class="node-state">{{ t("strataOverview.active") }}</span>
+          <span v-else-if="dreamSeaFirstCanReturnTo" class="node-state">{{ t("strataOverview.returnTarget") }}</span>
           <span v-else-if="!dreamSeaFirstCanTravel" class="node-state">{{ t("strataOverview.needsCoherence") }}</span>
+        </span>
+      </button>
+
+      <button
+        v-if="dreamSeaSecondIsVisible"
+        class="stratum-node dream-sea-second-node"
+        :class="{ active: dreamSeaSecondIsActive }"
+        :disabled="dreamSeaSecondIsActive || !dreamSeaSecondCanTravel"
+        @click="selectDreamSeaSecond"
+      >
+        <span class="node-orbit" aria-hidden="true" />
+        <span class="node-core">
+          <span class="node-title">{{ t("strataOverview.dreamSeaSecond") }}</span>
+          <span v-if="dreamSeaSecondIsActive" class="node-state">{{ t("strataOverview.active") }}</span>
+          <span v-else-if="!dreamSeaFirstIsActive" class="node-state">{{ t("strataOverview.needsFirst") }}</span>
+          <span v-else-if="!dreamSeaSecondCanTravel" class="node-state">{{ t("strataOverview.needsCoherence") }}</span>
         </span>
       </button>
 
@@ -148,18 +229,10 @@ function confirmTravel() {
 
             <div class="travel-dialog-kicker">{{ t("strataOverview.travelDialogKicker") }}</div>
             <h3 class="travel-dialog-title">
-              {{
-                travelDialogTarget === "reality"
-                  ? t("strataOverview.returnDialogTitle")
-                  : t("strataOverview.travelDialogTitle")
-              }}
+              {{ travelDialogTitle }}
             </h3>
             <p class="travel-dialog-copy">
-              {{
-                travelDialogTarget === "reality"
-                  ? t("strataOverview.returnDialogCopy")
-                  : t("strataOverview.travelDialogCopy")
-              }}
+              {{ travelDialogCopy }}
             </p>
 
             <div v-if="travelDialogTarget === 'dreamSeaFirst'" class="travel-readouts">
@@ -174,10 +247,22 @@ function confirmTravel() {
               </div>
             </div>
 
+            <div v-else-if="travelDialogTarget === 'dreamSeaSecond'" class="travel-readouts">
+              <div class="travel-readout">
+                <span>{{ t("strataOverview.travelCostLabel") }}</span>
+                <strong>{{ t("strataOverview.travelCostValue", { cost: dreamSeaSecondCostText }) }}</strong>
+              </div>
+
+              <div class="travel-readout">
+                <span>{{ t("strataOverview.travelEntropyLabel") }}</span>
+                <strong>{{ t("strataOverview.travelEntropyValue", { value: dreamSeaSecondEntropyRateText }) }}</strong>
+              </div>
+            </div>
+
             <div v-else-if="travelDialogTarget === 'reality'" class="travel-readouts">
               <div class="travel-readout">
                 <span>{{ t("strataOverview.returnCarryLabel") }}</span>
-                <strong>{{ t("strataOverview.returnCarryValue", { value: returnChaoticEtherText }) }}</strong>
+                <strong>{{ t("strataOverview.returnCarryValue", { tier: 1, value: returnChaoticEtherText }) }}</strong>
               </div>
 
               <div class="travel-readout">
@@ -186,12 +271,20 @@ function confirmTravel() {
               </div>
             </div>
 
+            <div v-else-if="travelDialogTarget === 'dreamSeaFirstReturn'" class="travel-readouts">
+              <div class="travel-readout">
+                <span>{{ t("strataOverview.returnCarryLabel") }}</span>
+                <strong>{{ t("strataOverview.returnCarryValue", { tier: 2, value: returnToFirstChaoticEtherText }) }}</strong>
+              </div>
+
+              <div class="travel-readout">
+                <span>{{ t("strataOverview.returnSecondResetLabel") }}</span>
+                <strong>{{ t("strataOverview.returnSecondResetValue") }}</strong>
+              </div>
+            </div>
+
             <p class="travel-note">
-              {{
-                travelDialogTarget === "reality"
-                  ? t("strataOverview.returnNote")
-                  : t("strataOverview.travelNoteWithCost")
-              }}
+              {{ travelDialogNote }}
             </p>
 
             <div class="travel-actions">
@@ -199,11 +292,7 @@ function confirmTravel() {
                 {{ t("strataOverview.travelCancel") }}
               </button>
               <button class="travel-button primary" @click="confirmTravel">
-                {{
-                  travelDialogTarget === "reality"
-                    ? t("strataOverview.returnConfirm")
-                    : t("strataOverview.travelConfirm")
-                }}
+                {{ travelDialogConfirmText }}
               </button>
             </div>
           </div>
@@ -317,6 +406,10 @@ function confirmTravel() {
   top: 42%;
 }
 
+.dream-sea-second-node {
+  top: 72%;
+}
+
 .stratum-node:disabled {
   cursor: not-allowed;
 }
@@ -388,6 +481,22 @@ function confirmTravel() {
   background:
     radial-gradient(circle at 50% 25%, rgba(255, 255, 255, 0.28), transparent 30%),
     linear-gradient(180deg, rgba(93, 72, 146, 0.95), rgba(27, 24, 73, 0.96));
+}
+
+.dream-sea-second-node .node-orbit {
+  border-color: rgba(255, 205, 156, 0.56);
+  background:
+    conic-gradient(from 140deg, transparent, rgba(255, 151, 86, 0.32), transparent 26%, rgba(176, 96, 255, 0.3), transparent 58%, rgba(102, 238, 255, 0.22), transparent),
+    radial-gradient(circle, rgba(255, 226, 201, 0.13) 0 19%, transparent 58%);
+  box-shadow:
+    0 0 30px rgba(255, 145, 82, 0.2),
+    inset 0 0 24px rgba(255, 255, 255, 0.08);
+}
+
+.dream-sea-second-node .node-core {
+  background:
+    radial-gradient(circle at 50% 25%, rgba(255, 255, 255, 0.26), transparent 30%),
+    linear-gradient(180deg, rgba(126, 62, 110, 0.95), rgba(35, 19, 64, 0.96));
 }
 
 .travel-dialog-backdrop {

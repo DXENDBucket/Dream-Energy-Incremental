@@ -3,7 +3,10 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { format, formatInt } from "@/engine/math/format";
 import type { GameState } from "@/engine/core/state";
-import { getChaoticEther } from "@/engine/strata/common/chaotic-ether";
+import {
+  getChaoticEther,
+  getDreamCrystalUpgradeChaoticEtherTier,
+} from "@/engine/strata/common/chaotic-ether";
 import {
   DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID,
   DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID,
@@ -42,7 +45,8 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const activeStratum = computed(() => getActiveStratum(props.game.state));
-const chaoticEtherText = computed(() => format(getChaoticEther(activeStratum.value)));
+const chaoticEtherTier = computed(() => getDreamCrystalUpgradeChaoticEtherTier(activeStratum.value));
+const chaoticEtherText = computed(() => format(getChaoticEther(activeStratum.value, chaoticEtherTier.value)));
 
 const upgradeRows = computed(() => {
   return DREAM_CRYSTAL_UPGRADE_ROWS.map((row) => {
@@ -58,7 +62,10 @@ const upgradeRows = computed(() => {
         title: t(`dreamCrystalUpgrades.items.${id}.title`),
         description: t(`dreamCrystalUpgrades.items.${id}.description`),
         footer: getUpgradeFooter(id),
-        costText: t("dreamCrystalUpgrades.cost", { value: costText }),
+        costText: t("dreamCrystalUpgrades.cost", {
+          tier: chaoticEtherTier.value,
+          value: costText,
+        }),
         stateText: getUpgradeStateText(id, rowUnlocked),
         canBuy,
         isBought,
@@ -158,7 +165,10 @@ function getUpgradeStateText(id: DreamCrystalUpgradeId, rowUnlocked: boolean): s
 }
 
 const resourceText = computed(() => {
-  return t("dreamCrystalUpgrades.availableCE", { value: chaoticEtherText.value });
+  return t("dreamCrystalUpgrades.availableCE", {
+    tier: chaoticEtherTier.value,
+    value: chaoticEtherText.value,
+  });
 });
 
 function onBuyUpgrade(id: string) {

@@ -5,6 +5,7 @@ import {
   createCoherenceUpgradesState,
   type CoherenceUpgradesState,
 } from "./common/coherence/upgrades";
+import type { ChaoticEtherAmounts } from "./common/chaotic-ether";
 import {
   createEntropyState,
   type EntropyFormulaId,
@@ -32,8 +33,8 @@ export interface StratumState {
   coherencePoints: Num;
   coherenceProductionLoss: Num;
   coherenceDreamCrystalMultiplier: Num;
-  chaoticEther: Num;
-  totalChaoticEtherGained: Num;
+  chaoticEther: ChaoticEtherAmounts;
+  totalChaoticEtherGained: ChaoticEtherAmounts;
   coherenceUpgrades: CoherenceUpgradesState;
   entropy: EntropyState;
   dreamCrystals: DreamCrystalsState;
@@ -53,8 +54,8 @@ export function createStratumState(options: CreateStratumStateOptions = {}): Str
     coherencePoints: ZERO,
     coherenceProductionLoss: COHERENCE_DEFAULT_PRODUCTION_LOSS,
     coherenceDreamCrystalMultiplier: ONE,
-    chaoticEther: ZERO,
-    totalChaoticEtherGained: ZERO,
+    chaoticEther: { "1": ZERO },
+    totalChaoticEtherGained: { "1": ZERO },
     coherenceUpgrades: createCoherenceUpgradesState(),
     entropy: createEntropyState(options.entropyFormulaId),
     dreamCrystals: createDreamCrystalsState(),

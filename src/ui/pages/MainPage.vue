@@ -32,6 +32,7 @@ import {
   canExtractChaoticEther,
   extractChaoticEther,
   getChaoticEther,
+  getChaoticEtherProducedTierForStratumId,
   getChaoticEtherGain,
 } from "@/engine/strata/common/chaotic-ether";
 import {
@@ -240,8 +241,6 @@ const currentPageTitle = computed(() => {
   return t("common.unknown");
 });
 
-const isDreamSeaFirstActive = computed(() => props.game.state.activeStratumId === dreamSeaFirstStratumId);
-
 const activeDreamEnergyText = computed(() => {
   return formatInt(getActiveDreamEnergy(props.game.state));
 });
@@ -270,9 +269,19 @@ const dreamEnergySoftcapWarningText = computed(() => {
 
 const isLiftUnlocked = computed(() => props.game.state.lift.isLiftUnlocked);
 const showChaoticEther = computed(() => dreamSeaFirstStratumId in props.game.state.strata);
+const activeChaoticEtherTier = computed(() => {
+  const producedTier = getChaoticEtherProducedTierForStratumId(props.game.state.activeStratumId);
+  return producedTier > 0 ? producedTier : 1;
+});
+const activeChaoticEtherName = computed(() => {
+  return t(`resource.chaoticEtherTier.${activeChaoticEtherTier.value}`);
+});
+const isChaoticEtherProducerActive = computed(() => {
+  return getChaoticEtherProducedTierForStratumId(props.game.state.activeStratumId) > 0;
+});
 
 const chaoticEtherText = computed(() => {
-  return format(getChaoticEther(activeStratum.value));
+  return format(getChaoticEther(activeStratum.value, activeChaoticEtherTier.value));
 });
 
 const chaoticEtherGainText = computed(() => {
@@ -474,17 +483,17 @@ const secondaryTooltipStyle = computed(() => ({
 
         <div v-if="showChaoticEther" class="chaotic-ether-panel">
           <div class="chaotic-ether-resource-line">
-            <span class="chaotic-ether-label">{{ t("resource.chaoticEther") }}</span>
+            <span class="chaotic-ether-label">{{ activeChaoticEtherName }}</span>
             <span class="chaotic-ether-amount">{{ chaoticEtherText }}</span>
           </div>
           <button
-            v-if="isDreamSeaFirstActive"
+            v-if="isChaoticEtherProducerActive"
             class="chaotic-ether-button"
             :disabled="!canExtractCE"
             :title="canExtractCE ? t('chaoticEther.extractAvailable') : t('chaoticEther.extractUnavailable')"
             @click="onExtractChaoticEther"
           >
-            {{ t("chaoticEther.extract", { value: chaoticEtherGainText }) }}
+            {{ t("chaoticEther.extract", { tier: activeChaoticEtherTier, value: chaoticEtherGainText }) }}
           </button>
           <div v-else class="chaotic-ether-note">
             {{ t("chaoticEther.realityStorage") }}

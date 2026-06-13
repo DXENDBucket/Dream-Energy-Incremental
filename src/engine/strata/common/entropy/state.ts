@@ -3,9 +3,10 @@ import { ONE, ZERO } from "@/engine/math/num";
 import {
   ENTROPY_DEFAULT_CHAOS_EXPONENT,
   ENTROPY_DEFAULT_TUNING_EXPONENT,
+  ENTROPY_DREAM_SEA_SECOND_CHAOS_EXPONENT,
 } from "./balance";
 
-export type EntropyFormulaId = "none" | "dream-sea-first";
+export type EntropyFormulaId = "none" | "dream-sea-first" | "dream-sea-second";
 
 export interface EntropyState {
   value: Num;
@@ -22,7 +23,12 @@ export function createEntropyState(formulaId: EntropyFormulaId = "none"): Entrop
     isStarted: false,
     formulaId,
     tuningExponent: ENTROPY_DEFAULT_TUNING_EXPONENT,
-    chaosExponent: ENTROPY_DEFAULT_CHAOS_EXPONENT,
+    chaosExponent: getDefaultEntropyChaosExponent(formulaId),
     growthRateMultiplier: ONE,
   };
+}
+
+export function getDefaultEntropyChaosExponent(formulaId: EntropyFormulaId): Num {
+  if (formulaId === "dream-sea-second") return ENTROPY_DREAM_SEA_SECOND_CHAOS_EXPONENT;
+  return ENTROPY_DEFAULT_CHAOS_EXPONENT;
 }

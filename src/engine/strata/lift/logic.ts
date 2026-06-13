@@ -6,8 +6,14 @@ import {
   computeEntropyGrowthRateMultiplierFromCoherence,
   createEntropyState,
   ensureEntropyState,
+  getDefaultEntropyChaosExponent,
 } from "@/engine/strata/common/entropy";
-import { addChaoticEther, getChaoticEther } from "@/engine/strata/common/chaotic-ether";
+import {
+  addChaoticEther,
+  getChaoticEther,
+  getChaoticEtherProducedTierForStratumId,
+  setChaoticEther,
+} from "@/engine/strata/common/chaotic-ether";
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
 import {
   getCoherenceDeeperInitialDreamEnergyBonus,
@@ -16,10 +22,11 @@ import {
 } from "@/engine/strata/common/coherence/upgrades";
 import {
   dreamSeaFirstStratumId,
+  dreamSeaSecondStratumId,
   realityStratumId,
 } from "@/engine/strata/defs/ids";
 import { getActiveStratum, getStratum } from "@/engine/strata/manager/selectors";
-import { createStratumState } from "@/engine/strata/state";
+import { createStratumState, type StratumState } from "@/engine/strata/state";
 import { LIFT_UNLOCK_REQUIREMENT } from "./balance";
 
 export function getLiftUnlockRequirement(): Num {
@@ -67,6 +74,7 @@ export function isDreamSeaFirstStratumVisible(state: GameState): boolean {
 
 export function canTravelToDreamSeaFirstStratum(state: GameState): boolean {
   if (!state.lift.isLiftUnlocked) return false;
+  if (state.activeStratumId !== realityStratumId) return false;
   return gt(getDreamSeaFirstEntryCoherenceCost(state), ZERO);
 }
 
@@ -87,6 +95,7 @@ export function travelToDreamSeaFirstStratum(state: GameState): boolean {
   const initialDreamEnergyBonus = getCoherenceDeeperInitialDreamEnergyBonus(reality);
   const entropy = ensureEntropyState(dreamSeaFirst);
   entropy.formulaId = "dream-sea-first";
+  entropy.chaosExponent = getDefaultEntropyChaosExponent(entropy.formulaId);
   entropy.tuningExponent = entropyTuningExponent;
   entropy.growthRateMultiplier = entropyGrowthRateMultiplier;
   dreamSeaFirst.coherenceDreamCrystalMultiplier = max(
@@ -103,24 +112,118 @@ export function travelToDreamSeaFirstStratum(state: GameState): boolean {
   return true;
 }
 
+export function getDreamSeaSecondEntryCoherenceCost(state: GameState): Num {
+  const dreamSeaFirst = state.strata[dreamSeaFirstStratumId];
+  return dreamSeaFirst ? getCoherencePoints(dreamSeaFirst) : ZERO;
+}
+
+export function getDreamSeaSecondEntryEntropyGrowthRateMultiplier(state: GameState): Num {
+  return computeEntropyGrowthRateMultiplierFromCoherence(getDreamSeaSecondEntryCoherenceCost(state));
+}
+
+export function isDreamSeaSecondStratumVisible(state: GameState): boolean {
+  return (
+    dreamSeaFirstStratumId in state.strata ||
+    dreamSeaSecondStratumId in state.strata
+  );
+}
+
+export function canTravelToDreamSeaSecondStratum(state: GameState): boolean {
+  if (!state.lift.isLiftUnlocked) return false;
+  if (state.activeStratumId !== dreamSeaFirstStratumId) return false;
+  return gt(getDreamSeaSecondEntryCoherenceCost(state), ZERO);
+}
+
+export function travelToDreamSeaSecondStratum(state: GameState): boolean {
+  if (!canTravelToDreamSeaSecondStratum(state)) return false;
+
+  const dreamSeaFirst = getStratum(state, dreamSeaFirstStratumId);
+  const cost = getDreamSeaSecondEntryCoherenceCost(state);
+  const entropyGrowthRateMultiplier = computeEntropyGrowthRateMultiplierFromCoherence(cost);
+  const entropyTuningExponent = getCoherenceEntropyTuningExponent(dreamSeaFirst, cost);
+  const dreamCrystalMultiplierBonus = getCoherenceNextDreamCrystalMultiplierBonus(dreamSeaFirst);
+
+  state.strata[dreamSeaSecondStratumId] ??= createStratumState({
+    entropyFormulaId: "dream-sea-second",
+  });
+
+  const dreamSeaSecond = state.strata[dreamSeaSecondStratumId]!;
+  const initialDreamEnergyBonus = getCoherenceDeeperInitialDreamEnergyBonus(dreamSeaFirst);
+  const entropy = ensureEntropyState(dreamSeaSecond);
+  entropy.formulaId = "dream-sea-second";
+  entropy.chaosExponent = getDefaultEntropyChaosExponent(entropy.formulaId);
+  entropy.tuningExponent = entropyTuningExponent;
+  entropy.growthRateMultiplier = entropyGrowthRateMultiplier;
+  dreamSeaSecond.coherenceDreamCrystalMultiplier = max(
+    dreamSeaSecond.coherenceDreamCrystalMultiplier ?? ONE,
+    dreamCrystalMultiplierBonus,
+  );
+  if (gt(initialDreamEnergyBonus, ZERO)) {
+    dreamSeaSecond.dreamEnergy = add(dreamSeaSecond.dreamEnergy, initialDreamEnergyBonus);
+  }
+  dreamSeaFirst.coherencePoints = ZERO;
+
+  state.activeStratumId = dreamSeaSecondStratumId;
+  state.lift.currentLiftPosition = dreamSeaSecondStratumId;
+  return true;
+}
+
+function carryProducedChaoticEther(
+  source: StratumState,
+  target: StratumState,
+  sourceId: string,
+): void {
+  const tier = getChaoticEtherProducedTierForStratumId(sourceId);
+  if (tier <= 0) return;
+
+  const carriedChaoticEther = getChaoticEther(source, tier);
+
+  if (gt(carriedChaoticEther, ZERO)) {
+    addChaoticEther(target, carriedChaoticEther, tier);
+  }
+
+  setChaoticEther(source, tier, ZERO);
+}
+
+function resetStratumAfterReturn(
+  stratum: StratumState,
+  formulaId: "dream-sea-first" | "dream-sea-second",
+): void {
+  stratum.dreamEnergy = TEN;
+  stratum.dreamCrystals = createDreamCrystalsState();
+  stratum.entropy = createEntropyState(formulaId);
+}
+
+export function canTravelBackToDreamSeaFirstStratum(state: GameState): boolean {
+  return (
+    state.activeStratumId === dreamSeaSecondStratumId &&
+    dreamSeaFirstStratumId in state.strata
+  );
+}
+
+export function travelBackToDreamSeaFirstStratum(state: GameState): boolean {
+  if (!canTravelBackToDreamSeaFirstStratum(state)) return false;
+
+  const dreamSeaFirst = getStratum(state, dreamSeaFirstStratumId);
+  const dreamSeaSecond = getStratum(state, dreamSeaSecondStratumId);
+
+  carryProducedChaoticEther(dreamSeaSecond, dreamSeaFirst, dreamSeaSecondStratumId);
+  resetStratumAfterReturn(dreamSeaSecond, "dream-sea-second");
+
+  state.activeStratumId = dreamSeaFirstStratumId;
+  state.lift.currentLiftPosition = dreamSeaFirstStratumId;
+  return true;
+}
+
 export function travelToRealityStratum(state: GameState): boolean {
   if (!(realityStratumId in state.strata)) return false;
+  if (state.activeStratumId !== dreamSeaFirstStratumId) return false;
 
   const reality = getStratum(state, realityStratumId);
 
-  if (state.activeStratumId === dreamSeaFirstStratumId && dreamSeaFirstStratumId in state.strata) {
-    const dreamSeaFirst = state.strata[dreamSeaFirstStratumId]!;
-    const carriedChaoticEther = getChaoticEther(dreamSeaFirst);
-
-    if (gt(carriedChaoticEther, ZERO)) {
-      addChaoticEther(reality, carriedChaoticEther);
-    }
-
-    dreamSeaFirst.dreamEnergy = TEN;
-    dreamSeaFirst.dreamCrystals = createDreamCrystalsState();
-    dreamSeaFirst.chaoticEther = ZERO;
-    dreamSeaFirst.entropy = createEntropyState("dream-sea-first");
-  }
+  const dreamSeaFirst = getStratum(state, dreamSeaFirstStratumId);
+  carryProducedChaoticEther(dreamSeaFirst, reality, dreamSeaFirstStratumId);
+  resetStratumAfterReturn(dreamSeaFirst, "dream-sea-first");
 
   state.activeStratumId = realityStratumId;
   state.lift.currentLiftPosition = realityStratumId;
