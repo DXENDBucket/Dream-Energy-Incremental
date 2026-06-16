@@ -1,5 +1,5 @@
 import type { StratumState } from "@/engine/strata/state";
-import { N, ONE, ZERO, add, div, gte, max, mul, pow, sqrt, sub } from "@/engine/math/num";
+import { N, ONE, ZERO, add, div, gte, max, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import {
   computeEntropyGrowthRateMultiplierFromCoherence,
@@ -23,6 +23,11 @@ export function ensureCoherenceUpgradesState(stratum: StratumState): CoherenceUp
   stratum.coherenceUpgrades ??= createCoherenceUpgradesState();
   stratum.coherenceUpgrades.bought ??= {};
   stratum.coherenceUpgrades.repeatableBought ??= {};
+
+  for (const [id, bought] of Object.entries(stratum.coherenceUpgrades.repeatableBought)) {
+    stratum.coherenceUpgrades.repeatableBought[id] = normalizeNum(bought);
+  }
+
   return stratum.coherenceUpgrades;
 }
 

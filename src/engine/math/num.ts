@@ -37,3 +37,48 @@ export const clampMin = (x: Num, lo: NumInput): Num => max(x, lo)
 export const isNum = (value: unknown): value is Num => value instanceof Decimal
 export const serializeNum = (value: Num): string => value.toString()
 export const deserializeNum = (value: string): Num => N(value)
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && !isNum(value)
+}
+
+export function tryRestoreNum(value: unknown): Num | null {
+  if (isNum(value)) return value
+
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? N(value) : null
+  }
+
+  if (typeof value === "string") {
+    if (value.trim() === "") return null
+    try {
+      return N(value)
+    } catch {
+      return null
+    }
+  }
+
+  if (!isPlainRecord(value)) return null
+
+  if (value.$type === "num" && typeof value.value === "string") {
+    return tryRestoreNum(value.value)
+  }
+
+  const { sign, layer, mag } = value
+  if (
+    typeof sign === "number" &&
+    typeof layer === "number" &&
+    typeof mag === "number" &&
+    Number.isFinite(sign) &&
+    Number.isFinite(layer) &&
+    Number.isFinite(mag)
+  ) {
+    return Decimal.fromComponents(sign, layer, mag)
+  }
+
+  return null
+}
+
+export function normalizeNum(value: unknown, fallback: NumInput = 0): Num {
+  return tryRestoreNum(value) ?? N(fallback)
+}

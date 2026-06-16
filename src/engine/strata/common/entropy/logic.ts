@@ -1,5 +1,5 @@
 import type { Num } from "@/engine/math/num";
-import { ONE, ZERO, add, div, gt, log10, lte, max, min, mul, pow } from "@/engine/math/num";
+import { ONE, ZERO, add, div, gt, log10, lte, max, min, mul, normalizeNum, pow } from "@/engine/math/num";
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals";
 import type { StratumState } from "@/engine/strata/state";
 import { ENTROPY_DEFAULT_TUNING_EXPONENT } from "./balance";
@@ -7,12 +7,18 @@ import { createEntropyState, getDefaultEntropyChaosExponent } from "./state";
 
 export function ensureEntropyState(stratum: StratumState) {
   stratum.entropy ??= createEntropyState();
-  stratum.entropy.value ??= ZERO;
+  stratum.entropy.value = normalizeNum(stratum.entropy.value, ZERO);
   stratum.entropy.isStarted ??= false;
   stratum.entropy.formulaId ??= "none";
-  stratum.entropy.tuningExponent ??= ENTROPY_DEFAULT_TUNING_EXPONENT;
-  stratum.entropy.chaosExponent ??= getDefaultEntropyChaosExponent(stratum.entropy.formulaId);
-  stratum.entropy.growthRateMultiplier ??= ONE;
+  stratum.entropy.tuningExponent = normalizeNum(
+    stratum.entropy.tuningExponent,
+    ENTROPY_DEFAULT_TUNING_EXPONENT,
+  );
+  stratum.entropy.chaosExponent = normalizeNum(
+    stratum.entropy.chaosExponent,
+    getDefaultEntropyChaosExponent(stratum.entropy.formulaId),
+  );
+  stratum.entropy.growthRateMultiplier = normalizeNum(stratum.entropy.growthRateMultiplier, ONE);
   return stratum.entropy;
 }
 

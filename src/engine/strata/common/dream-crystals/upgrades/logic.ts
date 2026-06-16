@@ -1,4 +1,4 @@
-import { N, ONE, ZERO, add, gte, mul, pow, sub } from "@/engine/math/num";
+import { N, ONE, ZERO, add, gte, mul, normalizeNum, pow, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import {
   getChaoticEther,
@@ -32,6 +32,11 @@ export function ensureDreamCrystalUpgradesState(stratum: StratumState): DreamCry
   stratum.dreamCrystalUpgrades ??= createDreamCrystalUpgradesState();
   stratum.dreamCrystalUpgrades.bought ??= {};
   stratum.dreamCrystalUpgrades.repeatableBought ??= {};
+
+  for (const [id, bought] of Object.entries(stratum.dreamCrystalUpgrades.repeatableBought)) {
+    stratum.dreamCrystalUpgrades.repeatableBought[id] = normalizeNum(bought);
+  }
+
   return stratum.dreamCrystalUpgrades;
 }
 

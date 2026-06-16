@@ -1,7 +1,7 @@
 import type { GameState } from "@/engine/core/state";
 import { ONE, TEN, ZERO, add, div, floor, gt, gte, log10, pow, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
-import { isNum } from "@/engine/math/num";
+import { isNum, tryRestoreNum } from "@/engine/math/num";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
 import { ensureEntropyState } from "@/engine/strata/common/entropy";
 import {
@@ -24,8 +24,9 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function normalizeChaoticEtherAmounts(raw: unknown): ChaoticEtherAmounts {
-  if (isNum(raw)) {
-    return { "1": raw };
+  const directAmount = tryRestoreNum(raw);
+  if (directAmount) {
+    return { "1": directAmount };
   }
 
   if (!isPlainRecord(raw)) {
@@ -35,8 +36,9 @@ function normalizeChaoticEtherAmounts(raw: unknown): ChaoticEtherAmounts {
   const amounts: ChaoticEtherAmounts = {};
 
   for (const [tier, amount] of Object.entries(raw)) {
-    if (isNum(amount)) {
-      amounts[tier] = amount;
+    const restoredAmount = tryRestoreNum(amount);
+    if (restoredAmount) {
+      amounts[tier] = restoredAmount;
     }
   }
 
@@ -45,7 +47,9 @@ function normalizeChaoticEtherAmounts(raw: unknown): ChaoticEtherAmounts {
 
 export function ensureChaoticEtherState(stratum: StratumState): void {
   stratum.chaoticEther = normalizeChaoticEtherAmounts(stratum.chaoticEther);
-  stratum.totalChaoticEtherGained = normalizeChaoticEtherAmounts(stratum.totalChaoticEtherGained);
+  stratum.totalChaoticEtherGained = stratum.totalChaoticEtherGained == null
+    ? { ...stratum.chaoticEther }
+    : normalizeChaoticEtherAmounts(stratum.totalChaoticEtherGained);
 }
 
 export function getChaoticEther(stratum: StratumState, tier: ChaoticEtherTier = 1): Num {

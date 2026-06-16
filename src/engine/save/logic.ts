@@ -18,7 +18,7 @@ type SaveFile = {
 };
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+  return typeof value === "object" && value !== null && !Array.isArray(value) && !isNum(value);
 }
 
 function serializeValue(value: unknown): unknown {

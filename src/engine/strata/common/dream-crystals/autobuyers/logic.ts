@@ -1,4 +1,4 @@
-import { N, ZERO } from "@/engine/math/num";
+import { N, ZERO, normalizeNum } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import type { StratumState } from "@/engine/strata/state";
 import { buyMaxDreamCrystal } from "../logic";
@@ -16,9 +16,15 @@ export const DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC = N(8);
 export function ensureDreamCrystalAutobuyersState(stratum: StratumState): DreamCrystalAutobuyersState {
   stratum.dreamCrystalAutobuyers ??= createDreamCrystalAutobuyersState();
   stratum.dreamCrystalAutobuyers.enabled ??= {};
-  stratum.dreamCrystalAutobuyers.elapsedSec ??= ZERO;
+  stratum.dreamCrystalAutobuyers.elapsedSec = normalizeNum(
+    stratum.dreamCrystalAutobuyers.elapsedSec,
+    ZERO,
+  );
   stratum.dreamCrystalAutobuyers.refineEnabled ??= {};
-  stratum.dreamCrystalAutobuyers.refineElapsedSec ??= ZERO;
+  stratum.dreamCrystalAutobuyers.refineElapsedSec = normalizeNum(
+    stratum.dreamCrystalAutobuyers.refineElapsedSec,
+    ZERO,
+  );
   return stratum.dreamCrystalAutobuyers;
 }
 
