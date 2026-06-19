@@ -1,6 +1,6 @@
 import type { GameState } from "@/engine/core/state";
 import { createNewState } from "@/engine/core/state";
-import { N, isNum, serializeNum } from "@/engine/math/num";
+import { N, isNum, serializeNum, tryRestoreNum } from "@/engine/math/num";
 import { normalizeGameState } from "@/engine/strata/manager/normalize";
 
 const SAVE_KEY = "dream-energy-incremental-save";
@@ -67,6 +67,11 @@ function deserializeValue(value: unknown): unknown {
     return N(value.value);
   }
 
+  const restoredNum = tryRestoreNum(value);
+  if (restoredNum) {
+    return restoredNum;
+  }
+
   if (Array.isArray(value)) {
     return value.map(deserializeValue);
   }
@@ -107,6 +112,10 @@ function deepMerge<T>(target: T, source: unknown): T {
 export function saveGame(state: GameState): void {
   const raw = exportSave(state);
   localStorage.setItem(SAVE_KEY, raw);
+}
+
+export function clearLocalSave(): void {
+  localStorage.removeItem(SAVE_KEY);
 }
 
 export function loadGame(): GameState | null {

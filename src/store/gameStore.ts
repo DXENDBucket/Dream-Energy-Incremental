@@ -5,6 +5,7 @@ import { createEngine } from "@/engine";
 import {
   saveGame,
   loadGame,
+  clearLocalSave,
   exportSave,
   importSave,
 } from "@/engine/save/logic";
@@ -21,6 +22,7 @@ export function createGameStore() {
   let lastLoopMs = performance.now();
 
   function replaceState(next: GameState) {
+    normalizeGameState(next);
     next.lastTickMs = performance.now();
     Object.assign(state, next);
     autoSaveElapsedSec = 0;
@@ -56,7 +58,8 @@ export function createGameStore() {
   }
 
   function hardReset() {
-    const fresh = createNewState();
+    const fresh = normalizeGameState(createNewState());
+    clearLocalSave();
     replaceState(fresh);
     saveGame(state);
   }
