@@ -6,6 +6,9 @@ import {
     DREAM_ENERGY_SOFTCAP_TWO_START,
     DREAM_ENERGY_SOFTCAP_TWO_STRENGTH_BASE,
     DREAM_ENERGY_SOFTCAP_TWO_STRENGTH_GROWTH,
+    DREAM_ENERGY_SOFTCAP_THREE_START,
+    DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_BASE,
+    DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH,
 } from "@/engine/math/dream-energy/balance";
 import { convertDreamEnergySoftcapOneToPower, getDreamEnergyIncrement } from "@/engine/math/dream-energy/computed";
 import {
@@ -77,6 +80,10 @@ export function isDreamEnergySoftcapTwoActive(stratum: StratumState) {
     return !lte(getDreamEnergy(stratum), DREAM_ENERGY_SOFTCAP_TWO_START);
 }
 
+export function isDreamEnergySoftcapThreeActive(stratum: StratumState) {
+    return !lte(getDreamEnergy(stratum), DREAM_ENERGY_SOFTCAP_THREE_START);
+}
+
 export function getDreamEnergySoftCapOneRatio(raw: Num) {
     const ratio = div(raw, DREAM_ENERGY_SOFTCAP_ONE_START);
 
@@ -85,6 +92,10 @@ export function getDreamEnergySoftCapOneRatio(raw: Num) {
 
 export function getDreamEnergySoftcapTwoRatio(raw: Num) {
     return div(raw, DREAM_ENERGY_SOFTCAP_TWO_START);
+}
+
+export function getDreamEnergySoftcapThreeRatio(raw: Num) {
+    return div(raw, DREAM_ENERGY_SOFTCAP_THREE_START);
 }
 
 export function getDreamEnergySoftcapOneBaseStrengthDisplay(stratum?: StratumState) {
@@ -118,6 +129,12 @@ export function getDreamEnergySoftcapTwoStrengthBase() {
 }
 
 export function getDreamEnergySoftcapTwoStrengthGrowth(stratum?: StratumState) {
+    const baseStrength = getDreamEnergySoftcapTwoBaseStrengthGrowth(stratum);
+    if (!stratum) return baseStrength;
+    return mul(baseStrength, getDreamEnergySoftcapThreeStrengthMultiplier(stratum));
+}
+
+export function getDreamEnergySoftcapTwoBaseStrengthGrowth(stratum?: StratumState) {
     if (!stratum) return DREAM_ENERGY_SOFTCAP_TWO_STRENGTH_GROWTH;
     return mul(
         mul(
@@ -126,6 +143,24 @@ export function getDreamEnergySoftcapTwoStrengthGrowth(stratum?: StratumState) {
         ),
         getCoherenceSoftcapTwoStrengthMultiplier(stratum),
     );
+}
+
+export function getDreamEnergySoftcapThreeExcessExponent(stratum: StratumState) {
+    if (!isDreamEnergySoftcapThreeActive(stratum)) return ZERO;
+    return logn(getDreamEnergySoftcapThreeRatio(getDreamEnergy(stratum)), DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_BASE);
+}
+
+export function getDreamEnergySoftcapThreeStrengthBase() {
+    return DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_BASE;
+}
+
+export function getDreamEnergySoftcapThreeStrengthGrowth() {
+    return DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH;
+}
+
+export function getDreamEnergySoftcapThreeStrengthMultiplier(stratum: StratumState) {
+    if (!isDreamEnergySoftcapThreeActive(stratum)) return ONE;
+    return pow(getDreamEnergySoftcapThreeStrengthGrowth(), getDreamEnergySoftcapThreeExcessExponent(stratum));
 }
 
 export function getDreamEnergySoftcapTwoExtraPower(stratum: StratumState) {

@@ -50,6 +50,7 @@ export default {
     gain: "增益：{value}",
     softcapWarning: "梦能正在互相排斥，产出受到压制。",
     softcapTwoWarning: "强相互作用力正在梦能之间显现，排斥被进一步放大。",
+    softcapThreeWarning: "梦能将会开始兼并，生产更多梦能变得极其艰难。",
     placeholders: {
       upgrades: "升级页占位",
       numbers: "数值统计占位",
@@ -366,8 +367,15 @@ export default {
       title: "梦能强相互作用",
       threshold: "当梦能越过 {value} 后，排斥不再只是储量压力。",
       excessExponent: "你已经在这个边界外推进了 {value} 个 10 倍区间。",
-      strengthBase: "这一段排斥以每 {base} 倍为一阶，当前每阶强度为 {growth}。",
-      strengthMultiplier: "这会让上方排斥的强度额外扩大到 {value}。",
+      strengthBase: "第二段以每 {base} 倍为一阶，当前 strength 为 {growth}。",
+      strengthMultiplier: "这个 strength 会让上方排斥扩大到 {value}。",
+    },
+    softcapThree: {
+      title: "梦能兼并",
+      threshold: "当梦能越过 {value} 后，梦能将会开始兼并自身。",
+      excessExponent: "你已经在这个兼并边界外推进了 {value} 个 10 倍区间。",
+      strengthBase: "第三段以每 {base} 倍为一阶，每阶会让第二段 strength 乘以 {growth}。",
+      strengthMultiplier: "当前施加在第二段 strength 上的倍率为 {value}。",
     },
   },
   lift: {

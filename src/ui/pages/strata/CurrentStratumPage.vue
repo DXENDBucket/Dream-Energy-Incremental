@@ -9,14 +9,22 @@ import {
   getRawDreamEnergyGainPerSecond,
   getDreamEnergySoftcapOneDivisor,
   getDreamEnergySoftcapOnePowerDisplay,
+  getDreamEnergySoftcapThreeExcessExponent,
+  getDreamEnergySoftcapThreeStrengthMultiplier,
+  getDreamEnergySoftcapThreeStrengthBase,
+  getDreamEnergySoftcapThreeStrengthGrowth,
   getDreamEnergySoftcapTwoExcessExponent,
   getDreamEnergySoftcapTwoStrengthBase,
   getDreamEnergySoftcapTwoStrengthGrowth,
   getDreamEnergySoftcapTwoStrengthMultiplier,
   isDreamEnergySoftcapOneActive,
+  isDreamEnergySoftcapThreeActive,
   isDreamEnergySoftcapTwoActive,
 } from "@/engine/strata/common/dream-energy";
-import { DREAM_ENERGY_SOFTCAP_TWO_START } from "@/engine/math/dream-energy/balance";
+import {
+  DREAM_ENERGY_SOFTCAP_THREE_START,
+  DREAM_ENERGY_SOFTCAP_TWO_START,
+} from "@/engine/math/dream-energy/balance";
 import { getDreamEnergy } from "@/engine/strata/manager/selectors";
 
 const props = defineProps<{
@@ -74,6 +82,30 @@ const softcapTwoStrengthBaseText = computed(() => {
 
 const softcapTwoStrengthGrowthText = computed(() => {
   return format(getDreamEnergySoftcapTwoStrengthGrowth(activeStratum.value));
+});
+
+const softcapThreeActive = computed(() => {
+  return isDreamEnergySoftcapThreeActive(activeStratum.value);
+});
+
+const softcapThreeStrengthMultiplierText = computed(() => {
+  return format(getDreamEnergySoftcapThreeStrengthMultiplier(activeStratum.value));
+});
+
+const softcapThreeThresholdText = computed(() => {
+  return format(DREAM_ENERGY_SOFTCAP_THREE_START);
+});
+
+const softcapThreeExcessExponentText = computed(() => {
+  return format(getDreamEnergySoftcapThreeExcessExponent(activeStratum.value));
+});
+
+const softcapThreeStrengthBaseText = computed(() => {
+  return format(getDreamEnergySoftcapThreeStrengthBase());
+});
+
+const softcapThreeStrengthGrowthText = computed(() => {
+  return format(getDreamEnergySoftcapThreeStrengthGrowth());
 });
 </script>
 
@@ -150,6 +182,37 @@ const softcapTwoStrengthGrowthText = computed(() => {
         </template>
       </i18n-t>
     </div>
+
+    <div v-if="softcapThreeActive" class="detail-card softcap-three-card">
+      <div class="detail-title softcap-three-title">{{ t("currentStratum.softcapThree.title") }}</div>
+
+      <i18n-t keypath="currentStratum.softcapThree.threshold" tag="div" class="detail-line softcap-three-line">
+        <template #value>
+          <span class="detail-number softcap-three-number">{{ softcapThreeThresholdText }}</span>
+        </template>
+      </i18n-t>
+
+      <i18n-t keypath="currentStratum.softcapThree.excessExponent" tag="div" class="detail-line softcap-three-line">
+        <template #value>
+          <span class="detail-number softcap-three-number">{{ softcapThreeExcessExponentText }}</span>
+        </template>
+      </i18n-t>
+
+      <i18n-t keypath="currentStratum.softcapThree.strengthBase" tag="div" class="detail-line softcap-three-line">
+        <template #base>
+          <span class="detail-number softcap-three-number">{{ softcapThreeStrengthBaseText }}</span>
+        </template>
+        <template #growth>
+          <span class="detail-number softcap-three-number">×{{ softcapThreeStrengthGrowthText }}</span>
+        </template>
+      </i18n-t>
+
+      <i18n-t keypath="currentStratum.softcapThree.strengthMultiplier" tag="div" class="detail-line softcap-three-line">
+        <template #value>
+          <span class="detail-number softcap-three-number">×{{ softcapThreeStrengthMultiplierText }}</span>
+        </template>
+      </i18n-t>
+    </div>
   </div>
 </template>
 
@@ -215,5 +278,30 @@ const softcapTwoStrengthGrowthText = computed(() => {
 .softcap-two-number {
   color: #ffd6e0;
   text-shadow: 0 0 12px rgba(255, 102, 133, 0.26);
+}
+
+.softcap-three-card {
+  margin-top: 14px;
+  border: 1px solid rgba(102, 18, 35, 0.88);
+  background:
+    linear-gradient(180deg, rgba(28, 2, 10, 0.97) 0%, rgba(8, 0, 4, 0.99) 100%);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.38),
+    0 0 24px rgba(255, 35, 70, 0.11),
+    inset 0 0 26px rgba(255, 60, 90, 0.05);
+}
+
+.softcap-three-title {
+  color: #ffe4e9;
+  text-shadow: 0 0 14px rgba(255, 86, 112, 0.32);
+}
+
+.softcap-three-line {
+  color: #d1556c;
+}
+
+.softcap-three-number {
+  color: #ffe2e8;
+  text-shadow: 0 0 14px rgba(255, 100, 126, 0.3);
 }
 </style>

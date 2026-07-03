@@ -50,6 +50,7 @@ export default {
     gain: "Gain: {value}",
     softcapWarning: "Dream Energy is repelling itself, suppressing production.",
     softcapTwoWarning: "The strong interaction is surfacing between Dream Energy, amplifying the repulsion.",
+    softcapThreeWarning: "Dream Energy is consuming itself. Producing more has become brutally difficult.",
     placeholders: {
       upgrades: "Upgrades placeholder",
       numbers: "Numbers/statistics placeholder",
@@ -368,8 +369,15 @@ export default {
       title: "Dream Energy Strong Interaction",
       threshold: "Once Dream Energy passes {value}, repulsion is no longer only storage pressure.",
       excessExponent: "You have pushed {value} base-10 intervals beyond that boundary.",
-      strengthBase: "This stage advances once per {base}x interval, with each interval currently adding strength {growth}.",
-      strengthMultiplier: "This further expands the repulsion strength above to {value}.",
+      strengthBase: "This stage advances once per {base}x interval. Current strength is {growth}.",
+      strengthMultiplier: "That strength expands the repulsion above to {value}.",
+    },
+    softcapThree: {
+      title: "Dream Energy Assimilation",
+      threshold: "Once Dream Energy passes {value}, it begins assimilating itself.",
+      excessExponent: "You have pushed {value} base-10 intervals beyond this assimilating boundary.",
+      strengthBase: "This stage advances once per {base}x interval. Each interval multiplies second-stage strength by {growth}.",
+      strengthMultiplier: "Current multiplier applied to second-stage strength: {value}.",
     },
   },
   lift: {

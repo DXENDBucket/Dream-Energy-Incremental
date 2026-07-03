@@ -15,6 +15,7 @@ import DebugProgressionPage from "./debug/DebugProgressionPage.vue";
 import {
   getDreamEnergyPercentageGainPerSecond,
   isDreamEnergySoftcapOneActive,
+  isDreamEnergySoftcapThreeActive,
   isDreamEnergySoftcapTwoActive,
 } from "@/engine/strata/common/dream-energy";
 import {
@@ -259,7 +260,15 @@ const isSecondDreamEnergySoftcapReached = computed(() => {
   return isDreamEnergySoftcapTwoActive(activeStratum.value);
 });
 
+const isThirdDreamEnergySoftcapReached = computed(() => {
+  return isDreamEnergySoftcapThreeActive(activeStratum.value);
+});
+
 const dreamEnergySoftcapWarningText = computed(() => {
+  if (isThirdDreamEnergySoftcapReached.value) {
+    return t("mainPage.softcapThreeWarning");
+  }
+
   return t(
     isSecondDreamEnergySoftcapReached.value
       ? "mainPage.softcapTwoWarning"
