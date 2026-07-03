@@ -1,5 +1,5 @@
 import type { GameState } from "@/engine/core/state";
-import { ONE, TEN, ZERO, add, div, floor, gt, gte, log10, pow, sub } from "@/engine/math/num";
+import { ONE, TEN, ZERO, add, div, floor, gt, gte, lte, pow, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { isNum, tryRestoreNum } from "@/engine/math/num";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
@@ -11,7 +11,8 @@ import {
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import type { StratumState } from "@/engine/strata/state";
 import {
-  CHAOTIC_ETHER_EXTRACT_EXPONENT_OFFSET,
+  CHAOTIC_ETHER_EXTRACT_ACCELERATION_POWER,
+  CHAOTIC_ETHER_EXTRACT_ACCELERATION_START,
   CHAOTIC_ETHER_EXTRACT_LOG_DIVISOR,
   CHAOTIC_ETHER_EXTRACT_REQUIREMENT,
 } from "./balance";
@@ -111,12 +112,22 @@ export function getDreamCrystalUpgradeChaoticEtherTier(stratum: StratumState): C
 export function getChaoticEtherGain(stratum: StratumState): Num {
   if (!gte(stratum.dreamEnergy, CHAOTIC_ETHER_EXTRACT_REQUIREMENT)) return ZERO;
 
-  const exponent = sub(
-    div(log10(stratum.dreamEnergy), CHAOTIC_ETHER_EXTRACT_LOG_DIVISOR),
-    CHAOTIC_ETHER_EXTRACT_EXPONENT_OFFSET,
-  );
+  const dreamEnergyRatio = div(stratum.dreamEnergy, CHAOTIC_ETHER_EXTRACT_REQUIREMENT);
+  const baseGain = pow(dreamEnergyRatio, div(ONE, CHAOTIC_ETHER_EXTRACT_LOG_DIVISOR));
+  if (lte(baseGain, CHAOTIC_ETHER_EXTRACT_ACCELERATION_START)) {
+    return floor(baseGain);
+  }
 
-  return floor(pow(TEN, exponent));
+  return floor(div(
+    pow(
+      dreamEnergyRatio,
+      div(CHAOTIC_ETHER_EXTRACT_ACCELERATION_POWER, CHAOTIC_ETHER_EXTRACT_LOG_DIVISOR),
+    ),
+    pow(
+      CHAOTIC_ETHER_EXTRACT_ACCELERATION_START,
+      sub(CHAOTIC_ETHER_EXTRACT_ACCELERATION_POWER, ONE),
+    ),
+  ));
 }
 
 export function canExtractChaoticEther(state: GameState): boolean {
