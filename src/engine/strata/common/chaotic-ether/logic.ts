@@ -23,7 +23,7 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value) && !isNum(value);
 }
 
-function normalizeChaoticEtherAmounts(raw: unknown): ChaoticEtherAmounts {
+function normalizeChaoticEtherAmountsInPlace(raw: unknown): ChaoticEtherAmounts {
   const directAmount = tryRestoreNum(raw);
   if (directAmount) {
     return { "1": directAmount };
@@ -33,12 +33,14 @@ function normalizeChaoticEtherAmounts(raw: unknown): ChaoticEtherAmounts {
     return {};
   }
 
-  const amounts: ChaoticEtherAmounts = {};
+  const amounts = raw as ChaoticEtherAmounts;
 
-  for (const [tier, amount] of Object.entries(raw)) {
+  for (const [tier, amount] of Object.entries(amounts)) {
     const restoredAmount = tryRestoreNum(amount);
     if (restoredAmount) {
       amounts[tier] = restoredAmount;
+    } else {
+      delete amounts[tier];
     }
   }
 
@@ -46,10 +48,20 @@ function normalizeChaoticEtherAmounts(raw: unknown): ChaoticEtherAmounts {
 }
 
 export function ensureChaoticEtherState(stratum: StratumState): void {
-  stratum.chaoticEther = normalizeChaoticEtherAmounts(stratum.chaoticEther);
-  stratum.totalChaoticEtherGained = stratum.totalChaoticEtherGained == null
-    ? { ...stratum.chaoticEther }
-    : normalizeChaoticEtherAmounts(stratum.totalChaoticEtherGained);
+  const chaoticEther = normalizeChaoticEtherAmountsInPlace(stratum.chaoticEther);
+  if (stratum.chaoticEther !== chaoticEther) {
+    stratum.chaoticEther = chaoticEther;
+  }
+
+  if (stratum.totalChaoticEtherGained == null) {
+    stratum.totalChaoticEtherGained = { ...stratum.chaoticEther };
+    return;
+  }
+
+  const totalChaoticEtherGained = normalizeChaoticEtherAmountsInPlace(stratum.totalChaoticEtherGained);
+  if (stratum.totalChaoticEtherGained !== totalChaoticEtherGained) {
+    stratum.totalChaoticEtherGained = totalChaoticEtherGained;
+  }
 }
 
 export function getChaoticEther(stratum: StratumState, tier: ChaoticEtherTier = 1): Num {
