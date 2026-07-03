@@ -1,4 +1,4 @@
-import { N, ONE, ZERO, add, gte, mul, normalizeNum, pow, sub } from "@/engine/math/num";
+import { N, ONE, ZERO, add, gte, log10, max, mul, normalizeNum, pow, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import {
   getChaoticEther,
@@ -27,6 +27,8 @@ import {
   createDreamCrystalUpgradesState,
   type DreamCrystalUpgradesState,
 } from "./state";
+
+const FIRST_TIER_UPGRADE_CE_SOFTCAP_START = N(10);
 
 export function ensureDreamCrystalUpgradesState(stratum: StratumState): DreamCrystalUpgradesState {
   stratum.dreamCrystalUpgrades ??= createDreamCrystalUpgradesState();
@@ -153,10 +155,25 @@ export function getDreamCrystalSoftcapTwoStrengthMultiplier(stratum: StratumStat
 export function getDreamCrystalFirstTierUpgradeMultiplier(stratum: StratumState, tier: number): Num {
   if (tier !== 1) return ONE;
   if (!hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID)) return ONE;
-  return pow(N(3), getTotalChaoticEtherGained(
+
+  const totalChaoticEtherGained = max(getTotalChaoticEtherGained(
     stratum,
     getDreamCrystalUpgradeChaoticEtherTier(stratum),
-  ));
+  ), ZERO);
+
+  if (totalChaoticEtherGained.lte(FIRST_TIER_UPGRADE_CE_SOFTCAP_START)) {
+    return pow(N(3), totalChaoticEtherGained);
+  }
+
+  const extraChaoticEther = max(
+    sub(totalChaoticEtherGained, FIRST_TIER_UPGRADE_CE_SOFTCAP_START),
+    ONE,
+  );
+
+  return mul(
+    pow(N(3), FIRST_TIER_UPGRADE_CE_SOFTCAP_START),
+    add(log10(extraChaoticEther), ONE),
+  );
 }
 
 export function getDreamCrystalBoughtPowerBase(stratum: StratumState): Num {
