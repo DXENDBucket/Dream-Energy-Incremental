@@ -4,6 +4,7 @@ import {
     DREAM_ENERGY_SOFTCAP_ONE_START,
     DREAM_ENERGY_SOFTCAP_POWER_DISPLAY,
     DREAM_ENERGY_SOFTCAP_TWO_START,
+    DREAM_ENERGY_SOFTCAP_TWO_EFFECT_SCALE,
     DREAM_ENERGY_SOFTCAP_TWO_STRENGTH_BASE,
     DREAM_ENERGY_SOFTCAP_TWO_STRENGTH_GROWTH,
     DREAM_ENERGY_SOFTCAP_THREE_START,
@@ -121,7 +122,7 @@ export function getDreamEnergySoftcapTwoExcessExponent(stratum: StratumState) {
 
 export function getDreamEnergySoftcapTwoStrengthMultiplier(stratum: StratumState) {
     if (!isDreamEnergySoftcapTwoActive(stratum)) return ONE;
-    return pow(getDreamEnergySoftcapTwoStrengthGrowth(stratum), getDreamEnergySoftcapTwoExcessExponent(stratum));
+    return pow(getDreamEnergySoftcapTwoEffectiveStrengthGrowth(stratum), getDreamEnergySoftcapTwoExcessExponent(stratum));
 }
 
 export function getDreamEnergySoftcapTwoStrengthBase() {
@@ -132,6 +133,10 @@ export function getDreamEnergySoftcapTwoStrengthGrowth(stratum?: StratumState) {
     const baseStrength = getDreamEnergySoftcapTwoBaseStrengthGrowth(stratum);
     if (!stratum) return baseStrength;
     return mul(baseStrength, getDreamEnergySoftcapThreeStrengthMultiplier(stratum));
+}
+
+export function getDreamEnergySoftcapTwoEffectiveStrengthGrowth(stratum: StratumState) {
+    return mul(getDreamEnergySoftcapTwoStrengthGrowth(stratum), DREAM_ENERGY_SOFTCAP_TWO_EFFECT_SCALE);
 }
 
 export function getDreamEnergySoftcapTwoBaseStrengthGrowth(stratum?: StratumState) {

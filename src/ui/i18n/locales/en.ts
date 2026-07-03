@@ -156,7 +156,7 @@ export default {
     pending: "Pending",
     entropyTuningStatus: "Next-stratum Entropy Tuning: {value}",
     nextDreamCrystalMultiplierStatus: "Next-stratum Dream Crystal multiplier: ×{value}",
-    softcapTwoSlowdownStatus: "Current second-stage repulsion growth: ×{value}",
+    softcapTwoSlowdownStatus: "Current second-stage strength multiplier: ×{value}",
     deeperInitialDreamEnergyStatus: "Bought {count} times | Next stratum starts with +{value} DE",
     pointGainMultiplierStatus: "Bought {count} times | Current Coherence Point gain ×{value}",
     items: {

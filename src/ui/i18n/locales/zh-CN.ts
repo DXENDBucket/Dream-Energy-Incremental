@@ -156,7 +156,7 @@ export default {
     pending: "待定",
     entropyTuningStatus: "进入下一层时 Entropy Tuning：{value}",
     nextDreamCrystalMultiplierStatus: "下一层梦能水晶 multiplier：×{value}",
-    softcapTwoSlowdownStatus: "当前第二段排斥增长：×{value}",
+    softcapTwoSlowdownStatus: "当前第二段 strength 倍率：×{value}",
     deeperInitialDreamEnergyStatus: "已购买 {count} 次；进入下一层初始 +{value} DE",
     pointGainMultiplierStatus: "已购买 {count} 次；当前调谐点数获取 ×{value}",
     items: {
