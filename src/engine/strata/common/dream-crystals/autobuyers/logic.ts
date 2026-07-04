@@ -10,8 +10,8 @@ import {
   type DreamCrystalAutobuyersState,
 } from "./state";
 
-export const DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC = N(8);
-export const DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC = N(8);
+export const DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC = N(0.5);
+export const DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC = N(0.5);
 
 export function ensureDreamCrystalAutobuyersState(stratum: StratumState): DreamCrystalAutobuyersState {
   stratum.dreamCrystalAutobuyers ??= createDreamCrystalAutobuyersState();
