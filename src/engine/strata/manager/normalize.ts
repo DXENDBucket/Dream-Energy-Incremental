@@ -3,6 +3,7 @@ import { ONE, ZERO, normalizeNum } from "@/engine/math/num";
 import { ensureChaoticEtherState } from "@/engine/strata/common/chaotic-ether";
 import { COHERENCE_DEFAULT_PRODUCTION_LOSS } from "@/engine/strata/common/coherence/balance";
 import { ensureCoherenceUpgradesState } from "@/engine/strata/common/coherence/upgrades";
+import { ensureConceptCrystalsState } from "@/engine/strata/common/concept-crystals";
 import { ensureDreamCrystalAutobuyersState } from "@/engine/strata/common/dream-crystals/autobuyers";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
 import { ensureDreamCrystalUpgradesState } from "@/engine/strata/common/dream-crystals/upgrades";
@@ -54,6 +55,7 @@ export function normalizeGameState(state: GameState): GameState {
     normalizeDreamCrystalsState(stratum);
     ensureChaoticEtherState(stratum);
     ensureCoherenceUpgradesState(stratum);
+    ensureConceptCrystalsState(stratum);
     ensureDreamCrystalUpgradesState(stratum);
     ensureDreamCrystalAutobuyersState(stratum);
     stratum.milestones ??= createMilestonesState();

@@ -71,6 +71,7 @@ export const PRIMARY_TABS = [
     textColor: "#dce6ff",
     children: [
       { id: "dream-crystals", icon: "◇", labelKey: "navigation.secondary.dreamCrystals" },
+      { id: "concept-crystals", icon: "⬡", labelKey: "navigation.secondary.conceptCrystals" },
     ],
   },
   {

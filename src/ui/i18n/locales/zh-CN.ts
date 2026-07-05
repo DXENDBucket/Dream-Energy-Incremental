@@ -18,6 +18,7 @@ export default {
     },
     secondary: {
       dreamCrystals: "梦境水晶",
+      conceptCrystals: "概念水晶",
       dreamCrystalUpgrades: "梦境水晶升级",
       coherenceUpgrades: "调谐升级",
       dreamEnergyMilestones: "梦能里程碑",
@@ -81,6 +82,31 @@ export default {
       6: { title: "第 6 梦境水晶" },
       7: { title: "第 7 梦境水晶" },
       8: { title: "第 8 梦境水晶" },
+    },
+  },
+  conceptCrystals: {
+    amountLabel: "持有的概念水晶",
+    nodes: {
+      hope: "希望",
+      conquest: "征服",
+      law: "法度",
+      shackle: "桎梏",
+      enlightenment: "启蒙",
+      war: "战火",
+    },
+    pathTitle: "{from} 正在流向 {to}",
+    rotateLeft: "让截断指针逆时针偏转",
+    rotateRight: "让截断指针顺时针偏转",
+    severed: "截断",
+    cycleLine: "下一次概念流转：{progress}%｜当前间隔：{interval} 秒",
+    upgrade: {
+      title: "让概念更快成形",
+      copy: "六边回路已经被催动 {count} 次；每次都会让流转间隔缩短 15%。",
+      button: "消耗 {cost} 梦能",
+    },
+    effect: {
+      title: "当前概念水晶效果",
+      copy: "六种概念正在沉淀。它们暂时还没有改变世界，但已经有了自己的形状。",
     },
   },
   dreamCrystalUpgrades: {
@@ -210,8 +236,8 @@ export default {
       },
       milestoneFourPlaceholder: {
         title: "里程碑 4",
-        reward: "占位解锁内容。",
-        description: "这里暂时只记录你已经触及更深的梦能压力。",
+        reward: "解锁概念水晶。",
+        description: "梦能的压力凝成了新的形状。一个六重回路开始缓慢转动。",
       },
     },
   },

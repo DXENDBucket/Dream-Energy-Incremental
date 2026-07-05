@@ -18,6 +18,7 @@ export default {
     },
     secondary: {
       dreamCrystals: "Dream Crystals",
+      conceptCrystals: "Concept Crystals",
       dreamCrystalUpgrades: "Dream Crystal Upgrades",
       coherenceUpgrades: "Coherence Upgrades",
       dreamEnergyMilestones: "Dream Energy Milestones",
@@ -81,6 +82,31 @@ export default {
       6: { title: "6th Dream Crystal" },
       7: { title: "7th Dream Crystal" },
       8: { title: "8th Dream Crystal" },
+    },
+  },
+  conceptCrystals: {
+    amountLabel: "Concept Crystals held",
+    nodes: {
+      hope: "Hope",
+      conquest: "Conquest",
+      law: "Law",
+      shackle: "Shackle",
+      enlightenment: "Enlightenment",
+      war: "War",
+    },
+    pathTitle: "{from} flows into {to}",
+    rotateLeft: "Turn the severing needle counterclockwise",
+    rotateRight: "Turn the severing needle clockwise",
+    severed: "Severed",
+    cycleLine: "Next concept turn: {progress}% | Current interval: {interval}s",
+    upgrade: {
+      title: "Quicken the circuit",
+      copy: "The hex has been quickened {count} times. Each quickening shortens the turn by 15%.",
+      button: "Spend {cost} Dream Energy",
+    },
+    effect: {
+      title: "Current Concept Crystal effect",
+      copy: "The six ideas are taking shape. Their influence has not reached the world yet.",
     },
   },
   dreamCrystalUpgrades: {
@@ -211,8 +237,8 @@ export default {
       },
       milestoneFourPlaceholder: {
         title: "Milestone 4",
-        reward: "Placeholder unlock.",
-        description: "For now, this only records that you have reached deeper Dream Energy pressure.",
+        reward: "Unlock Concept Crystals.",
+        description: "Dream Energy pressure condenses into a new shape. A sixfold circuit begins to turn.",
       },
     },
   },

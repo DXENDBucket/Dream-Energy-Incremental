@@ -6,6 +6,7 @@ import { format, formatInt } from "@/engine/math/format";
 import { mul } from "@/engine/math/num";
 import { getActiveDreamEnergy, getActiveStratum } from "@/engine/strata/manager/selectors";
 import DreamCrystalsPage from "./dream-crystals/DreamCrystalsPage.vue";
+import ConceptCrystalsPage from "./concept-crystals/ConceptCrystalsPage.vue";
 import DreamCrystalUpgradesPage from "./upgrades/DreamCrystalUpgradesPage.vue";
 import CoherenceUpgradesPage from "./upgrades/CoherenceUpgradesPage.vue";
 import DreamCrystalAutobuyersPage from "./autobuyers/DreamCrystalAutobuyersPage.vue";
@@ -20,6 +21,7 @@ import {
 } from "@/engine/strata/common/dream-energy";
 import {
   isCoherenceUpgradesUnlocked,
+  isConceptCrystalsUnlocked,
   isUpgradesUnlocked,
 } from "@/engine/strata/common/milestones";
 import {
@@ -74,6 +76,15 @@ const availablePrimaryTabs = computed(() => {
       return true;
     })
     .map(tab => {
+      if (tab.id === "crystals") {
+        return {
+          ...tab,
+          children: tab.children.filter(child => {
+            return child.id !== "concept-crystals" || isConceptCrystalsUnlocked(activeStratum.value);
+          }),
+        };
+      }
+
       if (tab.id !== "upgrades") return tab;
 
       return {
@@ -533,6 +544,10 @@ const secondaryTooltipStyle = computed(() => ({
 
         <div v-if="selectedSecondary === 'dream-crystals'" class="dream-crystals-page">
           <DreamCrystalsPage :game="props.game" />
+        </div>
+
+        <div v-else-if="selectedSecondary === 'concept-crystals'" class="dream-crystals-page">
+          <ConceptCrystalsPage :game="props.game" />
         </div>
 
         <div v-else-if="selectedSecondary === 'de-milestones'" class="page-card">

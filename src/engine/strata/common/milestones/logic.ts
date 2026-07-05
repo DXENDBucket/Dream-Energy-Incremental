@@ -5,6 +5,7 @@ import {
   UNLOCK_COHERENCE_UPGRADES_MILESTONE_ID,
   UNLOCK_REFINE_MILESTONE_ID,
   UNLOCK_UPGRADES_MILESTONE_ID,
+  MILESTONE_FOUR_PLACEHOLDER_ID,
 } from "@/engine/strata/common/milestones/balance";
 import { getMilestoneRequirement } from "./definitions";
 
@@ -35,4 +36,8 @@ export function isUpgradesUnlocked(stratum: StratumState): boolean {
 
 export function isCoherenceUpgradesUnlocked(stratum: StratumState): boolean {
   return hasMilestone(stratum.milestones, UNLOCK_COHERENCE_UPGRADES_MILESTONE_ID);
+}
+
+export function isConceptCrystalsUnlocked(stratum: StratumState): boolean {
+  return hasMilestone(stratum.milestones, MILESTONE_FOUR_PLACEHOLDER_ID);
 }

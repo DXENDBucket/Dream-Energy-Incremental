@@ -7,12 +7,14 @@ import { tickDreamCrystals } from "./common/dream-crystals";
 import { tickDreamCrystalAutobuyers } from "./common/dream-crystals/autobuyers";
 import { tickDreamEnergy } from "./common/dream-energy";
 import { tickEntropy } from "./common/entropy";
+import { tickConceptCrystals } from "./common/concept-crystals";
 
 export function tickStratum(stratum: StratumState, dtSec: Num): void {
   tickDreamCrystals(stratum, dtSec);
   tickDreamEnergy(stratum, dtSec);
   tickEntropy(stratum, dtSec);
   tickDreamCrystalAutobuyers(stratum, dtSec);
+  tickConceptCrystals(stratum, dtSec);
 }
 
 export function tickActiveStratum(state: GameState, dtSec: Num): void {
