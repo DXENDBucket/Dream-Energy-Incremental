@@ -49,9 +49,9 @@ export default {
     haveDreamEnergy: "You have {amount} dream energy.",
     activeStratum: "Current active stratum: {id}",
     gain: "Gain: {value}",
-    softcapWarning: "Dream Energy is repelling itself, suppressing production.",
-    softcapTwoWarning: "The strong interaction is surfacing between Dream Energy, amplifying the repulsion.",
-    softcapThreeWarning: "Dream Energy is consuming itself. Producing more has become brutally difficult.",
+    softcapWarning: "Dream Energy is repelling itself. Raw Dream Energy is being compressed into less actual Dream Energy.",
+    softcapTwoWarning: "The strong interaction is surfacing between Dream Energy, amplifying that compression.",
+    softcapThreeWarning: "Dream Energy is consuming itself. Raw Dream Energy struggles to settle into actual Dream Energy.",
     placeholders: {
       upgrades: "Upgrades placeholder",
       numbers: "Numbers/statistics placeholder",
@@ -138,7 +138,7 @@ export default {
     repeatableStatus: "Bought {count} times | Current n = {bonus}",
     refineryStatus: "Bought {count} times | Current total x{multiplier}",
     currentMultiplier: "Current x{value}",
-    softcapTwoStatus: "Second-stage repulsion strength per 10x interval: ×{value}",
+    softcapTwoStatus: "Second-stage compression growth per 10x interval: ×{value}",
     refineKeepStatus: {
       enabled: "Refine no longer resets DC amounts.",
       disabled: "Purchase to keep DC amounts after Refine.",
@@ -148,7 +148,7 @@ export default {
       disabled: "Purchase to unlock Refine Autobuyer.",
     },
     refineryLogBaseStatus: "Bought {count} times | Current log base {value}",
-    softcapOneStatus: "Bought {count} times | Current first softcap strength {value}",
+    softcapOneStatus: "Bought {count} times | Current first-stage compression strength {value}",
     items: {
       "first-tier-triple": {
         title: "Primal Prism",
@@ -172,7 +172,7 @@ export default {
       },
       "softcap-two-weaken": {
         title: "Friction Fracture",
-        description: "Halve the second-stage repulsion strength.",
+        description: "Halve the second-stage compression strength.",
       },
       "refine-keep-crystals": {
         title: "Refined Retention",
@@ -188,7 +188,7 @@ export default {
       },
       "softcap-one-weaken": {
         title: "Pressure Palliation",
-        description: "Halve the first-stage repulsion strength.",
+        description: "Halve the first-stage compression strength.",
       },
     },
   },
@@ -202,7 +202,7 @@ export default {
     pending: "Pending",
     entropyTuningStatus: "Next-stratum Entropy Tuning: {value}",
     nextDreamCrystalMultiplierStatus: "Next-stratum Dream Crystal multiplier: ×{value}",
-    softcapTwoSlowdownStatus: "Current second-stage strength multiplier: ×{value}",
+    softcapTwoSlowdownStatus: "Current second-stage compression multiplier: ×{value}",
     deeperInitialDreamEnergyStatus: "Bought {count} times | Next stratum starts with +{value} DE",
     pointGainMultiplierStatus: "Bought {count} times | Current Coherence Point gain ×{value}",
     items: {
@@ -216,7 +216,7 @@ export default {
       },
       "coherence-upgrade-3": {
         title: "Mirror Matrix",
-        description: "Current CP further slows the second-stage repulsion in this stratum.",
+        description: "Current CP further slows second-stage compression in this stratum.",
       },
       "coherence-upgrade-4": {
         title: "Still Sigil",
@@ -402,28 +402,28 @@ export default {
     },
   },
   currentStratum: {
-    title: "Dream Energy Repulsion",
-    underPressure: "Your Dream Energy storage is under pressure.",
-    strongInteraction: "The strong interaction is acting between Dream Energy, amplifying repulsion to {value}.",
+    title: "Dream Energy Compression",
+    underPressure: "Your Dream Energy storage is being compressed.",
+    strongInteraction: "The strong interaction is acting between Dream Energy, amplifying compression to {value}.",
     detail:
-      "Because you currently hold {current} Dream Energy, your raw production of {raw} is facing a repulsion strength of {power}.",
-    reducedTo: "This reduces your production by {divisor} to {final}.",
+      "You currently hold {current} actual Dream Energy. Your raw production is {raw}, and the current compression strength is {power}.",
+    reducedTo: "Stored raw Dream Energy is compressed by about {divisor}; current actual growth is {final}.",
     stable: "Your current Dream Energy storage is stable.",
-    noRepulsion: "No repulsion is affecting Dream Energy production right now.",
-    currentProduction: "Current production: {value}",
+    noRepulsion: "No compression is affecting actual Dream Energy right now.",
+    currentProduction: "Current actual growth: {value}",
     softcapTwo: {
       title: "Dream Energy Strong Interaction",
-      threshold: "Once Dream Energy passes {value}, repulsion is no longer only storage pressure.",
+      threshold: "Once Dream Energy passes {value}, compression is no longer only storage pressure.",
       excessExponent: "You have pushed {value} base-10 intervals beyond that boundary.",
-      strengthBase: "This stage advances once per {base}x interval. Current strength is {growth}.",
-      strengthMultiplier: "That strength expands the repulsion above to {value}.",
+      strengthBase: "This stage advances once per {base}x interval. Current compression growth is {growth}.",
+      strengthMultiplier: "That growth expands the compression above to {value}.",
     },
     softcapThree: {
       title: "Dream Energy Assimilation",
       threshold: "Once Dream Energy passes {value}, it begins assimilating itself.",
       excessExponent: "You have pushed {value} base-10 intervals beyond this assimilating boundary.",
-      strengthBase: "This stage advances once per {base}x interval. Each interval multiplies second-stage strength by {growth}.",
-      strengthMultiplier: "Current multiplier applied to second-stage strength: {value}.",
+      strengthBase: "This stage advances once per {base}x interval. Each interval multiplies second-stage compression growth by {growth}.",
+      strengthMultiplier: "Current multiplier applied to second-stage compression growth: {value}.",
     },
   },
   lift: {

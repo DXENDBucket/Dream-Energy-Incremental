@@ -11,6 +11,7 @@ import { getDreamCrystalCost } from "@/engine/math/dream-crystals";
 import { getDreamEnergy } from "../../manager/selectors";
 import { getDreamCrystalAmount, getDreamCrystalBought } from "./selectors";
 import { isDreamCrystalFreePurchasesUnlocked } from "./upgrades";
+import { spendDreamEnergy } from "@/engine/strata/common/dream-energy";
 
 const DREAM_CRYSTAL_BUY_MAX_STEP_LIMIT = 4096;
 
@@ -20,7 +21,7 @@ export function getCurrentDreamCrystalCost(stratum: StratumState, tier: number) 
 }
 
 export function canBuyDreamCrystal(stratum: StratumState, tier: number) {
-  return gte(stratum.dreamEnergy, getCurrentDreamCrystalCost(stratum, tier));
+  return gte(getDreamEnergy(stratum), getCurrentDreamCrystalCost(stratum, tier));
 }
 
 export function buyDreamCrystal(stratum: StratumState, tier: number) {
@@ -28,14 +29,14 @@ export function buyDreamCrystal(stratum: StratumState, tier: number) {
 
   const cost = getCurrentDreamCrystalCost(stratum, tier);
   const crystal = stratum.dreamCrystals.tiers[tier];
-  if (!isDreamCrystalFreePurchasesUnlocked(stratum)) {
-    stratum.dreamEnergy = sub(stratum.dreamEnergy, cost);
-  }
   if (!crystal) {
     throw new Error(`Dream Crystal tier ${tier} not found.`);
   }
   crystal.bought = add(crystal.bought, 1);
   crystal.amount = add(crystal.amount, 1);
+  if (!isDreamCrystalFreePurchasesUnlocked(stratum)) {
+    spendDreamEnergy(stratum, cost);
+  }
 }
 
 //Buy Max
@@ -113,7 +114,7 @@ export function buyMaxDreamCrystal(stratum: StratumState, tier: number) {
 
   if (!isDreamCrystalFreePurchasesUnlocked(stratum)) {
     const totalCost = getDreamCrystalBulkCost(stratum, tier, count);
-    stratum.dreamEnergy = sub(stratum.dreamEnergy, totalCost);
+    spendDreamEnergy(stratum, totalCost);
   }
   crystal.bought = add(crystal.bought, count);
   crystal.amount = add(crystal.amount, count);

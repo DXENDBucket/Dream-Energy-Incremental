@@ -1,5 +1,6 @@
 import type { StratumState } from "../../state";
 import { gte } from "@/engine/math/num";
+import { getDreamEnergy } from "@/engine/strata/common/dream-energy";
 import { hasMilestone } from "./selectors";
 import {
   UNLOCK_COHERENCE_UPGRADES_MILESTONE_ID,
@@ -17,7 +18,7 @@ export function canClaimMilestone(stratum: StratumState, id: string): boolean {
 
   switch (requirement.type) {
     case "reach-dream-energy":
-      return gte(stratum.dreamEnergy, requirement.amount);
+      return gte(getDreamEnergy(stratum), requirement.amount);
   }
 }
 

@@ -49,9 +49,9 @@ export default {
     haveDreamEnergy: "你拥有 {amount} 梦能。",
     activeStratum: "当前激活层级：{id}",
     gain: "增益：{value}",
-    softcapWarning: "梦能正在互相排斥，产出受到压制。",
-    softcapTwoWarning: "强相互作用力正在梦能之间显现，排斥被进一步放大。",
-    softcapThreeWarning: "梦能将会开始兼并，生产更多梦能变得极其艰难。",
+    softcapWarning: "梦能正在互相排斥，原始梦能会被压缩成较少的实际梦能。",
+    softcapTwoWarning: "强相互作用力正在梦能之间显现，梦能压缩被进一步放大。",
+    softcapThreeWarning: "梦能开始兼并自身，原始梦能很难完整沉淀为实际梦能。",
     placeholders: {
       upgrades: "升级页占位",
       numbers: "数值统计占位",
@@ -138,7 +138,7 @@ export default {
     repeatableStatus: "已购买 {count} 次｜当前 n = {bonus}",
     refineryStatus: "已购买 {count} 次｜当前总倍率 x{multiplier}",
     currentMultiplier: "当前收益 x{value}",
-    softcapTwoStatus: "第二段排斥每 10 倍区间的强度：×{value}",
+    softcapTwoStatus: "第二段压缩每 10 倍区间的增长：×{value}",
     refineKeepStatus: {
       enabled: "Refine 不再重置 DC 数量。",
       disabled: "购买后 Refine 会保留 DC 数量。",
@@ -148,7 +148,7 @@ export default {
       disabled: "购买后解锁 Refine Autobuyer。",
     },
     refineryLogBaseStatus: "已购买 {count} 次｜当前 log 底数 {value}",
-    softcapOneStatus: "已购买 {count} 次｜当前第一 softcap strength {value}",
+    softcapOneStatus: "已购买 {count} 次｜当前第一段压缩强度 {value}",
     items: {
       "first-tier-triple": {
         title: "原初棱镜",
@@ -172,7 +172,7 @@ export default {
       },
       "softcap-two-weaken": {
         title: "强力缓释",
-        description: "将第二段排斥的强度减半。",
+        description: "将第二段压缩的强度减半。",
       },
       "refine-keep-crystals": {
         title: "精炼留存",
@@ -187,8 +187,8 @@ export default {
         description: "将 refinery 公式中 log 底数向 1 推近。",
       },
       "softcap-one-weaken": {
-        title: "排斥削弱",
-        description: "将第一段排斥的强度减半。",
+        title: "压缩削弱",
+        description: "将第一段压缩的强度减半。",
       },
     },
   },
@@ -202,7 +202,7 @@ export default {
     pending: "待定",
     entropyTuningStatus: "进入下一层时 Entropy Tuning：{value}",
     nextDreamCrystalMultiplierStatus: "下一层梦能水晶 multiplier：×{value}",
-    softcapTwoSlowdownStatus: "当前第二段 strength 倍率：×{value}",
+    softcapTwoSlowdownStatus: "当前第二段压缩倍率：×{value}",
     deeperInitialDreamEnergyStatus: "已购买 {count} 次；进入下一层初始 +{value} DE",
     pointGainMultiplierStatus: "已购买 {count} 次；当前调谐点数获取 ×{value}",
     items: {
@@ -216,7 +216,7 @@ export default {
       },
       "coherence-upgrade-3": {
         title: "镜潮纹理",
-        description: "本层现有 CP 会额外减缓本层第二段排斥。",
+        description: "本层现有 CP 会额外减缓本层第二段压缩。",
       },
       "coherence-upgrade-4": {
         title: "静滞棱面",
@@ -401,27 +401,27 @@ export default {
     },
   },
   currentStratum: {
-    title: "梦能排斥",
-    underPressure: "你的梦能储量正承受压力。",
-    strongInteraction: "强相互作用力开始在梦能之间发挥作用，排斥被进一步放大到 {value}。",
-    detail: "由于你当前持有 {current} 梦能，你的原始产出 {raw} 正承受强度为 {power} 的排斥。",
-    reducedTo: "这会将你的产出按 {divisor} 削减至 {final}。",
+    title: "梦能压缩",
+    underPressure: "你的梦能储量正在被压缩。",
+    strongInteraction: "强相互作用力开始在梦能之间发挥作用，压缩被进一步放大到 {value}。",
+    detail: "你当前持有 {current} 实际梦能；原始产出为 {raw}，当前压缩强度为 {power}。",
+    reducedTo: "累计原始梦能会按约 {divisor} 压缩为实际梦能；当前实际增长约为 {final}。",
     stable: "你当前的梦能储量是稳定的。",
-    noRepulsion: "当前没有排斥影响梦能产出。",
-    currentProduction: "当前产出：{value}",
+    noRepulsion: "当前没有压缩影响实际梦能。",
+    currentProduction: "当前实际增长：{value}",
     softcapTwo: {
       title: "梦能强相互作用",
-      threshold: "当梦能越过 {value} 后，排斥不再只是储量压力。",
+      threshold: "当梦能越过 {value} 后，压缩不再只是储量压力。",
       excessExponent: "你已经在这个边界外推进了 {value} 个 10 倍区间。",
-      strengthBase: "第二段以每 {base} 倍为一阶，当前 strength 为 {growth}。",
-      strengthMultiplier: "这个 strength 会让上方排斥扩大到 {value}。",
+      strengthBase: "第二段以每 {base} 倍为一阶，当前压缩增长为 {growth}。",
+      strengthMultiplier: "这个增长会让上方压缩扩大到 {value}。",
     },
     softcapThree: {
       title: "梦能兼并",
       threshold: "当梦能越过 {value} 后，梦能将会开始兼并自身。",
       excessExponent: "你已经在这个兼并边界外推进了 {value} 个 10 倍区间。",
-      strengthBase: "第三段以每 {base} 倍为一阶，每阶会让第二段 strength 乘以 {growth}。",
-      strengthMultiplier: "当前施加在第二段 strength 上的倍率为 {value}。",
+      strengthBase: "第三段以每 {base} 倍为一阶，每阶会让第二段压缩增长乘以 {growth}。",
+      strengthMultiplier: "当前施加在第二段压缩增长上的倍率为 {value}。",
     },
   },
   lift: {

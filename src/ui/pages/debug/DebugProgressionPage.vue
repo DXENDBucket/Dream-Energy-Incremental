@@ -6,6 +6,7 @@ import { format } from "@/engine/math/format";
 import { N, add, max, type Num } from "@/engine/math/num";
 import { DREAM_CRYSTAL_UPGRADE_AUTOBUYER_ID, ensureDreamCrystalUpgradesState } from "@/engine/strata/common/dream-crystals/upgrades";
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
+import { addDreamEnergy, getDreamEnergy, setDreamEnergy } from "@/engine/strata/common/dream-energy";
 import {
   addChaoticEther,
   getChaoticEther,
@@ -67,7 +68,7 @@ const REALITY_CE_GRANT = N(1000);
 
 const activeStratum = computed(() => getActiveStratum(props.game.state));
 const activeStratumIdText = computed(() => props.game.state.activeStratumId);
-const activeDreamEnergyText = computed(() => format(activeStratum.value.dreamEnergy));
+const activeDreamEnergyText = computed(() => format(getDreamEnergy(activeStratum.value)));
 const activeCoherenceText = computed(() => format(getCoherencePoints(activeStratum.value)));
 const activeChaoticEtherTier = computed(() => getDreamCrystalUpgradeChaoticEtherTier(activeStratum.value));
 const activeChaoticEtherText = computed(() => format(getChaoticEther(activeStratum.value, activeChaoticEtherTier.value)));
@@ -185,7 +186,7 @@ function ensureDreamSeaFirstStratum(): StratumState {
 }
 
 function setDreamEnergyAtLeast(stratum: StratumState, amount: Num): void {
-  stratum.dreamEnergy = max(stratum.dreamEnergy, amount);
+  setDreamEnergy(stratum, max(getDreamEnergy(stratum), amount));
 }
 
 function claimMilestone(stratum: StratumState, id: string): void {
@@ -256,7 +257,7 @@ function runAction(id: DebugActionId): void {
       ensureDreamCrystalUpgradesState(activeStratum.value).bought[DREAM_CRYSTAL_UPGRADE_AUTOBUYER_ID] = true;
       break;
     case "add-active-de":
-      activeStratum.value.dreamEnergy = add(activeStratum.value.dreamEnergy, ACTIVE_DE_GRANT);
+      addDreamEnergy(activeStratum.value, ACTIVE_DE_GRANT);
       break;
     case "add-active-cp":
       addCoherencePoints(activeStratum.value, ACTIVE_CP_GRANT);

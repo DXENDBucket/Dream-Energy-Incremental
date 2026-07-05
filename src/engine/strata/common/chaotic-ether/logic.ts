@@ -3,6 +3,7 @@ import { ONE, TEN, ZERO, add, div, floor, gt, gte, lte, pow, sub } from "@/engin
 import type { Num } from "@/engine/math/num";
 import { isNum, tryRestoreNum } from "@/engine/math/num";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
+import { getDreamEnergy, setDreamEnergy } from "@/engine/strata/common/dream-energy";
 import { ensureEntropyState } from "@/engine/strata/common/entropy";
 import {
   dreamSeaFirstStratumId,
@@ -110,9 +111,10 @@ export function getDreamCrystalUpgradeChaoticEtherTier(stratum: StratumState): C
 }
 
 export function getChaoticEtherGain(stratum: StratumState): Num {
-  if (!gte(stratum.dreamEnergy, CHAOTIC_ETHER_EXTRACT_REQUIREMENT)) return ZERO;
+  const dreamEnergy = getDreamEnergy(stratum);
+  if (!gte(dreamEnergy, CHAOTIC_ETHER_EXTRACT_REQUIREMENT)) return ZERO;
 
-  const dreamEnergyRatio = div(stratum.dreamEnergy, CHAOTIC_ETHER_EXTRACT_REQUIREMENT);
+  const dreamEnergyRatio = div(dreamEnergy, CHAOTIC_ETHER_EXTRACT_REQUIREMENT);
   const baseGain = pow(dreamEnergyRatio, div(ONE, CHAOTIC_ETHER_EXTRACT_LOG_DIVISOR));
   if (lte(baseGain, CHAOTIC_ETHER_EXTRACT_ACCELERATION_START)) {
     return floor(baseGain);
@@ -146,7 +148,7 @@ export function extractChaoticEther(state: GameState): void {
   const entropy = ensureEntropyState(stratum);
 
   addChaoticEther(stratum, gain, tier);
-  stratum.dreamEnergy = TEN;
+  setDreamEnergy(stratum, TEN);
   stratum.dreamCrystals = createDreamCrystalsState();
   entropy.isStarted = true;
   entropy.value = ONE;

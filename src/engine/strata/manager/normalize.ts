@@ -1,5 +1,5 @@
 import type { GameState } from "@/engine/core/state";
-import { ONE, ZERO, normalizeNum } from "@/engine/math/num";
+import { ONE, ZERO, max, normalizeNum } from "@/engine/math/num";
 import { ensureChaoticEtherState } from "@/engine/strata/common/chaotic-ether";
 import { COHERENCE_DEFAULT_PRODUCTION_LOSS } from "@/engine/strata/common/coherence/balance";
 import { ensureCoherenceUpgradesState } from "@/engine/strata/common/coherence/upgrades";
@@ -7,6 +7,10 @@ import { ensureConceptCrystalsState } from "@/engine/strata/common/concept-cryst
 import { ensureDreamCrystalAutobuyersState } from "@/engine/strata/common/dream-crystals/autobuyers";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
 import { ensureDreamCrystalUpgradesState } from "@/engine/strata/common/dream-crystals/upgrades";
+import {
+  getRawDreamEnergyFromActual,
+  syncDreamEnergyActualFromRaw,
+} from "@/engine/strata/common/dream-energy";
 import {
   ensureEntropyState,
   getDefaultEntropyChaosExponent,
@@ -44,7 +48,10 @@ export function normalizeGameState(state: GameState): GameState {
   state.strata[realityStratumId] ??= createStratumState();
 
   for (const [id, stratum] of Object.entries(state.strata)) {
+    const hadRawDreamEnergy = stratum.rawDreamEnergy !== undefined && stratum.rawDreamEnergy !== null;
+
     stratum.dreamEnergy = normalizeNum(stratum.dreamEnergy, 10);
+    stratum.rawDreamEnergy = normalizeNum(stratum.rawDreamEnergy, stratum.dreamEnergy);
     stratum.coherencePoints = normalizeNum(stratum.coherencePoints, ZERO);
     stratum.coherenceProductionLoss = normalizeNum(
       stratum.coherenceProductionLoss,
@@ -58,6 +65,11 @@ export function normalizeGameState(state: GameState): GameState {
     ensureConceptCrystalsState(stratum);
     ensureDreamCrystalUpgradesState(stratum);
     ensureDreamCrystalAutobuyersState(stratum);
+    const rawNeededForCurrentActual = getRawDreamEnergyFromActual(stratum, stratum.dreamEnergy);
+    stratum.rawDreamEnergy = hadRawDreamEnergy
+      ? max(stratum.rawDreamEnergy, rawNeededForCurrentActual)
+      : rawNeededForCurrentActual;
+    syncDreamEnergyActualFromRaw(stratum);
     stratum.milestones ??= createMilestonesState();
     stratum.milestones.claimed ??= {};
 

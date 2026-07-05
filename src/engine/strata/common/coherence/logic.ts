@@ -3,6 +3,7 @@ import { TEN, ZERO, add, div, floor, gt, gte, log10, mul, pow, sub } from "@/eng
 import type { Num } from "@/engine/math/num";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
 import { getCoherencePointGainMultiplier } from "@/engine/strata/common/coherence/upgrades";
+import { getDreamEnergy, setDreamEnergy } from "@/engine/strata/common/dream-energy";
 import type { StratumState } from "@/engine/strata/state";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import {
@@ -20,10 +21,11 @@ export function getCoherenceProductionLoss(stratum: StratumState): Num {
 }
 
 export function getCoherencePointGain(stratum: StratumState): Num {
-  if (!gt(stratum.dreamEnergy, COHERENCE_CONDENSE_REQUIREMENT)) return ZERO;
+  const dreamEnergy = getDreamEnergy(stratum);
+  if (!gt(dreamEnergy, COHERENCE_CONDENSE_REQUIREMENT)) return ZERO;
 
   const exponent = sub(
-    div(log10(stratum.dreamEnergy), getCoherenceProductionLoss(stratum)),
+    div(log10(dreamEnergy), getCoherenceProductionLoss(stratum)),
     COHERENCE_CONDENSE_EXPONENT_OFFSET,
   );
 
@@ -42,6 +44,6 @@ export function condenseCoherence(state: GameState): void {
   const gain = getCoherencePointGain(stratum);
 
   stratum.coherencePoints = add(getCoherencePoints(stratum), gain);
-  stratum.dreamEnergy = TEN;
+  setDreamEnergy(stratum, TEN);
   stratum.dreamCrystals = createDreamCrystalsState();
 }

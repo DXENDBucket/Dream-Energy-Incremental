@@ -2,6 +2,7 @@ import type { GameState } from "@/engine/core/state";
 import { ONE, TEN, ZERO, add, div, gt, gte, log10, max, min } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
+import { addDreamEnergy, getDreamEnergy, setDreamEnergy } from "@/engine/strata/common/dream-energy";
 import {
   computeEntropyGrowthRateMultiplierFromCoherence,
   createEntropyState,
@@ -36,7 +37,7 @@ export function getLiftUnlockRequirement(): Num {
 export function getLiftUnlockProgress(state: GameState): Num {
   if (state.lift.isLiftUnlocked) return ONE;
 
-  const current = getActiveStratum(state).dreamEnergy;
+  const current = getDreamEnergy(getActiveStratum(state));
   const cappedCurrent = min(current, LIFT_UNLOCK_REQUIREMENT);
   const numerator = log10(add(cappedCurrent, ONE));
   const denominator = log10(add(LIFT_UNLOCK_REQUIREMENT, ONE));
@@ -47,7 +48,7 @@ export function getLiftUnlockProgress(state: GameState): Num {
 
 export function canUnlockLift(state: GameState): boolean {
   if (state.lift.isLiftUnlocked) return false;
-  return gte(getActiveStratum(state).dreamEnergy, LIFT_UNLOCK_REQUIREMENT);
+  return gte(getDreamEnergy(getActiveStratum(state)), LIFT_UNLOCK_REQUIREMENT);
 }
 
 export function unlockLift(state: GameState): void {
@@ -103,7 +104,7 @@ export function travelToDreamSeaFirstStratum(state: GameState): boolean {
     dreamCrystalMultiplierBonus,
   );
   if (gt(initialDreamEnergyBonus, ZERO)) {
-    dreamSeaFirst.dreamEnergy = add(dreamSeaFirst.dreamEnergy, initialDreamEnergyBonus);
+    addDreamEnergy(dreamSeaFirst, initialDreamEnergyBonus);
   }
   reality.coherencePoints = ZERO;
 
@@ -159,7 +160,7 @@ export function travelToDreamSeaSecondStratum(state: GameState): boolean {
     dreamCrystalMultiplierBonus,
   );
   if (gt(initialDreamEnergyBonus, ZERO)) {
-    dreamSeaSecond.dreamEnergy = add(dreamSeaSecond.dreamEnergy, initialDreamEnergyBonus);
+    addDreamEnergy(dreamSeaSecond, initialDreamEnergyBonus);
   }
   dreamSeaFirst.coherencePoints = ZERO;
 
@@ -189,7 +190,7 @@ function resetStratumAfterReturn(
   stratum: StratumState,
   formulaId: "dream-sea-first" | "dream-sea-second",
 ): void {
-  stratum.dreamEnergy = TEN;
+  setDreamEnergy(stratum, TEN);
   stratum.dreamCrystals = createDreamCrystalsState();
   stratum.entropy = createEntropyState(formulaId);
 }

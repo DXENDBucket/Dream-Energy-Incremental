@@ -34,6 +34,7 @@ import {
 
 export interface StratumState {
   dreamEnergy: Num;
+  rawDreamEnergy: Num;
   coherencePoints: Num;
   coherenceProductionLoss: Num;
   coherenceDreamCrystalMultiplier: Num;
@@ -56,6 +57,7 @@ export interface CreateStratumStateOptions {
 export function createStratumState(options: CreateStratumStateOptions = {}): StratumState {
   return {
     dreamEnergy: N(10),
+    rawDreamEnergy: N(10),
     coherencePoints: ZERO,
     coherenceProductionLoss: COHERENCE_DEFAULT_PRODUCTION_LOSS,
     coherenceDreamCrystalMultiplier: ONE,

@@ -2,6 +2,7 @@ import { N, ONE, TEN, ZERO, add, div, gte, log10, lte, max, mul, normalizeNum, p
 import type { Num } from "@/engine/math/num";
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals/selectors";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals/state";
+import { getDreamEnergy, setDreamEnergy, spendDreamEnergy } from "@/engine/strata/common/dream-energy";
 import type { StratumState } from "@/engine/strata/state";
 import { isConceptCrystalsUnlocked } from "@/engine/strata/common/milestones";
 import {
@@ -23,7 +24,7 @@ import {
 const CONCEPT_CRYSTAL_PRODUCTION_RATIO = ONE;
 const CONCEPT_CRYSTAL_DC_COST_SCALE = N(2);
 const CONCEPT_CRYSTAL_CP_GAIN_SCALE = N(5);
-const CONCEPT_CRYSTAL_ASSIMILATION_SCALE = ONE;
+const CONCEPT_CRYSTAL_ASSIMILATION_SCALE = div(ONE, N(5));
 
 export function ensureConceptCrystalsState(stratum: StratumState): ConceptCrystalsState {
   stratum.conceptCrystals ??= createConceptCrystalsState();
@@ -73,7 +74,7 @@ export function getConceptCrystalIntervalUpgradeRequirement(stratum: StratumStat
 
 export function canUpgradeConceptCrystalInterval(stratum: StratumState): boolean {
   if (!isConceptCrystalsUnlocked(stratum)) return false;
-  return gte(stratum.dreamEnergy, getConceptCrystalIntervalUpgradeRequirement(stratum));
+  return gte(getDreamEnergy(stratum), getConceptCrystalIntervalUpgradeRequirement(stratum));
 }
 
 export function upgradeConceptCrystalInterval(stratum: StratumState): void {
@@ -82,7 +83,7 @@ export function upgradeConceptCrystalInterval(stratum: StratumState): void {
   const conceptCrystals = ensureConceptCrystalsState(stratum);
   const requirement = getConceptCrystalIntervalUpgradeRequirement(stratum);
 
-  stratum.dreamEnergy = sub(stratum.dreamEnergy, requirement);
+  spendDreamEnergy(stratum, requirement);
   conceptCrystals.intervalUpgrades = add(conceptCrystals.intervalUpgrades, 1);
 }
 
@@ -109,7 +110,7 @@ export function condenseConceptCrystal(stratum: StratumState): void {
   conceptCrystals.amount = add(conceptCrystals.amount, 1);
   conceptCrystals.nodes = createConceptCrystalNodeAmounts();
 
-  stratum.dreamEnergy = TEN;
+  setDreamEnergy(stratum, TEN);
   stratum.dreamCrystals = createDreamCrystalsState();
 }
 
