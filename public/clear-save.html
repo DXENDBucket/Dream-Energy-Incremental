@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clear Dream Energy Save</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family:
+          Inter, "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+        background: #07090f;
+        color: #dbeafe;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(circle at 50% 20%, rgba(96, 165, 250, 0.22), transparent 32rem),
+          linear-gradient(180deg, #101827 0%, #07090f 100%);
+      }
+
+      main {
+        width: min(520px, calc(100vw - 32px));
+        padding: 28px;
+        border: 1px solid rgba(147, 197, 253, 0.35);
+        border-radius: 10px;
+        background: rgba(7, 12, 22, 0.88);
+        box-shadow:
+          0 18px 60px rgba(0, 0, 0, 0.38),
+          inset 0 0 28px rgba(96, 165, 250, 0.08);
+      }
+
+      h1 {
+        margin: 0 0 14px;
+        font-size: 1.35rem;
+        letter-spacing: 0;
+      }
+
+      p {
+        margin: 10px 0;
+        line-height: 1.7;
+        color: #bfdbfe;
+      }
+
+      .status {
+        margin-top: 18px;
+        padding: 12px 14px;
+        border: 1px solid rgba(125, 211, 252, 0.4);
+        border-radius: 8px;
+        color: #e0f2fe;
+        background: rgba(14, 116, 144, 0.18);
+      }
+
+      a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        margin-top: 18px;
+        padding: 0 16px;
+        border: 1px solid rgba(147, 197, 253, 0.52);
+        border-radius: 8px;
+        color: #eff6ff;
+        text-decoration: none;
+        background: rgba(37, 99, 235, 0.26);
+      }
+
+      a:hover {
+        background: rgba(37, 99, 235, 0.38);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>本地存档已清理</h1>
+      <p>已删除这个浏览器来源下的 Dream Energy Incremental 本地存档。</p>
+      <p>如果主页面之前因为坏档卡住，现在可以重新进入。</p>
+      <div class="status" id="status">正在清理...</div>
+      <a href="/Dream-Energy-Incremental/">返回游戏</a>
+    </main>
+
+    <script>
+      const saveKey = "dream-energy-incremental-save";
+      const previous = localStorage.getItem(saveKey);
+      localStorage.removeItem(saveKey);
+
+      document.getElementById("status").textContent = previous
+        ? "已删除存档 key: " + saveKey
+        : "没有找到旧存档 key: " + saveKey;
+    </script>
+  </body>
+</html>

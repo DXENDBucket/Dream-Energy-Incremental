@@ -1,5 +1,5 @@
 import type { StratumState } from "../../state";
-import { ONE, ZERO, add, div, gte, logn, lt, lte, max, mul, pow, sub, type Num } from "@/engine/math/num";
+import { ONE, TEN, ZERO, add, div, gte, log10, logn, lte, max, mul, pow, sqrt, sub, type Num } from "@/engine/math/num";
 import {
     DREAM_ENERGY_SOFTCAP_ONE_START,
     DREAM_ENERGY_SOFTCAP_POWER_DISPLAY,
@@ -11,7 +11,11 @@ import {
     DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_BASE,
     DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH,
 } from "@/engine/math/dream-energy/balance";
-import { convertDreamEnergySoftcapOneToPower, getDreamEnergyIncrement } from "@/engine/math/dream-energy/computed";
+import {
+    convertDreamEnergySoftcapOneToPower,
+    convertDreamEnergySoftcapOneToRaw,
+    getDreamEnergyIncrement,
+} from "@/engine/math/dream-energy/computed";
 import {
     getDreamCrystalSoftcapOneStrengthMultiplier,
     getDreamCrystalSoftcapTwoStrengthMultiplier,
@@ -57,64 +61,167 @@ export function getRawDreamEnergy(stratum: StratumState): Num {
     return stratum.rawDreamEnergy ?? stratum.dreamEnergy;
 }
 
-function invertDreamEnergyAmountSoftcap(value: Num, start: Num, power: Num): Num {
-    if (lte(value, start) || lte(power, ZERO)) return value;
+function applySoftcapStrengthMultiplier(strength: Num, multiplier: Num): Num {
+    return add(ONE, mul(max(ZERO, sub(strength, ONE)), max(ZERO, multiplier)));
+}
 
-    const ratio = div(value, start);
-    return mul(
-        start,
+function getDreamEnergySoftcapOneStartLog(): Num {
+    return log10(DREAM_ENERGY_SOFTCAP_ONE_START);
+}
+
+function getDreamEnergySoftcapTwoStartLog(): Num {
+    return log10(DREAM_ENERGY_SOFTCAP_TWO_START);
+}
+
+function getDreamEnergySoftcapThreeStartLog(): Num {
+    return log10(DREAM_ENERGY_SOFTCAP_THREE_START);
+}
+
+function getPositiveLogExcess(valueLog: Num, startLog: Num): Num {
+    return max(ZERO, sub(valueLog, startLog));
+}
+
+function getDreamEnergySoftcapTwoEffectiveBaseStrengthGrowth(stratum: StratumState): Num {
+    return applySoftcapStrengthMultiplier(
+        getDreamEnergySoftcapTwoBaseStrengthGrowth(stratum),
+        DREAM_ENERGY_SOFTCAP_TWO_EFFECT_SCALE,
+    );
+}
+
+function getDreamEnergySoftcapTwoPowerSlope(stratum: StratumState): Num {
+    const baseStrength = getDreamEnergySoftcapOneBaseStrengthDisplay(stratum);
+    const basePower = convertDreamEnergySoftcapOneToPower(baseStrength);
+    const nextPower = convertDreamEnergySoftcapOneToPower(
+        mul(baseStrength, getDreamEnergySoftcapTwoEffectiveBaseStrengthGrowth(stratum)),
+    );
+
+    return max(ZERO, sub(nextPower, basePower));
+}
+
+function getDreamEnergySoftcapThreePowerSlope(stratum: StratumState): Num {
+    const baseStrength = getDreamEnergySoftcapOneBaseStrengthDisplay(stratum);
+    const basePower = convertDreamEnergySoftcapOneToPower(baseStrength);
+    const nextPower = convertDreamEnergySoftcapOneToPower(
+        mul(baseStrength, getDreamEnergySoftcapThreeStrengthGrowth(stratum)),
+    );
+
+    return max(ZERO, sub(nextPower, basePower));
+}
+
+function getDreamEnergySoftcapPowerAtLog(stratum: StratumState, actualLog: Num): Num {
+    return add(
         add(
-            ONE,
-            div(sub(pow(ratio, add(power, ONE)), ONE), add(power, ONE)),
+            getDreamEnergySoftCapOneBasePower(stratum),
+            mul(
+                mul(getDreamEnergySoftcapTwoPowerSlope(stratum), 2),
+                getPositiveLogExcess(actualLog, getDreamEnergySoftcapTwoStartLog()),
+            ),
+        ),
+        mul(
+            mul(getDreamEnergySoftcapThreePowerSlope(stratum), 2),
+            getPositiveLogExcess(actualLog, getDreamEnergySoftcapThreeStartLog()),
         ),
     );
 }
 
-function applySoftcapStrengthMultiplier(strength: Num, multiplier: Num): Num {
-    return add(ONE, mul(max(ZERO, sub(strength, ONE)), max(ZERO, multiplier)));
+function getRawDreamEnergyLogFromActualLog(stratum: StratumState, actualLog: Num): Num {
+    const softcapOneStartLog = getDreamEnergySoftcapOneStartLog();
+    if (lte(actualLog, softcapOneStartLog)) return actualLog;
+
+    const softcapTwoExcess = getPositiveLogExcess(actualLog, getDreamEnergySoftcapTwoStartLog());
+    const softcapThreeExcess = getPositiveLogExcess(actualLog, getDreamEnergySoftcapThreeStartLog());
+
+    return add(
+        add(
+            add(
+                actualLog,
+                mul(getDreamEnergySoftCapOneBasePower(stratum), sub(actualLog, softcapOneStartLog)),
+            ),
+            mul(getDreamEnergySoftcapTwoPowerSlope(stratum), pow(softcapTwoExcess, 2)),
+        ),
+        mul(getDreamEnergySoftcapThreePowerSlope(stratum), pow(softcapThreeExcess, 2)),
+    );
+}
+
+function solveDreamEnergyActualLogFromRawLog(
+    stratum: StratumState,
+    rawLog: Num,
+    softcapTwoSlope: Num,
+    softcapThreeSlope: Num,
+): Num {
+    const softcapOneStartLog = getDreamEnergySoftcapOneStartLog();
+    const softcapTwoStartLog = getDreamEnergySoftcapTwoStartLog();
+    const softcapThreeStartLog = getDreamEnergySoftcapThreeStartLog();
+    const basePower = getDreamEnergySoftCapOneBasePower(stratum);
+    const quadratic = add(softcapTwoSlope, softcapThreeSlope);
+    const linear = sub(
+        add(ONE, basePower),
+        add(
+            mul(mul(softcapTwoSlope, 2), softcapTwoStartLog),
+            mul(mul(softcapThreeSlope, 2), softcapThreeStartLog),
+        ),
+    );
+    const constant = sub(
+        add(
+            sub(mul(softcapTwoSlope, pow(softcapTwoStartLog, 2)), mul(basePower, softcapOneStartLog)),
+            mul(softcapThreeSlope, pow(softcapThreeStartLog, 2)),
+        ),
+        rawLog,
+    );
+
+    if (lte(quadratic, ZERO)) {
+        return div(sub(ZERO, constant), linear);
+    }
+
+    const discriminant = max(
+        ZERO,
+        sub(pow(linear, 2), mul(mul(quadratic, 4), constant)),
+    );
+
+    return div(add(sub(ZERO, linear), sqrt(discriminant)), mul(quadratic, 2));
 }
 
 export function getActualDreamEnergyFromRaw(stratum: StratumState, raw: Num): Num {
     const targetRaw = max(raw, ZERO);
     if (lte(targetRaw, DREAM_ENERGY_SOFTCAP_ONE_START)) return targetRaw;
 
-    let low = ZERO;
-    let high = targetRaw;
+    const rawLog = log10(targetRaw);
+    const softcapTwoStartRawLog = getRawDreamEnergyLogFromActualLog(
+        stratum,
+        getDreamEnergySoftcapTwoStartLog(),
+    );
+    const softcapThreeStartRawLog = getRawDreamEnergyLogFromActualLog(
+        stratum,
+        getDreamEnergySoftcapThreeStartLog(),
+    );
+    const softcapTwoSlope = getDreamEnergySoftcapTwoPowerSlope(stratum);
+    const softcapThreeSlope = getDreamEnergySoftcapThreePowerSlope(stratum);
 
-    for (let step = 0; step < 96 && lt(getRawDreamEnergyFromActual(stratum, high), targetRaw); step++) {
-        low = high;
-        high = mul(high, 10);
+    if (lte(rawLog, softcapTwoStartRawLog)) {
+        return pow(
+            TEN,
+            solveDreamEnergyActualLogFromRawLog(stratum, rawLog, ZERO, ZERO),
+        );
     }
 
-    for (let step = 0; step < 96; step++) {
-        const mid = div(add(low, high), 2);
-        if (lt(getRawDreamEnergyFromActual(stratum, mid), targetRaw)) {
-            low = mid;
-        } else {
-            high = mid;
-        }
+    if (lte(rawLog, softcapThreeStartRawLog)) {
+        return pow(
+            TEN,
+            solveDreamEnergyActualLogFromRawLog(stratum, rawLog, softcapTwoSlope, ZERO),
+        );
     }
 
-    return high;
+    return pow(
+        TEN,
+        solveDreamEnergyActualLogFromRawLog(stratum, rawLog, softcapTwoSlope, softcapThreeSlope),
+    );
 }
 
 export function getRawDreamEnergyFromActual(stratum: StratumState, actual: Num): Num {
     const targetActual = max(actual, ZERO);
-    let raw = targetActual;
+    if (lte(targetActual, DREAM_ENERGY_SOFTCAP_ONE_START)) return targetActual;
 
-    raw = invertDreamEnergyAmountSoftcap(
-        raw,
-        DREAM_ENERGY_SOFTCAP_TWO_START,
-        getDreamEnergySoftcapTwoExtraPowerAt(stratum, targetActual),
-    );
-
-    raw = invertDreamEnergyAmountSoftcap(
-        raw,
-        DREAM_ENERGY_SOFTCAP_ONE_START,
-        getDreamEnergySoftCapOneBasePower(stratum),
-    );
-
-    return raw;
+    return pow(TEN, getRawDreamEnergyLogFromActualLog(stratum, log10(targetActual)));
 }
 
 export function syncDreamEnergyActualFromRaw(stratum: StratumState): void {
@@ -219,9 +326,9 @@ export function getDreamEnergySoftcapTwoStrengthMultiplier(stratum: StratumState
 
 export function getDreamEnergySoftcapTwoStrengthMultiplierAt(stratum: StratumState, dreamEnergy: Num) {
     if (!gte(dreamEnergy, DREAM_ENERGY_SOFTCAP_TWO_START)) return ONE;
-    return pow(
-        getDreamEnergySoftcapTwoEffectiveStrengthGrowthAt(stratum, dreamEnergy),
-        getDreamEnergySoftcapTwoExcessExponentAt(stratum, dreamEnergy),
+    return div(
+        getDreamEnergySoftcapOnePowerDisplayAt(stratum, dreamEnergy),
+        getDreamEnergySoftcapOneBaseStrengthDisplay(stratum),
     );
 }
 
@@ -235,10 +342,7 @@ export function getDreamEnergySoftcapTwoStrengthGrowth(stratum?: StratumState) {
 }
 
 export function getDreamEnergySoftcapTwoStrengthGrowthAt(stratum: StratumState, dreamEnergy: Num) {
-    return mul(
-        getDreamEnergySoftcapTwoBaseStrengthGrowth(stratum),
-        getDreamEnergySoftcapThreeStrengthMultiplierAt(stratum, dreamEnergy),
-    );
+    return getDreamEnergySoftcapTwoBaseStrengthGrowth(stratum);
 }
 
 export function getDreamEnergySoftcapTwoEffectiveStrengthGrowth(stratum: StratumState) {
@@ -291,9 +395,12 @@ export function getDreamEnergySoftcapThreeStrengthMultiplier(stratum: StratumSta
 
 export function getDreamEnergySoftcapThreeStrengthMultiplierAt(stratum: StratumState, dreamEnergy: Num) {
     if (!gte(dreamEnergy, DREAM_ENERGY_SOFTCAP_THREE_START)) return ONE;
-    return pow(
-        getDreamEnergySoftcapThreeStrengthGrowth(stratum),
-        getDreamEnergySoftcapThreeExcessExponentAt(stratum, dreamEnergy),
+    return add(
+        ONE,
+        mul(
+            mul(getDreamEnergySoftcapThreePowerSlope(stratum), 2),
+            getPositiveLogExcess(log10(dreamEnergy), getDreamEnergySoftcapThreeStartLog()),
+        ),
     );
 }
 
@@ -312,10 +419,19 @@ export function getDreamEnergySoftcapOnePowerDisplay(stratum?: StratumState) {
 }
 
 export function getDreamEnergySoftcapOnePowerDisplayAt(stratum: StratumState, dreamEnergy: Num) {
-    const baseStrength = getDreamEnergySoftcapOneBaseStrengthDisplay(stratum);
-    return mul(baseStrength, getDreamEnergySoftcapTwoStrengthMultiplierAt(stratum, dreamEnergy));
+    if (!gte(dreamEnergy, DREAM_ENERGY_SOFTCAP_ONE_START)) {
+        return getDreamEnergySoftcapOneBaseStrengthDisplay(stratum);
+    }
+
+    return convertDreamEnergySoftcapOneToRaw(
+        getDreamEnergySoftCapOnePowerAt(stratum, dreamEnergy),
+    );
 }
 
 export function getDreamEnergySoftCapOnePowerAt(stratum: StratumState, dreamEnergy: Num) {
-    return convertDreamEnergySoftcapOneToPower(getDreamEnergySoftcapOnePowerDisplayAt(stratum, dreamEnergy));
+    if (!gte(dreamEnergy, DREAM_ENERGY_SOFTCAP_ONE_START)) {
+        return getDreamEnergySoftCapOneBasePower(stratum);
+    }
+
+    return getDreamEnergySoftcapPowerAtLog(stratum, log10(dreamEnergy));
 }
