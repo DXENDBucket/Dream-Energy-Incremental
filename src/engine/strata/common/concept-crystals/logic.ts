@@ -1,8 +1,11 @@
-import { ZERO, add, gte, lte, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
+import { ONE, TEN, ZERO, add, gte, lte, max, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
+import { createDreamCrystalsState, getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals";
 import type { StratumState } from "@/engine/strata/state";
 import { isConceptCrystalsUnlocked } from "@/engine/strata/common/milestones";
 import {
+  CONCEPT_CRYSTAL_CONDENSE_DREAM_CRYSTAL_TIER,
+  CONCEPT_CRYSTAL_CONDENSE_REQUIREMENT_STEP,
   CONCEPT_CRYSTAL_BASE_PRODUCTION_INTERVAL_SEC,
   CONCEPT_CRYSTAL_INTERVAL_REDUCTION,
   CONCEPT_CRYSTAL_INTERVAL_UPGRADE_REQUIREMENT,
@@ -74,6 +77,33 @@ export function upgradeConceptCrystalInterval(stratum: StratumState): void {
 
   stratum.dreamEnergy = sub(stratum.dreamEnergy, requirement);
   conceptCrystals.intervalUpgrades = add(conceptCrystals.intervalUpgrades, 1);
+}
+
+export function getConceptCrystalCondenseRequirement(stratum: StratumState): Num {
+  const conceptCrystals = ensureConceptCrystalsState(stratum);
+  return mul(
+    CONCEPT_CRYSTAL_CONDENSE_REQUIREMENT_STEP,
+    max(conceptCrystals.amount, ONE),
+  );
+}
+
+export function canCondenseConceptCrystal(stratum: StratumState): boolean {
+  if (!isConceptCrystalsUnlocked(stratum)) return false;
+  return gte(
+    getDreamCrystalAmount(stratum.dreamCrystals, CONCEPT_CRYSTAL_CONDENSE_DREAM_CRYSTAL_TIER),
+    getConceptCrystalCondenseRequirement(stratum),
+  );
+}
+
+export function condenseConceptCrystal(stratum: StratumState): void {
+  if (!canCondenseConceptCrystal(stratum)) return;
+
+  const conceptCrystals = ensureConceptCrystalsState(stratum);
+  conceptCrystals.amount = add(conceptCrystals.amount, 1);
+  conceptCrystals.nodes = createConceptCrystalNodeAmounts();
+
+  stratum.dreamEnergy = TEN;
+  stratum.dreamCrystals = createDreamCrystalsState();
 }
 
 export function setConceptCrystalSeveredPath(stratum: StratumState, pathIndex: number): void {

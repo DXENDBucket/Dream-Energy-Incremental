@@ -100,6 +100,10 @@ export default {
     resetNodes: "重置节点",
     enableSevering: "开启截断",
     disableSevering: "关闭截断",
+    condense: {
+      button: "凝聚概念水晶",
+      requirement: "需要 {amount} 个第八梦能水晶。凝聚会重置梦能与梦境水晶，但不会获得 CP。",
+    },
     severed: "截断",
     notSevered: "截断关闭",
     cycleLine: "下一次概念流转：{progress}%｜当前间隔：{interval} 秒",
@@ -110,7 +114,7 @@ export default {
     },
     effect: {
       title: "当前概念水晶效果",
-      copy: "六种概念正在沉淀。它们暂时还没有改变世界，但已经有了自己的形状。",
+      copy: "更多概念水晶以后会强化这里的效果。现在，它们只是静静聚拢并发光。",
     },
   },
   dreamCrystalUpgrades: {

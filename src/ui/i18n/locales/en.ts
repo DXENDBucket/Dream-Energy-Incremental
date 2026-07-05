@@ -100,6 +100,10 @@ export default {
     resetNodes: "Reset nodes",
     enableSevering: "Enable severing",
     disableSevering: "Disable severing",
+    condense: {
+      button: "Condense Concept Crystal",
+      requirement: "Requires {amount} 8th Dream Crystals. This resets Dream Energy and Dream Crystals without gaining CP.",
+    },
     severed: "Severed",
     notSevered: "Severing idle",
     cycleLine: "Next concept turn: {progress}% | Current interval: {interval}s",
@@ -110,7 +114,7 @@ export default {
     },
     effect: {
       title: "Current Concept Crystal effect",
-      copy: "The six ideas are taking shape. Their influence has not reached the world yet.",
+      copy: "More Concept Crystals will strengthen this place later. For now, they simply gather and shine.",
     },
   },
   dreamCrystalUpgrades: {

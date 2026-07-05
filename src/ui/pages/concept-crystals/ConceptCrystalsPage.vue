@@ -6,8 +6,11 @@ import { format, formatInt } from "@/engine/math/format";
 import { div, mul } from "@/engine/math/num";
 import {
   CONCEPT_CRYSTAL_NODE_IDS,
+  canCondenseConceptCrystal,
   canUpgradeConceptCrystalInterval,
+  condenseConceptCrystal,
   ensureConceptCrystalsState,
+  getConceptCrystalCondenseRequirement,
   getConceptCrystalIntervalUpgradeRequirement,
   getConceptCrystalProductionInterval,
   resetConceptCrystalNodes,
@@ -43,10 +46,12 @@ const nodePositions: Record<ConceptCrystalNodeId, { x: number; y: number }> = {
 };
 
 const conceptAmountText = computed(() => formatInt(conceptCrystals.value.amount));
+const condenseRequirementText = computed(() => formatInt(getConceptCrystalCondenseRequirement(activeStratum.value)));
 const intervalText = computed(() => format(getConceptCrystalProductionInterval(activeStratum.value)));
 const upgradeRequirementText = computed(() => formatInt(getConceptCrystalIntervalUpgradeRequirement(activeStratum.value)));
 const upgradeCountText = computed(() => formatInt(conceptCrystals.value.intervalUpgrades));
 const canUpgradeInterval = computed(() => canUpgradeConceptCrystalInterval(activeStratum.value));
+const canCondense = computed(() => canCondenseConceptCrystal(activeStratum.value));
 const isSeveringEnabled = computed(() => conceptCrystals.value.isSeveringEnabled);
 const progressText = computed(() => {
   const interval = getConceptCrystalProductionInterval(activeStratum.value);
@@ -106,25 +111,44 @@ function onResetNodes() {
 function onToggleSevering() {
   toggleConceptCrystalSevering(activeStratum.value);
 }
+
+function onCondenseConceptCrystal() {
+  condenseConceptCrystal(activeStratum.value);
+}
 </script>
 
 <template>
   <div class="concept-page">
     <section class="concept-amount-band">
-      <div class="amount-label">{{ t("conceptCrystals.amountLabel") }}</div>
-      <div class="amount-value">{{ conceptAmountText }}</div>
-      <div class="amount-actions">
-        <button type="button" class="amount-action-button" @click="onResetNodes">
-          {{ t("conceptCrystals.resetNodes") }}
-        </button>
+      <div class="amount-main">
+        <div class="amount-label">{{ t("conceptCrystals.amountLabel") }}</div>
+        <div class="amount-value">{{ conceptAmountText }}</div>
+        <div class="amount-actions">
+          <button type="button" class="amount-action-button" @click="onResetNodes">
+            {{ t("conceptCrystals.resetNodes") }}
+          </button>
+          <button
+            type="button"
+            class="amount-action-button"
+            :class="{ active: isSeveringEnabled }"
+            @click="onToggleSevering"
+          >
+            {{ t(isSeveringEnabled ? "conceptCrystals.disableSevering" : "conceptCrystals.enableSevering") }}
+          </button>
+        </div>
+      </div>
+      <div class="amount-condense">
         <button
           type="button"
-          class="amount-action-button"
-          :class="{ active: isSeveringEnabled }"
-          @click="onToggleSevering"
+          class="condense-button"
+          :disabled="!canCondense"
+          @click="onCondenseConceptCrystal"
         >
-          {{ t(isSeveringEnabled ? "conceptCrystals.disableSevering" : "conceptCrystals.enableSevering") }}
+          {{ t("conceptCrystals.condense.button") }}
         </button>
+        <div class="condense-hint">
+          {{ t("conceptCrystals.condense.requirement", { amount: condenseRequirementText }) }}
+        </div>
       </div>
     </section>
 
@@ -233,6 +257,14 @@ function onToggleSevering() {
 
 .concept-amount-band {
   min-height: 122px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: 18px;
+  align-items: center;
+  padding: 16px 18px;
+}
+
+.amount-main {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -284,6 +316,45 @@ function onToggleSevering() {
   background: rgba(218, 246, 255, 0.16);
   color: #ffffff;
   box-shadow: 0 0 14px rgba(157, 232, 255, 0.16);
+}
+
+.amount-condense {
+  justify-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.condense-button {
+  min-height: 56px;
+  border: 1px solid rgba(174, 238, 255, 0.66);
+  border-radius: 6px;
+  background:
+    linear-gradient(180deg, rgba(42, 104, 132, 0.96) 0%, rgba(13, 43, 64, 0.98) 100%);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow:
+    0 0 18px rgba(112, 222, 255, 0.12),
+    inset 0 0 18px rgba(255, 255, 255, 0.04);
+}
+
+.condense-button:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.condense-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.condense-hint {
+  color: #adddec;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: center;
 }
 
 .hex-section {
@@ -514,6 +585,10 @@ function onToggleSevering() {
 }
 
 @media (max-width: 760px) {
+  .concept-amount-band {
+    grid-template-columns: 1fr;
+  }
+
   .concept-node {
     width: 92px;
     height: 92px;
