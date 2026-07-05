@@ -153,6 +153,7 @@ export default {
     buy: "购买",
     buyRepeatable: "再次购买",
     purchased: "已购买",
+    maxed: "已满级",
     pending: "待定",
     entropyTuningStatus: "进入下一层时 Entropy Tuning：{value}",
     nextDreamCrystalMultiplierStatus: "下一层梦能水晶 multiplier：×{value}",
@@ -166,7 +167,7 @@ export default {
       },
       "coherence-upgrade-2": {
         title: "澄蓝锚点",
-        description: "下一层所有梦能水晶的 multiplier 永久 ×1.5。",
+        description: "下一层所有梦能水晶的 multiplier 永久 ×2。",
       },
       "coherence-upgrade-3": {
         title: "镜潮纹理",

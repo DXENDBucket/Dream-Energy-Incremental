@@ -51,15 +51,27 @@ export function getCoherenceUpgradeCost(stratum: StratumState, id: CoherenceUpgr
 
   if (definition.kind === "placeholder") return ZERO;
   if (definition.kind === "single") return definition.baseCost ?? ZERO;
+  if (isCoherenceRepeatableUpgradeMaxed(stratum, id)) return ZERO;
 
   const bought = getCoherenceRepeatableUpgradeBought(stratum, id);
   return mul(definition.baseCost ?? ZERO, pow(definition.costScale ?? ONE, bought));
+}
+
+export function isCoherenceRepeatableUpgradeMaxed(
+  stratum: StratumState,
+  id: CoherenceUpgradeId,
+): boolean {
+  const definition = getCoherenceUpgradeDefinition(id);
+  if (definition.kind !== "repeatable" || !definition.maxPurchases) return false;
+
+  return gte(getCoherenceRepeatableUpgradeBought(stratum, id), definition.maxPurchases);
 }
 
 export function canBuyCoherenceUpgrade(stratum: StratumState, id: CoherenceUpgradeId): boolean {
   const definition = getCoherenceUpgradeDefinition(id);
   if (definition.kind === "placeholder") return false;
   if (definition.kind === "single" && hasCoherenceUpgrade(stratum, id)) return false;
+  if (definition.kind === "repeatable" && isCoherenceRepeatableUpgradeMaxed(stratum, id)) return false;
 
   return gte(getOwnedCoherencePoints(stratum), getCoherenceUpgradeCost(stratum, id));
 }
@@ -97,7 +109,7 @@ export function getCoherenceEntropyTuningExponent(
 
 export function getCoherenceNextDreamCrystalMultiplierBonus(stratum: StratumState): Num {
   return hasCoherenceUpgrade(stratum, COHERENCE_UPGRADE_NEXT_DREAM_CRYSTAL_MULTIPLIER_ID)
-    ? N(1.5)
+    ? N(2)
     : ONE;
 }
 

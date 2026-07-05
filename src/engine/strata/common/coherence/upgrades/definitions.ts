@@ -27,6 +27,7 @@ export interface CoherenceUpgradeDefinition {
   kind: CoherenceUpgradeKind;
   baseCost?: ReturnType<typeof N>;
   costScale?: ReturnType<typeof N>;
+  maxPurchases?: ReturnType<typeof N>;
 }
 
 export const COHERENCE_UPGRADE_DEFINITIONS = {
@@ -50,6 +51,7 @@ export const COHERENCE_UPGRADE_DEFINITIONS = {
     kind: "repeatable",
     baseCost: N(20),
     costScale: N(12),
+    maxPurchases: N(5),
   },
   [COHERENCE_UPGRADE_PLACEHOLDER_FIVE_ID]: {
     id: COHERENCE_UPGRADE_PLACEHOLDER_FIVE_ID,

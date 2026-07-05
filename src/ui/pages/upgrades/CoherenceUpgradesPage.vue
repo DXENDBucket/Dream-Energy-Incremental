@@ -22,6 +22,7 @@ import {
   getCoherenceUpgradeCost,
   getCoherenceUpgradeDefinition,
   hasCoherenceUpgrade,
+  isCoherenceRepeatableUpgradeMaxed,
   type CoherenceUpgradeId,
 } from "@/engine/strata/common/coherence/upgrades";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
@@ -41,14 +42,17 @@ const upgradeRows = computed(() => {
   return [
     COHERENCE_UPGRADE_ROW_ONE.map((id) => {
       const definition = getCoherenceUpgradeDefinition(id);
-      const isBought = definition.kind === "single" && hasCoherenceUpgrade(activeStratum.value, id);
+      const isMaxed = isCoherenceRepeatableUpgradeMaxed(activeStratum.value, id);
+      const isBought = (
+        definition.kind === "single" && hasCoherenceUpgrade(activeStratum.value, id)
+      ) || isMaxed;
 
       return {
         id: definition.id,
         title: t(`coherenceUpgrades.items.${definition.id}.title`),
         description: t(`coherenceUpgrades.items.${definition.id}.description`),
         footer: getUpgradeFooter(definition.id),
-        costText: definition.kind !== "placeholder"
+        costText: definition.kind !== "placeholder" && !isMaxed
           ? t("coherenceUpgrades.cost", {
             value: formatInt(getCoherenceUpgradeCost(activeStratum.value, definition.id)),
           })
@@ -111,6 +115,10 @@ function getUpgradeStateText(id: CoherenceUpgradeId): string {
     return hasCoherenceUpgrade(activeStratum.value, id)
       ? t("coherenceUpgrades.purchased")
       : t("coherenceUpgrades.buy");
+  }
+
+  if (isCoherenceRepeatableUpgradeMaxed(activeStratum.value, id)) {
+    return t("coherenceUpgrades.maxed");
   }
 
   const bought = getCoherenceRepeatableUpgradeBought(activeStratum.value, id);

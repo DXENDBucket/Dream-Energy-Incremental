@@ -153,6 +153,7 @@ export default {
     buy: "Buy",
     buyRepeatable: "Buy Again",
     purchased: "Purchased",
+    maxed: "Maxed",
     pending: "Pending",
     entropyTuningStatus: "Next-stratum Entropy Tuning: {value}",
     nextDreamCrystalMultiplierStatus: "Next-stratum Dream Crystal multiplier: ×{value}",
@@ -166,7 +167,7 @@ export default {
       },
       "coherence-upgrade-2": {
         title: "Azure Anchor",
-        description: "Permanently multiply all Dream Crystal multipliers in the next stratum by 1.5.",
+        description: "Permanently multiply all Dream Crystal multipliers in the next stratum by 2.",
       },
       "coherence-upgrade-3": {
         title: "Mirror Matrix",
