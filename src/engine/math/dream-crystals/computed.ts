@@ -75,6 +75,38 @@ export function getDreamCrystalCost(tier: number, amountBought: Num, stratum?: S
     return getDreamCrystalSoftcappedCost(base, scale, amountBought, stratum);
 }
 
+export function getNextDreamCrystalCost(
+    tier: number,
+    amountBought: Num,
+    currentCost: Num,
+    stratum?: StratumState,
+) {
+    const scale = DREAM_CRYSTAL_COST_SCALES[tier as keyof typeof DREAM_CRYSTAL_COST_SCALES];
+
+    if (!scale) {
+        throw new Error(`Dream Crystal cost scale for tier ${tier} not found.`);
+    }
+
+    const bought = floor(amountBought);
+    if (bought.lt(DREAM_CRYSTAL_COST_SOFTCAP_START)) {
+        return mul(currentCost, scale);
+    }
+
+    const growthIncrement = sub(scale, ONE);
+    if (growthIncrement.lte(ZERO)) {
+        return mul(currentCost, scale);
+    }
+
+    const softcappedStep = sub(add(bought, ONE), DREAM_CRYSTAL_COST_SOFTCAP_START);
+    const softcapGrowth = getDreamCrystalCostSoftcapGrowth(stratum);
+    const growthPower = pow(softcapGrowth, softcappedStep);
+    const ratio = softcappedStep.lte(DREAM_CRYSTAL_COST_SOFTCAP_EXACT_STEPS)
+        ? add(ONE, mul(growthIncrement, growthPower))
+        : mul(growthIncrement, growthPower);
+
+    return mul(currentCost, ratio);
+}
+
 // 实际生产值
 export function getDreamCrystalProduction(
     stratum: StratumState,

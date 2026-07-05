@@ -209,3 +209,90 @@ export function runConceptCrystalProduction(stratum: StratumState): void {
     conceptCrystals.nodes[nodeId] = add(conceptCrystals.nodes[nodeId], gain);
   }
 }
+
+type ConceptCrystalMatrix = Num[][];
+
+function createConceptCrystalIdentityMatrix(): ConceptCrystalMatrix {
+  return CONCEPT_CRYSTAL_NODE_IDS.map((_, row) =>
+    CONCEPT_CRYSTAL_NODE_IDS.map((__, column) => (row === column ? ONE : ZERO))
+  );
+}
+
+function createConceptCrystalProductionMatrix(): ConceptCrystalMatrix {
+  const matrix = createConceptCrystalIdentityMatrix();
+
+  for (let index = 0; index < CONCEPT_CRYSTAL_NODE_IDS.length; index++) {
+    const targetIndex = (index + 1) % CONCEPT_CRYSTAL_NODE_IDS.length;
+    matrix[targetIndex]![index] = add(matrix[targetIndex]![index]!, CONCEPT_CRYSTAL_PRODUCTION_RATIO);
+  }
+
+  return matrix;
+}
+
+function multiplyConceptCrystalMatrices(
+  left: ConceptCrystalMatrix,
+  right: ConceptCrystalMatrix,
+): ConceptCrystalMatrix {
+  return CONCEPT_CRYSTAL_NODE_IDS.map((_, row) =>
+    CONCEPT_CRYSTAL_NODE_IDS.map((__, column) => {
+      let value = ZERO;
+
+      for (let inner = 0; inner < CONCEPT_CRYSTAL_NODE_IDS.length; inner++) {
+        value = add(value, mul(left[row]![inner]!, right[inner]![column]!));
+      }
+
+      return value;
+    })
+  );
+}
+
+function getConceptCrystalProductionMatrixPower(cycles: number): ConceptCrystalMatrix {
+  let remaining = Math.max(0, Math.floor(cycles));
+  let result = createConceptCrystalIdentityMatrix();
+  let power = createConceptCrystalProductionMatrix();
+
+  while (remaining > 0) {
+    if (remaining % 2 === 1) {
+      result = multiplyConceptCrystalMatrices(result, power);
+    }
+
+    remaining = Math.floor(remaining / 2);
+    if (remaining > 0) {
+      power = multiplyConceptCrystalMatrices(power, power);
+    }
+  }
+
+  return result;
+}
+
+export function runConceptCrystalProductionCycles(stratum: StratumState, cycles: number): number {
+  if (!isConceptCrystalsUnlocked(stratum)) return 0;
+  if (!Number.isFinite(cycles) || cycles <= 0) return 0;
+
+  const conceptCrystals = ensureConceptCrystalsState(stratum);
+  const wholeCycles = Math.floor(cycles);
+  if (wholeCycles <= 0) return 0;
+
+  if (conceptCrystals.isSeveringEnabled) {
+    const processedCycles = Math.min(wholeCycles, 512);
+    for (let cycle = 0; cycle < processedCycles; cycle++) {
+      runConceptCrystalProduction(stratum);
+    }
+    return processedCycles;
+  }
+
+  const matrix = getConceptCrystalProductionMatrixPower(wholeCycles);
+  const current = CONCEPT_CRYSTAL_NODE_IDS.map(nodeId => conceptCrystals.nodes[nodeId]);
+
+  for (let row = 0; row < CONCEPT_CRYSTAL_NODE_IDS.length; row++) {
+    let nextAmount = ZERO;
+
+    for (let column = 0; column < CONCEPT_CRYSTAL_NODE_IDS.length; column++) {
+      nextAmount = add(nextAmount, mul(matrix[row]![column]!, current[column]!));
+    }
+
+    conceptCrystals.nodes[CONCEPT_CRYSTAL_NODE_IDS[row]!] = nextAmount;
+  }
+
+  return wholeCycles;
+}

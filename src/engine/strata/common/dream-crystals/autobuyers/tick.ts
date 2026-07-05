@@ -1,4 +1,4 @@
-import { add, gte, sub } from "@/engine/math/num";
+import { add, div, floor, gte, mul, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import type { StratumState } from "@/engine/strata/state";
 import {
@@ -16,8 +16,12 @@ export function tickDreamCrystalAutobuyers(stratum: StratumState, dtSec: Num): v
   if (isDreamCrystalAutobuyerUnlocked(stratum)) {
     autobuyers.elapsedSec = add(autobuyers.elapsedSec, dtSec);
 
-    while (gte(autobuyers.elapsedSec, DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC)) {
-      autobuyers.elapsedSec = sub(autobuyers.elapsedSec, DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC);
+    if (gte(autobuyers.elapsedSec, DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC)) {
+      const elapsedCycles = floor(div(autobuyers.elapsedSec, DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC));
+      autobuyers.elapsedSec = sub(
+        autobuyers.elapsedSec,
+        mul(DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC, elapsedCycles),
+      );
       runDreamCrystalAutobuyers(stratum);
     }
   }
@@ -25,10 +29,11 @@ export function tickDreamCrystalAutobuyers(stratum: StratumState, dtSec: Num): v
   if (isDreamCrystalRefineAutobuyerUnlocked(stratum)) {
     autobuyers.refineElapsedSec = add(autobuyers.refineElapsedSec, dtSec);
 
-    while (gte(autobuyers.refineElapsedSec, DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC)) {
+    if (gte(autobuyers.refineElapsedSec, DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC)) {
+      const elapsedCycles = floor(div(autobuyers.refineElapsedSec, DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC));
       autobuyers.refineElapsedSec = sub(
         autobuyers.refineElapsedSec,
-        DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC,
+        mul(DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC, elapsedCycles),
       );
       runDreamCrystalRefineAutobuyers(stratum);
     }
