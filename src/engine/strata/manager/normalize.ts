@@ -36,6 +36,10 @@ function normalizeDreamCrystalsState(stratum: StratumState): void {
 }
 
 export function normalizeGameState(state: GameState): GameState {
+  state.lastTickMs = Number.isFinite(state.lastTickMs) ? state.lastTickMs : performance.now();
+  state.lastWallClockMs = Number.isFinite(state.lastWallClockMs) ? state.lastWallClockMs : Date.now();
+  state.simTimeSec = Number.isFinite(state.simTimeSec) ? state.simTimeSec : 0;
+
   state.strata[realityStratumId] ??= createStratumState();
 
   for (const [id, stratum] of Object.entries(state.strata)) {

@@ -1,5 +1,5 @@
 import type { StratumState } from "../../state";
-import { ONE, ZERO, add, div, logn, lte, mul, pow, sub, type Num } from "@/engine/math/num";
+import { ONE, ZERO, add, div, gte, logn, lte, mul, pow, sub, type Num } from "@/engine/math/num";
 import {
     DREAM_ENERGY_SOFTCAP_ONE_START,
     DREAM_ENERGY_SOFTCAP_POWER_DISPLAY,
@@ -74,15 +74,15 @@ export function getDreamEnergyPercentageGainPerSecond(stratum: StratumState) {
 }
 
 export function isDreamEnergySoftcapOneActive(stratum: StratumState) {
-    return !lte(getDreamEnergy(stratum), DREAM_ENERGY_SOFTCAP_ONE_START);
+    return gte(getDreamEnergy(stratum), DREAM_ENERGY_SOFTCAP_ONE_START);
 }
 
 export function isDreamEnergySoftcapTwoActive(stratum: StratumState) {
-    return !lte(getDreamEnergy(stratum), DREAM_ENERGY_SOFTCAP_TWO_START);
+    return gte(getDreamEnergy(stratum), DREAM_ENERGY_SOFTCAP_TWO_START);
 }
 
 export function isDreamEnergySoftcapThreeActive(stratum: StratumState) {
-    return !lte(getDreamEnergy(stratum), DREAM_ENERGY_SOFTCAP_THREE_START);
+    return gte(getDreamEnergy(stratum), DREAM_ENERGY_SOFTCAP_THREE_START);
 }
 
 export function getDreamEnergySoftCapOneRatio(raw: Num) {

@@ -9,6 +9,7 @@ export interface GameSettingsState {
 
 export interface GameState {
   lastTickMs: number;
+  lastWallClockMs: number;
   simTimeSec: number;
   activeStratumId: string;
   strata: Record<string, StratumState>;
@@ -20,6 +21,7 @@ export function createNewState(): GameState {
 
   return {
     lastTickMs: performance.now(),
+    lastWallClockMs: Date.now(),
     simTimeSec: 0,
     activeStratumId: firstStratumId,
     strata: {

@@ -10,11 +10,19 @@ import {
   importSave,
 } from "@/engine/save/logic";
 import { normalizeGameState } from "@/engine/strata/manager/normalize";
+import { getOfflineElapsedSec, simulateActiveStratumProgress } from "@/engine/offline";
 
 export type GameStore = ReturnType<typeof createGameStore>;
 
+function resetRuntimeClocks(state: GameState): void {
+  state.lastTickMs = performance.now();
+  state.lastWallClockMs = Date.now();
+}
+
 export function createGameStore() {
   const initialState = normalizeGameState(loadGame() ?? createNewState());
+  simulateActiveStratumProgress(initialState, getOfflineElapsedSec(initialState));
+  resetRuntimeClocks(initialState);
   const state = reactive(initialState);
   const engine = createEngine(state);
 
@@ -23,13 +31,14 @@ export function createGameStore() {
 
   function replaceState(next: GameState) {
     normalizeGameState(next);
-    next.lastTickMs = performance.now();
+    resetRuntimeClocks(next);
     Object.assign(state, next);
     autoSaveElapsedSec = 0;
     lastLoopMs = performance.now();
   }
 
   function saveNow() {
+    state.lastWallClockMs = Date.now();
     saveGame(state);
   }
 
