@@ -29,13 +29,17 @@ const { t } = useI18n();
 const activeStratum = computed(() => getActiveStratum(props.game.state));
 const conceptCrystals = computed(() => ensureConceptCrystalsState(activeStratum.value));
 
+const HEX_RADIUS_PERCENT = 36;
+const HEX_HALF_RADIUS_PERCENT = HEX_RADIUS_PERCENT / 2;
+const HEX_SIDE_OFFSET_PERCENT = Math.sqrt(3) * HEX_RADIUS_PERCENT / 2;
+
 const nodePositions: Record<ConceptCrystalNodeId, { x: number; y: number }> = {
-  hope: { x: 50, y: 7 },
-  conquest: { x: 84, y: 27 },
-  law: { x: 84, y: 73 },
-  shackle: { x: 50, y: 93 },
-  enlightenment: { x: 16, y: 73 },
-  war: { x: 16, y: 27 },
+  hope: { x: 50, y: 50 - HEX_RADIUS_PERCENT },
+  conquest: { x: 50 + HEX_SIDE_OFFSET_PERCENT, y: 50 - HEX_HALF_RADIUS_PERCENT },
+  law: { x: 50 + HEX_SIDE_OFFSET_PERCENT, y: 50 + HEX_HALF_RADIUS_PERCENT },
+  shackle: { x: 50, y: 50 + HEX_RADIUS_PERCENT },
+  enlightenment: { x: 50 - HEX_SIDE_OFFSET_PERCENT, y: 50 + HEX_HALF_RADIUS_PERCENT },
+  war: { x: 50 - HEX_SIDE_OFFSET_PERCENT, y: 50 - HEX_HALF_RADIUS_PERCENT },
 };
 
 const conceptAmountText = computed(() => formatInt(conceptCrystals.value.amount));
@@ -292,7 +296,7 @@ function onToggleSevering() {
 .hex-board {
   position: relative;
   width: min(620px, 94vw);
-  aspect-ratio: 1.12;
+  aspect-ratio: 1;
   border: 1px solid rgba(120, 206, 255, 0.34);
   border-radius: 8px;
   overflow: hidden;
@@ -306,9 +310,9 @@ function onToggleSevering() {
 
 .hex-lines {
   position: absolute;
-  inset: 6%;
-  width: 88%;
-  height: 88%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: visible;
 }
 
@@ -387,7 +391,7 @@ function onToggleSevering() {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 32%;
+  width: 31.2%;
   height: 2px;
   transform-origin: left center;
   transform: rotate(var(--pointer-angle));
