@@ -97,7 +97,11 @@ export default {
     pathTitle: "{from} flows into {to}",
     rotateLeft: "Turn the severing needle counterclockwise",
     rotateRight: "Turn the severing needle clockwise",
+    resetNodes: "Reset nodes",
+    enableSevering: "Enable severing",
+    disableSevering: "Disable severing",
     severed: "Severed",
+    notSevered: "Severing idle",
     cycleLine: "Next concept turn: {progress}% | Current interval: {interval}s",
     upgrade: {
       title: "Quicken the circuit",

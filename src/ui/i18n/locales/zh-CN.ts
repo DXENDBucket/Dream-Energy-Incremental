@@ -97,7 +97,11 @@ export default {
     pathTitle: "{from} 正在流向 {to}",
     rotateLeft: "让截断指针逆时针偏转",
     rotateRight: "让截断指针顺时针偏转",
+    resetNodes: "重置节点",
+    enableSevering: "开启截断",
+    disableSevering: "关闭截断",
     severed: "截断",
+    notSevered: "截断关闭",
     cycleLine: "下一次概念流转：{progress}%｜当前间隔：{interval} 秒",
     upgrade: {
       title: "让概念更快成形",

@@ -16,6 +16,7 @@ export type ConceptCrystalNodeAmounts = Record<ConceptCrystalNodeId, Num>;
 export interface ConceptCrystalsState {
   amount: Num;
   nodes: ConceptCrystalNodeAmounts;
+  isSeveringEnabled: boolean;
   severedPathIndex: number;
   productionElapsedSec: Num;
   intervalUpgrades: Num;
@@ -36,6 +37,7 @@ export function createConceptCrystalsState(): ConceptCrystalsState {
   return {
     amount: ONE,
     nodes: createConceptCrystalNodeAmounts(),
+    isSeveringEnabled: false,
     severedPathIndex: 0,
     productionElapsedSec: ZERO,
     intervalUpgrades: ZERO,

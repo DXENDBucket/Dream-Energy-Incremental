@@ -10,8 +10,10 @@ import {
   ensureConceptCrystalsState,
   getConceptCrystalIntervalUpgradeRequirement,
   getConceptCrystalProductionInterval,
+  resetConceptCrystalNodes,
   rotateConceptCrystalSeveredPath,
   setConceptCrystalSeveredPath,
+  toggleConceptCrystalSevering,
   upgradeConceptCrystalInterval,
   type ConceptCrystalNodeId,
 } from "@/engine/strata/common/concept-crystals";
@@ -41,6 +43,7 @@ const intervalText = computed(() => format(getConceptCrystalProductionInterval(a
 const upgradeRequirementText = computed(() => formatInt(getConceptCrystalIntervalUpgradeRequirement(activeStratum.value)));
 const upgradeCountText = computed(() => formatInt(conceptCrystals.value.intervalUpgrades));
 const canUpgradeInterval = computed(() => canUpgradeConceptCrystalInterval(activeStratum.value));
+const isSeveringEnabled = computed(() => conceptCrystals.value.isSeveringEnabled);
 const progressText = computed(() => {
   const interval = getConceptCrystalProductionInterval(activeStratum.value);
   if (interval.lte(0)) return "0";
@@ -51,11 +54,18 @@ const severedPath = computed(() => {
   const index = conceptCrystals.value.severedPathIndex;
   const from = CONCEPT_CRYSTAL_NODE_IDS[index]!;
   const to = CONCEPT_CRYSTAL_NODE_IDS[(index + 1) % CONCEPT_CRYSTAL_NODE_IDS.length]!;
+  const fromPosition = nodePositions[from];
+  const toPosition = nodePositions[to];
+  const midpoint = {
+    x: (fromPosition.x + toPosition.x) / 2,
+    y: (fromPosition.y + toPosition.y) / 2,
+  };
+
   return {
     index,
     from,
     to,
-    angle: 30 + index * 60,
+    angle: Math.atan2(midpoint.y - 50, midpoint.x - 50) * (180 / Math.PI),
   };
 });
 
@@ -68,7 +78,7 @@ const nodeRows = computed(() => {
       label: t(`conceptCrystals.nodes.${id}`),
       amountText: format(conceptCrystals.value.nodes[id]),
       position: nodePositions[id],
-      isSeveredSource: severedPath.value.index === index,
+      isSeveredSource: isSeveringEnabled.value && severedPath.value.index === index,
     };
   });
 });
@@ -84,6 +94,14 @@ function onSelectPath(index: number) {
 function onUpgradeInterval() {
   upgradeConceptCrystalInterval(activeStratum.value);
 }
+
+function onResetNodes() {
+  resetConceptCrystalNodes(activeStratum.value);
+}
+
+function onToggleSevering() {
+  toggleConceptCrystalSevering(activeStratum.value);
+}
 </script>
 
 <template>
@@ -91,6 +109,19 @@ function onUpgradeInterval() {
     <section class="concept-amount-band">
       <div class="amount-label">{{ t("conceptCrystals.amountLabel") }}</div>
       <div class="amount-value">{{ conceptAmountText }}</div>
+      <div class="amount-actions">
+        <button type="button" class="amount-action-button" @click="onResetNodes">
+          {{ t("conceptCrystals.resetNodes") }}
+        </button>
+        <button
+          type="button"
+          class="amount-action-button"
+          :class="{ active: isSeveringEnabled }"
+          @click="onToggleSevering"
+        >
+          {{ t(isSeveringEnabled ? "conceptCrystals.disableSevering" : "conceptCrystals.enableSevering") }}
+        </button>
+      </div>
     </section>
 
     <section class="hex-section">
@@ -103,7 +134,7 @@ function onUpgradeInterval() {
             :y1="nodePositions[id].y"
             :x2="nodePositions[CONCEPT_CRYSTAL_NODE_IDS[(index + 1) % CONCEPT_CRYSTAL_NODE_IDS.length]!].x"
             :y2="nodePositions[CONCEPT_CRYSTAL_NODE_IDS[(index + 1) % CONCEPT_CRYSTAL_NODE_IDS.length]!].y"
-            :class="{ severed: severedPath.index === index }"
+            :class="{ severed: isSeveringEnabled && severedPath.index === index }"
             class="hex-line"
           />
         </svg>
@@ -126,13 +157,13 @@ function onUpgradeInterval() {
         </button>
 
         <div class="center-pointer">
-          <div class="pointer-line"></div>
+          <div class="pointer-line" :class="{ disabled: !isSeveringEnabled }"></div>
           <div class="pointer-core">
             <button type="button" class="pointer-button" :title="t('conceptCrystals.rotateLeft')" @click="onRotate(-1)">
               ‹
             </button>
             <div class="pointer-text">
-              <span>{{ t("conceptCrystals.severed") }}</span>
+              <span>{{ t(isSeveringEnabled ? "conceptCrystals.severed" : "conceptCrystals.notSevered") }}</span>
               <strong>
                 {{ t(`conceptCrystals.nodes.${severedPath.from}`) }}
                 →
@@ -197,7 +228,7 @@ function onUpgradeInterval() {
 }
 
 .concept-amount-band {
-  min-height: 86px;
+  min-height: 122px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -217,6 +248,38 @@ function onUpgradeInterval() {
   font-size: 2.2rem;
   font-weight: 900;
   text-shadow: 0 0 18px rgba(123, 222, 255, 0.38);
+}
+
+.amount-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.amount-action-button {
+  min-width: 132px;
+  min-height: 34px;
+  border: 1px solid rgba(121, 224, 255, 0.48);
+  border-radius: 999px;
+  background: rgba(15, 45, 66, 0.86);
+  color: #dcf7ff;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.amount-action-button:hover {
+  border-color: rgba(255, 255, 255, 0.86);
+  filter: brightness(1.08);
+}
+
+.amount-action-button.active {
+  background: rgba(218, 246, 255, 0.16);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(157, 232, 255, 0.16);
 }
 
 .hex-section {
@@ -263,11 +326,12 @@ function onUpgradeInterval() {
 
 .concept-node {
   position: absolute;
-  width: 128px;
-  min-height: 76px;
+  width: 112px;
+  height: 112px;
+  aspect-ratio: 1;
   transform: translate(-50%, -50%);
   border: 1px solid rgba(117, 223, 255, 0.58);
-  border-radius: 8px;
+  border-radius: 50%;
   background:
     linear-gradient(180deg, rgba(18, 55, 77, 0.94) 0%, rgba(8, 23, 39, 0.98) 100%);
   color: #eafaff;
@@ -300,6 +364,10 @@ function onUpgradeInterval() {
   color: #ffffff;
   font-size: 0.98rem;
   font-weight: 900;
+  line-height: 1.12;
+  max-width: 86%;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .node-amount {
@@ -319,12 +387,18 @@ function onUpgradeInterval() {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 24%;
+  width: 32%;
   height: 2px;
   transform-origin: left center;
   transform: rotate(var(--pointer-angle));
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.95), rgba(126, 229, 255, 0));
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.38);
+}
+
+.pointer-line.disabled {
+  opacity: 0.22;
+  background: linear-gradient(90deg, rgba(160, 194, 208, 0.74), rgba(126, 229, 255, 0));
+  box-shadow: none;
 }
 
 .pointer-core {
@@ -437,8 +511,8 @@ function onUpgradeInterval() {
 
 @media (max-width: 760px) {
   .concept-node {
-    width: 104px;
-    min-height: 68px;
+    width: 92px;
+    height: 92px;
   }
 
   .pointer-core {

@@ -26,6 +26,8 @@ export function ensureConceptCrystalsState(stratum: StratumState): ConceptCrysta
     stratum.conceptCrystals.intervalUpgrades,
     0,
   );
+  stratum.conceptCrystals.isSeveringEnabled =
+    stratum.conceptCrystals.isSeveringEnabled === true;
   stratum.conceptCrystals.severedPathIndex = Number.isFinite(stratum.conceptCrystals.severedPathIndex)
     ? Math.max(0, Math.min(CONCEPT_CRYSTAL_NODE_IDS.length - 1, Math.floor(stratum.conceptCrystals.severedPathIndex)))
     : 0;
@@ -85,6 +87,16 @@ export function rotateConceptCrystalSeveredPath(stratum: StratumState, direction
   setConceptCrystalSeveredPath(stratum, conceptCrystals.severedPathIndex + direction);
 }
 
+export function resetConceptCrystalNodes(stratum: StratumState): void {
+  const conceptCrystals = ensureConceptCrystalsState(stratum);
+  conceptCrystals.nodes = createConceptCrystalNodeAmounts();
+}
+
+export function toggleConceptCrystalSevering(stratum: StratumState): void {
+  const conceptCrystals = ensureConceptCrystalsState(stratum);
+  conceptCrystals.isSeveringEnabled = !conceptCrystals.isSeveringEnabled;
+}
+
 export function runConceptCrystalProduction(stratum: StratumState): void {
   if (!isConceptCrystalsUnlocked(stratum)) return;
 
@@ -95,7 +107,10 @@ export function runConceptCrystalProduction(stratum: StratumState): void {
     const sourceId = CONCEPT_CRYSTAL_NODE_IDS[index]!;
     const targetId = CONCEPT_CRYSTAL_NODE_IDS[(index + 1) % CONCEPT_CRYSTAL_NODE_IDS.length]!;
     const sourceAmount = conceptCrystals.nodes[sourceId];
-    const gain = index === conceptCrystals.severedPathIndex ? sqrt(sourceAmount) : sourceAmount;
+    const gain =
+      conceptCrystals.isSeveringEnabled && index === conceptCrystals.severedPathIndex
+        ? sqrt(sourceAmount)
+        : sourceAmount;
 
     gains[targetId] = add(gains[targetId] ?? ZERO, gain);
   }
