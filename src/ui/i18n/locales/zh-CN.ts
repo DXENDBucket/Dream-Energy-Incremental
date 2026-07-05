@@ -114,7 +114,10 @@ export default {
     },
     effect: {
       title: "当前概念水晶效果",
-      copy: "更多概念水晶以后会强化这里的效果。现在，它们只是静静聚拢并发光。",
+      copy: "相对的概念在数量相同时会彼此抵消。概念水晶数量会作为指数放大这些概念脉冲。",
+      dcCostGrowth: "20 个后 DC 价格增长：×{value}",
+      cpGain: "调谐点数获取：×{value}",
+      assimilation: "兼并强度：×{value}",
     },
   },
   dreamCrystalUpgrades: {

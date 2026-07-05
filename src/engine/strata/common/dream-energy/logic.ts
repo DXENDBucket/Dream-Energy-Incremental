@@ -1,5 +1,5 @@
 import type { StratumState } from "../../state";
-import { ONE, ZERO, add, div, gte, logn, lte, mul, pow, sub, type Num } from "@/engine/math/num";
+import { N, ONE, ZERO, add, div, gte, logn, lte, max, mul, pow, sub, type Num } from "@/engine/math/num";
 import {
     DREAM_ENERGY_SOFTCAP_ONE_START,
     DREAM_ENERGY_SOFTCAP_POWER_DISPLAY,
@@ -17,6 +17,7 @@ import {
     getDreamCrystalSoftcapTwoStrengthMultiplier,
 } from "@/engine/strata/common/dream-crystals/upgrades";
 import { getCoherenceSoftcapTwoStrengthMultiplier } from "@/engine/strata/common/coherence/upgrades";
+import { getConceptCrystalAssimilationStrengthMultiplier } from "@/engine/strata/common/concept-crystals";
 import { getDreamEnergy } from "../../manager/selectors";
 
 export function getDreamEnergyGain(stratum: StratumState) {
@@ -159,13 +160,17 @@ export function getDreamEnergySoftcapThreeStrengthBase() {
     return DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_BASE;
 }
 
-export function getDreamEnergySoftcapThreeStrengthGrowth() {
-    return DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH;
+export function getDreamEnergySoftcapThreeStrengthGrowth(stratum?: StratumState) {
+    if (!stratum) return DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH;
+    return max(
+        N(1.0001),
+        mul(DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH, getConceptCrystalAssimilationStrengthMultiplier(stratum)),
+    );
 }
 
 export function getDreamEnergySoftcapThreeStrengthMultiplier(stratum: StratumState) {
     if (!isDreamEnergySoftcapThreeActive(stratum)) return ONE;
-    return pow(getDreamEnergySoftcapThreeStrengthGrowth(), getDreamEnergySoftcapThreeExcessExponent(stratum));
+    return pow(getDreamEnergySoftcapThreeStrengthGrowth(stratum), getDreamEnergySoftcapThreeExcessExponent(stratum));
 }
 
 export function getDreamEnergySoftcapTwoExtraPower(stratum: StratumState) {

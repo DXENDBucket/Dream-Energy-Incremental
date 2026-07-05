@@ -18,6 +18,7 @@ import {
   createCoherenceUpgradesState,
   type CoherenceUpgradesState,
 } from "./state";
+import { getConceptCrystalCoherencePointGainMultiplier } from "@/engine/strata/common/concept-crystals";
 
 export function ensureCoherenceUpgradesState(stratum: StratumState): CoherenceUpgradesState {
   stratum.coherenceUpgrades ??= createCoherenceUpgradesState();
@@ -136,6 +137,6 @@ export function getCoherencePointGainMultiplier(stratum: StratumState): Num {
     COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID,
   );
 
-  if (bought.lte(ZERO)) return ONE;
-  return pow(N(2), bought);
+  const upgradeMultiplier = bought.lte(ZERO) ? ONE : pow(N(2), bought);
+  return mul(upgradeMultiplier, getConceptCrystalCoherencePointGainMultiplier(stratum));
 }

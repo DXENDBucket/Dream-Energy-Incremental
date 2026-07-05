@@ -9,11 +9,18 @@ import {
     getDreamCrystalFirstTierUpgradeMultiplier,
 } from "@/engine/strata/common/dream-crystals/upgrades";
 import { applyEntropyToProduction } from "@/engine/strata/common/entropy";
+import { getConceptCrystalDreamCrystalCostGrowthFactor } from "@/engine/strata/common/concept-crystals";
 
 const DREAM_CRYSTAL_COST_SOFTCAP_START = 20;
 const DREAM_CRYSTAL_COST_SOFTCAP_EXACT_STEPS = 128;
+const DREAM_CRYSTAL_COST_SOFTCAP_DEFAULT_GROWTH = N(2);
 
-function getDreamCrystalSoftcappedCost(base: Num, scale: Num, amountBought: Num): Num {
+export function getDreamCrystalCostSoftcapGrowth(stratum?: StratumState): Num {
+    const conceptFactor = stratum ? getConceptCrystalDreamCrystalCostGrowthFactor(stratum) : ONE;
+    return add(ONE, mul(sub(DREAM_CRYSTAL_COST_SOFTCAP_DEFAULT_GROWTH, ONE), conceptFactor));
+}
+
+function getDreamCrystalSoftcappedCost(base: Num, scale: Num, amountBought: Num, stratum?: StratumState): Num {
     const softcapStart = DREAM_CRYSTAL_COST_SOFTCAP_START;
     const bought = floor(amountBought);
 
@@ -28,13 +35,14 @@ function getDreamCrystalSoftcappedCost(base: Num, scale: Num, amountBought: Num)
 
     let cost = mul(base, pow(scale, softcapStart));
     const softcappedPurchases = sub(bought, softcapStart);
+    const softcapGrowth = getDreamCrystalCostSoftcapGrowth(stratum);
     const exactSteps = Math.min(
         DREAM_CRYSTAL_COST_SOFTCAP_EXACT_STEPS,
         Math.max(0, softcappedPurchases.floor().toNumber()),
     );
 
     for (let step = 1; step <= exactSteps; step++) {
-        cost = mul(cost, add(ONE, mul(growthIncrement, pow(N(2), step))));
+        cost = mul(cost, add(ONE, mul(growthIncrement, pow(softcapGrowth, step))));
     }
 
     const remainingSteps = sub(softcappedPurchases, exactSteps);
@@ -49,10 +57,10 @@ function getDreamCrystalSoftcappedCost(base: Num, scale: Num, amountBought: Num)
         2,
     );
 
-    return mul(cost, mul(pow(growthIncrement, remainingSteps), pow(N(2), doubledIncrementPower)));
+    return mul(cost, mul(pow(growthIncrement, remainingSteps), pow(softcapGrowth, doubledIncrementPower)));
 }
 
-export function getDreamCrystalCost(tier: number, amountBought: Num) {
+export function getDreamCrystalCost(tier: number, amountBought: Num, stratum?: StratumState) {
     const base = DREAM_CRYSTAL_BASE_COSTS[tier as keyof typeof DREAM_CRYSTAL_BASE_COSTS];
     const scale = DREAM_CRYSTAL_COST_SCALES[tier as keyof typeof DREAM_CRYSTAL_COST_SCALES];
 
@@ -64,7 +72,7 @@ export function getDreamCrystalCost(tier: number, amountBought: Num) {
         throw new Error(`Dream Crystal cost scale for tier ${tier} not found.`);
     }
 
-    return getDreamCrystalSoftcappedCost(base, scale, amountBought);
+    return getDreamCrystalSoftcappedCost(base, scale, amountBought, stratum);
 }
 
 // 实际生产值

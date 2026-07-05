@@ -1,6 +1,7 @@
-import { ONE, TEN, ZERO, add, gte, lte, max, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
+import { N, ONE, TEN, ZERO, add, div, gte, log10, lte, max, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
-import { createDreamCrystalsState, getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals";
+import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals/selectors";
+import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals/state";
 import type { StratumState } from "@/engine/strata/state";
 import { isConceptCrystalsUnlocked } from "@/engine/strata/common/milestones";
 import {
@@ -17,6 +18,11 @@ import {
   createConceptCrystalsState,
   type ConceptCrystalsState,
 } from "./state";
+
+const CONCEPT_CRYSTAL_PRODUCTION_RATIO = ONE;
+const CONCEPT_CRYSTAL_DC_COST_SCALE = N(2);
+const CONCEPT_CRYSTAL_CP_GAIN_SCALE = N(5);
+const CONCEPT_CRYSTAL_ASSIMILATION_SCALE = ONE;
 
 export function ensureConceptCrystalsState(stratum: StratumState): ConceptCrystalsState {
   stratum.conceptCrystals ??= createConceptCrystalsState();
@@ -127,6 +133,46 @@ export function toggleConceptCrystalSevering(stratum: StratumState): void {
   conceptCrystals.isSeveringEnabled = !conceptCrystals.isSeveringEnabled;
 }
 
+function getConceptCrystalLogPower(stratum: StratumState, nodeId: (typeof CONCEPT_CRYSTAL_NODE_IDS)[number]): Num {
+  const conceptCrystals = ensureConceptCrystalsState(stratum);
+  const nodeAmount = max(conceptCrystals.nodes[nodeId], ONE);
+  const logBase = add(ONE, log10(nodeAmount));
+
+  return pow(max(logBase, ONE), max(conceptCrystals.amount, ONE));
+}
+
+function getConceptCrystalNodeEffect(
+  stratum: StratumState,
+  nodeId: (typeof CONCEPT_CRYSTAL_NODE_IDS)[number],
+  scale: Num,
+): Num {
+  const conceptCrystals = ensureConceptCrystalsState(stratum);
+  if (conceptCrystals.nodes[nodeId].lte(ONE)) return ONE;
+
+  return max(ONE, add(ONE, mul(scale, sub(getConceptCrystalLogPower(stratum, nodeId), ONE))));
+}
+
+export function getConceptCrystalDreamCrystalCostGrowthFactor(stratum: StratumState): Num {
+  return div(
+    getConceptCrystalNodeEffect(stratum, "war", CONCEPT_CRYSTAL_DC_COST_SCALE),
+    getConceptCrystalNodeEffect(stratum, "law", CONCEPT_CRYSTAL_DC_COST_SCALE),
+  );
+}
+
+export function getConceptCrystalCoherencePointGainMultiplier(stratum: StratumState): Num {
+  return div(
+    getConceptCrystalNodeEffect(stratum, "enlightenment", CONCEPT_CRYSTAL_CP_GAIN_SCALE),
+    getConceptCrystalNodeEffect(stratum, "conquest", CONCEPT_CRYSTAL_CP_GAIN_SCALE),
+  );
+}
+
+export function getConceptCrystalAssimilationStrengthMultiplier(stratum: StratumState): Num {
+  return div(
+    getConceptCrystalNodeEffect(stratum, "shackle", CONCEPT_CRYSTAL_ASSIMILATION_SCALE),
+    getConceptCrystalNodeEffect(stratum, "hope", CONCEPT_CRYSTAL_ASSIMILATION_SCALE),
+  );
+}
+
 export function runConceptCrystalProduction(stratum: StratumState): void {
   if (!isConceptCrystalsUnlocked(stratum)) return;
 
@@ -139,8 +185,8 @@ export function runConceptCrystalProduction(stratum: StratumState): void {
     const sourceAmount = conceptCrystals.nodes[sourceId];
     const gain =
       conceptCrystals.isSeveringEnabled && index === conceptCrystals.severedPathIndex
-        ? sqrt(sourceAmount)
-        : sourceAmount;
+        ? mul(sqrt(sourceAmount), CONCEPT_CRYSTAL_PRODUCTION_RATIO)
+        : mul(sourceAmount, CONCEPT_CRYSTAL_PRODUCTION_RATIO);
 
     gains[targetId] = add(gains[targetId] ?? ZERO, gain);
   }

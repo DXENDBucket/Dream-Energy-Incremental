@@ -114,7 +114,10 @@ export default {
     },
     effect: {
       title: "Current Concept Crystal effect",
-      copy: "More Concept Crystals will strengthen this place later. For now, they simply gather and shine.",
+      copy: "Opposite concepts cancel when their amounts match. More Concept Crystals raise the concept pulse as an exponent.",
+      dcCostGrowth: "Post-20 DC cost growth: ×{value}",
+      cpGain: "Coherence Point gain: ×{value}",
+      assimilation: "Assimilation strength: ×{value}",
     },
   },
   dreamCrystalUpgrades: {

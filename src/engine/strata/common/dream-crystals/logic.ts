@@ -16,7 +16,7 @@ const DREAM_CRYSTAL_BUY_MAX_STEP_LIMIT = 4096;
 
 export function getCurrentDreamCrystalCost(stratum: StratumState, tier: number) {
   const bought = getDreamCrystalBought(stratum.dreamCrystals, tier);
-  return getDreamCrystalCost(tier, bought);
+  return getDreamCrystalCost(tier, bought, stratum);
 }
 
 export function canBuyDreamCrystal(stratum: StratumState, tier: number) {
@@ -54,7 +54,7 @@ export function getDreamCrystalBulkCost(
   let totalCost = ZERO;
 
   for (let step = 0; step < steps; step++) {
-    totalCost = add(totalCost, getDreamCrystalCost(tier, add(bought, step)));
+    totalCost = add(totalCost, getDreamCrystalCost(tier, add(bought, step), stratum));
   }
 
   return totalCost;
@@ -73,7 +73,7 @@ export function getDreamCrystalBuyMaxCount(
   let count = ZERO;
 
   for (let step = 0; step < DREAM_CRYSTAL_BUY_MAX_STEP_LIMIT; step++) {
-    const cost = getDreamCrystalCost(tier, add(bought, count));
+    const cost = getDreamCrystalCost(tier, add(bought, count), stratum);
     if (resource.lt(cost)) break;
 
     resource = sub(resource, cost);
@@ -92,7 +92,7 @@ export function getDreamCrystalFreeBuyMaxCount(
   let count = ZERO;
 
   for (let step = 0; step < DREAM_CRYSTAL_BUY_MAX_STEP_LIMIT; step++) {
-    const cost = getDreamCrystalCost(tier, add(bought, count));
+    const cost = getDreamCrystalCost(tier, add(bought, count), stratum);
     if (resource.lt(cost)) break;
 
     count = add(count, ONE);

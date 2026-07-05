@@ -10,7 +10,10 @@ import {
   canUpgradeConceptCrystalInterval,
   condenseConceptCrystal,
   ensureConceptCrystalsState,
+  getConceptCrystalAssimilationStrengthMultiplier,
+  getConceptCrystalCoherencePointGainMultiplier,
   getConceptCrystalCondenseRequirement,
+  getConceptCrystalDreamCrystalCostGrowthFactor,
   getConceptCrystalIntervalUpgradeRequirement,
   getConceptCrystalProductionInterval,
   resetConceptCrystalNodes,
@@ -53,6 +56,9 @@ const upgradeCountText = computed(() => formatInt(conceptCrystals.value.interval
 const canUpgradeInterval = computed(() => canUpgradeConceptCrystalInterval(activeStratum.value));
 const canCondense = computed(() => canCondenseConceptCrystal(activeStratum.value));
 const isSeveringEnabled = computed(() => conceptCrystals.value.isSeveringEnabled);
+const dreamCrystalCostGrowthEffectText = computed(() => format(getConceptCrystalDreamCrystalCostGrowthFactor(activeStratum.value)));
+const coherencePointGainEffectText = computed(() => format(getConceptCrystalCoherencePointGainMultiplier(activeStratum.value)));
+const assimilationStrengthEffectText = computed(() => format(getConceptCrystalAssimilationStrengthMultiplier(activeStratum.value)));
 const progressText = computed(() => {
   const interval = getConceptCrystalProductionInterval(activeStratum.value);
   if (interval.lte(0)) return "0";
@@ -230,6 +236,17 @@ function onCondenseConceptCrystal() {
     <section class="effect-section">
       <div class="effect-title">{{ t("conceptCrystals.effect.title") }}</div>
       <div class="effect-copy">{{ t("conceptCrystals.effect.copy") }}</div>
+      <div class="effect-grid">
+        <div class="effect-line">
+          {{ t("conceptCrystals.effect.dcCostGrowth", { value: dreamCrystalCostGrowthEffectText }) }}
+        </div>
+        <div class="effect-line">
+          {{ t("conceptCrystals.effect.cpGain", { value: coherencePointGainEffectText }) }}
+        </div>
+        <div class="effect-line">
+          {{ t("conceptCrystals.effect.assimilation", { value: assimilationStrengthEffectText }) }}
+        </div>
+      </div>
     </section>
   </div>
 </template>
@@ -584,6 +601,29 @@ function onCondenseConceptCrystal() {
   padding: 16px 18px;
 }
 
+.effect-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.effect-line {
+  min-height: 46px;
+  border: 1px solid rgba(129, 215, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(7, 18, 31, 0.64);
+  color: #dff7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  font-weight: 850;
+  line-height: 1.35;
+  text-align: center;
+}
+
 @media (max-width: 760px) {
   .concept-amount-band {
     grid-template-columns: 1fr;
@@ -599,6 +639,10 @@ function onCondenseConceptCrystal() {
   }
 
   .upgrade-section {
+    grid-template-columns: 1fr;
+  }
+
+  .effect-grid {
     grid-template-columns: 1fr;
   }
 }

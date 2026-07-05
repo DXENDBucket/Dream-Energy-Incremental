@@ -105,7 +105,7 @@ const softcapThreeStrengthBaseText = computed(() => {
 });
 
 const softcapThreeStrengthGrowthText = computed(() => {
-  return format(getDreamEnergySoftcapThreeStrengthGrowth());
+  return format(getDreamEnergySoftcapThreeStrengthGrowth(activeStratum.value));
 });
 </script>
 
