@@ -15,6 +15,7 @@ import {
   getConceptCrystalCondenseRequirement,
   getConceptCrystalDreamCrystalCostGrowthFactor,
   getConceptCrystalIntervalUpgradeRequirement,
+  getConceptCrystalNodeContribution,
   getConceptCrystalProductionInterval,
   resetConceptCrystalNodes,
   rotateConceptCrystalSeveredPath,
@@ -59,6 +60,13 @@ const isSeveringEnabled = computed(() => conceptCrystals.value.isSeveringEnabled
 const dreamCrystalCostGrowthEffectText = computed(() => format(getConceptCrystalDreamCrystalCostGrowthFactor(activeStratum.value)));
 const coherencePointGainEffectText = computed(() => format(getConceptCrystalCoherencePointGainMultiplier(activeStratum.value)));
 const assimilationStrengthEffectText = computed(() => format(getConceptCrystalAssimilationStrengthMultiplier(activeStratum.value)));
+const conceptContributionRows = computed(() => {
+  return CONCEPT_CRYSTAL_NODE_IDS.map(id => ({
+    id,
+    amountText: format(conceptCrystals.value.nodes[id]),
+    contributionText: format(getConceptCrystalNodeContribution(activeStratum.value, id)),
+  }));
+});
 const progressText = computed(() => {
   const interval = getConceptCrystalProductionInterval(activeStratum.value);
   if (interval.lte(0)) return "0";
@@ -245,6 +253,18 @@ function onCondenseConceptCrystal() {
         </div>
         <div class="effect-line">
           {{ t("conceptCrystals.effect.assimilation", { value: assimilationStrengthEffectText }) }}
+        </div>
+      </div>
+      <div class="contribution-grid">
+        <div
+          v-for="row in conceptContributionRows"
+          :key="row.id"
+          class="contribution-line"
+        >
+          {{ t(`conceptCrystals.effect.contributions.${row.id}`, {
+            amount: row.amountText,
+            contribution: row.contributionText,
+          }) }}
         </div>
       </div>
     </section>
@@ -624,6 +644,29 @@ function onCondenseConceptCrystal() {
   text-align: center;
 }
 
+.contribution-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.contribution-line {
+  min-height: 40px;
+  border: 1px solid rgba(129, 215, 255, 0.15);
+  border-radius: 6px;
+  background: rgba(4, 12, 22, 0.58);
+  color: #ccecf7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 9px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: center;
+}
+
 @media (max-width: 760px) {
   .concept-amount-band {
     grid-template-columns: 1fr;
@@ -643,6 +686,10 @@ function onCondenseConceptCrystal() {
   }
 
   .effect-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contribution-grid {
     grid-template-columns: 1fr;
   }
 }

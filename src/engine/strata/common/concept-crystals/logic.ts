@@ -16,6 +16,7 @@ import {
   CONCEPT_CRYSTAL_NODE_IDS,
   createConceptCrystalNodeAmounts,
   createConceptCrystalsState,
+  type ConceptCrystalNodeId,
   type ConceptCrystalsState,
 } from "./state";
 
@@ -143,7 +144,7 @@ function getConceptCrystalLogPower(stratum: StratumState, nodeId: (typeof CONCEP
 
 function getConceptCrystalNodeEffect(
   stratum: StratumState,
-  nodeId: (typeof CONCEPT_CRYSTAL_NODE_IDS)[number],
+  nodeId: ConceptCrystalNodeId,
   scale: Num,
 ): Num {
   const conceptCrystals = ensureConceptCrystalsState(stratum);
@@ -152,24 +153,34 @@ function getConceptCrystalNodeEffect(
   return max(ONE, add(ONE, mul(scale, sub(getConceptCrystalLogPower(stratum, nodeId), ONE))));
 }
 
+function getConceptCrystalNodeScale(nodeId: ConceptCrystalNodeId): Num {
+  if (nodeId === "law" || nodeId === "war") return CONCEPT_CRYSTAL_DC_COST_SCALE;
+  if (nodeId === "conquest" || nodeId === "enlightenment") return CONCEPT_CRYSTAL_CP_GAIN_SCALE;
+  return CONCEPT_CRYSTAL_ASSIMILATION_SCALE;
+}
+
+export function getConceptCrystalNodeContribution(stratum: StratumState, nodeId: ConceptCrystalNodeId): Num {
+  return getConceptCrystalNodeEffect(stratum, nodeId, getConceptCrystalNodeScale(nodeId));
+}
+
 export function getConceptCrystalDreamCrystalCostGrowthFactor(stratum: StratumState): Num {
   return div(
-    getConceptCrystalNodeEffect(stratum, "war", CONCEPT_CRYSTAL_DC_COST_SCALE),
-    getConceptCrystalNodeEffect(stratum, "law", CONCEPT_CRYSTAL_DC_COST_SCALE),
+    getConceptCrystalNodeContribution(stratum, "war"),
+    getConceptCrystalNodeContribution(stratum, "law"),
   );
 }
 
 export function getConceptCrystalCoherencePointGainMultiplier(stratum: StratumState): Num {
   return div(
-    getConceptCrystalNodeEffect(stratum, "enlightenment", CONCEPT_CRYSTAL_CP_GAIN_SCALE),
-    getConceptCrystalNodeEffect(stratum, "conquest", CONCEPT_CRYSTAL_CP_GAIN_SCALE),
+    getConceptCrystalNodeContribution(stratum, "enlightenment"),
+    getConceptCrystalNodeContribution(stratum, "conquest"),
   );
 }
 
 export function getConceptCrystalAssimilationStrengthMultiplier(stratum: StratumState): Num {
   return div(
-    getConceptCrystalNodeEffect(stratum, "shackle", CONCEPT_CRYSTAL_ASSIMILATION_SCALE),
-    getConceptCrystalNodeEffect(stratum, "hope", CONCEPT_CRYSTAL_ASSIMILATION_SCALE),
+    getConceptCrystalNodeContribution(stratum, "shackle"),
+    getConceptCrystalNodeContribution(stratum, "hope"),
   );
 }
 

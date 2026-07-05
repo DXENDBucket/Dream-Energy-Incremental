@@ -118,6 +118,14 @@ export default {
       dcCostGrowth: "Post-20 DC cost growth: ×{value}",
       cpGain: "Coherence Point gain: ×{value}",
       assimilation: "Assimilation strength: ×{value}",
+      contributions: {
+        hope: "Hope {amount}: Assimilation strength ÷{contribution}",
+        conquest: "Conquest {amount}: CP gain ÷{contribution}",
+        law: "Law {amount}: DC cost growth ÷{contribution}",
+        shackle: "Shackle {amount}: Assimilation strength ×{contribution}",
+        enlightenment: "Enlightenment {amount}: CP gain ×{contribution}",
+        war: "War {amount}: DC cost growth ×{contribution}",
+      },
     },
   },
   dreamCrystalUpgrades: {

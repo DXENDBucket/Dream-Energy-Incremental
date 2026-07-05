@@ -118,6 +118,14 @@ export default {
       dcCostGrowth: "20 个后 DC 价格增长：×{value}",
       cpGain: "调谐点数获取：×{value}",
       assimilation: "兼并强度：×{value}",
+      contributions: {
+        hope: "希望 {amount}：兼并强度 ÷{contribution}",
+        conquest: "征服 {amount}：调谐点数获取 ÷{contribution}",
+        law: "法度 {amount}：DC 价格增长 ÷{contribution}",
+        shackle: "桎梏 {amount}：兼并强度 ×{contribution}",
+        enlightenment: "启蒙 {amount}：调谐点数获取 ×{contribution}",
+        war: "战火 {amount}：DC 价格增长 ×{contribution}",
+      },
     },
   },
   dreamCrystalUpgrades: {
