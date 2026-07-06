@@ -1,4 +1,4 @@
-import { N, ONE, TEN, ZERO, add, div, gte, log10, lte, max, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
+import { N, ONE, TEN, ZERO, add, div, floor, gte, log10, lte, max, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals/selectors";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals/state";
@@ -7,7 +7,6 @@ import type { StratumState } from "@/engine/strata/state";
 import { isConceptCrystalsUnlocked } from "@/engine/strata/common/milestones";
 import {
   CONCEPT_CRYSTAL_CONDENSE_DREAM_CRYSTAL_TIER,
-  CONCEPT_CRYSTAL_CONDENSE_REQUIREMENT_STEP,
   CONCEPT_CRYSTAL_BASE_PRODUCTION_INTERVAL_SEC,
   CONCEPT_CRYSTAL_INTERVAL_REDUCTION,
   CONCEPT_CRYSTAL_INTERVAL_UPGRADE_REQUIREMENT,
@@ -22,6 +21,7 @@ import {
 } from "./state";
 
 const CONCEPT_CRYSTAL_PRODUCTION_RATIO = ONE;
+const CONCEPT_CRYSTAL_NODE_DEFAULT_POWER = N(4);
 const CONCEPT_CRYSTAL_DC_COST_SCALE = div(N(2), N(3));
 const CONCEPT_CRYSTAL_CP_GAIN_SCALE = N(5);
 const CONCEPT_CRYSTAL_ASSIMILATION_SCALE = div(ONE, N(5));
@@ -89,10 +89,8 @@ export function upgradeConceptCrystalInterval(stratum: StratumState): void {
 
 export function getConceptCrystalCondenseRequirement(stratum: StratumState): Num {
   const conceptCrystals = ensureConceptCrystalsState(stratum);
-  return mul(
-    CONCEPT_CRYSTAL_CONDENSE_REQUIREMENT_STEP,
-    max(conceptCrystals.amount, ONE),
-  );
+  const heldConceptCrystals = max(floor(conceptCrystals.amount), ONE);
+  return add(div(mul(heldConceptCrystals, add(heldConceptCrystals, ONE)), 2), ONE);
 }
 
 export function canCondenseConceptCrystal(stratum: StratumState): boolean {
@@ -138,9 +136,12 @@ export function toggleConceptCrystalSevering(stratum: StratumState): void {
 function getConceptCrystalLogPower(stratum: StratumState, nodeId: (typeof CONCEPT_CRYSTAL_NODE_IDS)[number]): Num {
   const conceptCrystals = ensureConceptCrystalsState(stratum);
   const nodeAmount = max(conceptCrystals.nodes[nodeId], ONE);
-  const logBase = add(ONE, log10(nodeAmount));
+  const logLogBase = add(ONE, log10(add(ONE, log10(nodeAmount))));
 
-  return pow(max(logBase, ONE), max(conceptCrystals.amount, ONE));
+  return pow(
+    pow(max(logLogBase, ONE), CONCEPT_CRYSTAL_NODE_DEFAULT_POWER),
+    max(conceptCrystals.amount, ONE),
+  );
 }
 
 function getConceptCrystalNodeEffect(
