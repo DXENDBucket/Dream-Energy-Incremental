@@ -24,16 +24,9 @@ import {
 } from "./state";
 import { getConceptCrystalCoherencePointGainMultiplier } from "@/engine/strata/common/concept-crystals";
 import {
-  dreamSeaFirstStratumId,
-  dreamSeaSecondStratumId,
-  realityStratumId,
-} from "@/engine/strata/defs/ids";
-
-const COHERENCE_STRATUM_ORDER = [
-  realityStratumId,
-  dreamSeaFirstStratumId,
-  dreamSeaSecondStratumId,
-] as const;
+  getNextStratumDefinition,
+  STRATUM_DEFINITIONS,
+} from "@/engine/strata/defs";
 
 export function ensureCoherenceUpgradesState(stratum: StratumState): CoherenceUpgradesState {
   stratum.coherenceUpgrades ??= createCoherenceUpgradesState();
@@ -204,8 +197,7 @@ export function getCoherenceBestNextDreamEnergy(
   state: GameState,
   sourceStratumId: string,
 ): Num {
-  const sourceIndex = COHERENCE_STRATUM_ORDER.findIndex(id => id === sourceStratumId);
-  const nextStratumId = COHERENCE_STRATUM_ORDER[sourceIndex + 1];
+  const nextStratumId = getNextStratumDefinition(sourceStratumId)?.id;
   if (!nextStratumId) return ZERO;
 
   return state.strata[nextStratumId]?.bestDreamEnergy ?? ZERO;
@@ -234,12 +226,12 @@ export function syncCoherenceProgressionDreamCrystalMultipliers(state: GameState
     stratum.coherenceProgressionDreamCrystalMultiplier = ONE;
   }
 
-  for (let index = 0; index < COHERENCE_STRATUM_ORDER.length; index++) {
-    const sourceStratumId = COHERENCE_STRATUM_ORDER[index]!;
+  for (const definition of STRATUM_DEFINITIONS) {
+    const sourceStratumId = definition.id;
     const source = state.strata[sourceStratumId];
     if (!source) continue;
 
-    const nextStratumId = COHERENCE_STRATUM_ORDER[index + 1];
+    const nextStratumId = getNextStratumDefinition(sourceStratumId)?.id;
     const next = nextStratumId ? state.strata[nextStratumId] : undefined;
     const bestDreamEnergyMultiplier = getCoherenceBestNextDreamEnergyMultiplier(
       state,

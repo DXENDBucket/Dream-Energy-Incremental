@@ -46,7 +46,7 @@ import {
   isDreamCrystalAutobuyerUnlocked,
   isDreamCrystalRefineAutobuyerUnlocked,
 } from "@/engine/strata/common/dream-crystals/upgrades";
-import { dreamSeaFirstStratumId } from "@/engine/strata/defs/ids";
+import { STRATUM_DEFINITIONS } from "@/engine/strata/defs";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
 import LiftPage from "./strata/LiftPage.vue";
 import StrataOverviewPage from "./strata/StrataOverviewPage.vue";
@@ -288,7 +288,9 @@ const dreamEnergySoftcapWarningText = computed(() => {
 });
 
 const isLiftUnlocked = computed(() => props.game.state.lift.isLiftUnlocked);
-const showChaoticEther = computed(() => dreamSeaFirstStratumId in props.game.state.strata);
+const showChaoticEther = computed(() => STRATUM_DEFINITIONS.some(definition =>
+  definition.producedChaoticEtherTier > 0 && definition.id in props.game.state.strata,
+));
 const activeChaoticEtherTier = computed(() => {
   const producedTier = getChaoticEtherProducedTierForStratumId(props.game.state.activeStratumId);
   return producedTier > 0 ? producedTier : 1;

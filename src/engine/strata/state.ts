@@ -1,5 +1,9 @@
 import { N, ONE, ZERO } from "../math/num";
 import type { Num } from "../math/num";
+import {
+  getStratumDefinitionByEntropyFormula,
+  realityStratumId,
+} from "./defs";
 import { COHERENCE_DEFAULT_PRODUCTION_LOSS } from "./common/coherence/balance";
 import {
   createCoherenceUpgradesState,
@@ -33,6 +37,7 @@ import {
 } from "./common/milestones";
 
 export interface StratumState {
+  stratumId: string;
   dreamEnergy: Num;
   rawDreamEnergy: Num;
   bestDreamEnergy: Num;
@@ -54,11 +59,19 @@ export interface StratumState {
 }
 
 export interface CreateStratumStateOptions {
+  stratumId?: string;
   entropyFormulaId?: EntropyFormulaId;
 }
 
 export function createStratumState(options: CreateStratumStateOptions = {}): StratumState {
+  const stratumId = options.stratumId
+    ?? (options.entropyFormulaId
+      ? getStratumDefinitionByEntropyFormula(options.entropyFormulaId)?.id
+      : undefined)
+    ?? realityStratumId;
+
   return {
+    stratumId,
     dreamEnergy: N(10),
     rawDreamEnergy: N(10),
     bestDreamEnergy: N(10),

@@ -19,10 +19,9 @@ import {
   getDefaultEntropyChaosExponent,
 } from "@/engine/strata/common/entropy";
 import {
-  dreamSeaFirstStratumId,
-  dreamSeaSecondStratumId,
+  getStratumDefinition,
   realityStratumId,
-} from "@/engine/strata/defs/ids";
+} from "@/engine/strata/defs";
 import { createStratumState } from "@/engine/strata/state";
 import type { StratumState } from "@/engine/strata/state";
 import { createMilestonesState } from "@/engine/strata/common/milestones";
@@ -51,6 +50,7 @@ export function normalizeGameState(state: GameState): GameState {
   state.strata[realityStratumId] ??= createStratumState();
 
   for (const [id, stratum] of Object.entries(state.strata)) {
+    stratum.stratumId = id;
     stratum.dreamEnergy = normalizeNum(stratum.dreamEnergy, 10);
     stratum.rawDreamEnergy = normalizeNum(stratum.rawDreamEnergy, stratum.dreamEnergy);
     stratum.bestDreamEnergy = max(
@@ -84,13 +84,7 @@ export function normalizeGameState(state: GameState): GameState {
     stratum.milestones.claimed ??= {};
 
     const entropy = ensureEntropyState(stratum);
-    if (id === dreamSeaFirstStratumId) {
-      entropy.formulaId = "dream-sea-first";
-    } else if (id === dreamSeaSecondStratumId) {
-      entropy.formulaId = "dream-sea-second";
-    } else {
-      entropy.formulaId = "none";
-    }
+    entropy.formulaId = getStratumDefinition(id)?.entropyFormulaId ?? "none";
     entropy.chaosExponent = getDefaultEntropyChaosExponent(entropy.formulaId);
   }
 

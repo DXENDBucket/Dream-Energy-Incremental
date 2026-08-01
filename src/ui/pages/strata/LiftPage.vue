@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import type { GameState } from "@/engine/core/state";
 import { format } from "@/engine/math/format";
 import { mul } from "@/engine/math/num";
+import { getStratumDefinition } from "@/engine/strata/defs";
 import {
   canUnlockLift,
   getLiftUnlockProgress,
@@ -21,6 +22,14 @@ const { t } = useI18n();
 const lift = computed(() => props.game.state.lift);
 const isUnlocked = computed(() => lift.value.isLiftUnlocked);
 const activeStratumId = computed(() => props.game.state.activeStratumId);
+const liftPositionName = computed(() => {
+  const definition = getStratumDefinition(lift.value.currentLiftPosition);
+  return definition ? t(definition.labelKey) : lift.value.currentLiftPosition;
+});
+const activeStratumName = computed(() => {
+  const definition = getStratumDefinition(activeStratumId.value);
+  return definition ? t(definition.labelKey) : activeStratumId.value;
+});
 const lightThreads = Array.from({ length: 10 }, (_, index) => index);
 const unlockProgress = computed(() => getLiftUnlockProgress(props.game.state));
 const unlockProgressPercentText = computed(() => {
@@ -96,11 +105,11 @@ function onUnlockLift() {
       <div class="status-grid">
         <div class="status-cell">
           <div class="status-label">{{ t("lift.currentPosition") }}</div>
-            <div class="status-value">{{ lift.currentLiftPosition }}</div>
+            <div class="status-value">{{ liftPositionName }}</div>
           </div>
           <div class="status-cell">
             <div class="status-label">{{ t("lift.activeStratum") }}</div>
-          <div class="status-value">{{ activeStratumId }}</div>
+          <div class="status-value">{{ activeStratumName }}</div>
         </div>
       </div>
     </div>

@@ -6,9 +6,9 @@ import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals"
 import { getDreamEnergy, setDreamEnergy } from "@/engine/strata/common/dream-energy";
 import { ensureEntropyState } from "@/engine/strata/common/entropy";
 import {
-  dreamSeaFirstStratumId,
-  dreamSeaSecondStratumId,
-} from "@/engine/strata/defs/ids";
+  getStratumDefinition,
+  getStratumDefinitionByEntropyFormula,
+} from "@/engine/strata/defs";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import type { StratumState } from "@/engine/strata/state";
 import {
@@ -98,16 +98,15 @@ export function addChaoticEther(
 }
 
 export function getChaoticEtherProducedTierForStratumId(stratumId: string): ChaoticEtherTier {
-  if (stratumId === dreamSeaFirstStratumId) return 1;
-  if (stratumId === dreamSeaSecondStratumId) return 2;
-  return 0;
+  return getStratumDefinition(stratumId)?.producedChaoticEtherTier ?? 0;
 }
 
 export function getDreamCrystalUpgradeChaoticEtherTier(stratum: StratumState): ChaoticEtherTier {
+  const definition = getStratumDefinition(stratum.stratumId);
+  if (definition) return definition.dreamCrystalUpgradeChaoticEtherTier;
+
   const formulaId = stratum.entropy?.formulaId ?? "none";
-  if (formulaId === "dream-sea-first") return 2;
-  if (formulaId === "dream-sea-second") return 3;
-  return 1;
+  return getStratumDefinitionByEntropyFormula(formulaId)?.dreamCrystalUpgradeChaoticEtherTier ?? 1;
 }
 
 export function getChaoticEtherGain(stratum: StratumState): Num {

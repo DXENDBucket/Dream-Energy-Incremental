@@ -1,12 +1,15 @@
 import type { Num } from "@/engine/math/num";
 import { ONE, ZERO } from "@/engine/math/num";
 import {
+  getStratumDefinitionByEntropyFormula,
+  type EntropyFormulaId,
+} from "@/engine/strata/defs";
+import {
   ENTROPY_DEFAULT_CHAOS_EXPONENT,
   ENTROPY_DEFAULT_TUNING_EXPONENT,
-  ENTROPY_DREAM_SEA_SECOND_CHAOS_EXPONENT,
 } from "./balance";
 
-export type EntropyFormulaId = "none" | "dream-sea-first" | "dream-sea-second";
+export type { EntropyFormulaId } from "@/engine/strata/defs";
 
 export interface EntropyState {
   value: Num;
@@ -29,6 +32,6 @@ export function createEntropyState(formulaId: EntropyFormulaId = "none"): Entrop
 }
 
 export function getDefaultEntropyChaosExponent(formulaId: EntropyFormulaId): Num {
-  if (formulaId === "dream-sea-second") return ENTROPY_DREAM_SEA_SECOND_CHAOS_EXPONENT;
-  return ENTROPY_DEFAULT_CHAOS_EXPONENT;
+  return getStratumDefinitionByEntropyFormula(formulaId)?.entropyChaosExponent
+    ?? ENTROPY_DEFAULT_CHAOS_EXPONENT;
 }
