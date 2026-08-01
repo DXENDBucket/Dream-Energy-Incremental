@@ -20,6 +20,8 @@ import {
   getCoherenceDeeperInitialDreamEnergyBonus,
   getCoherenceEntropyTuningExponent,
   getCoherenceNextDreamCrystalMultiplierBonus,
+  recordBestNextStratumEntryCoherencePoints,
+  syncCoherenceProgressionDreamCrystalMultipliers,
 } from "@/engine/strata/common/coherence/upgrades";
 import {
   dreamSeaFirstStratumId,
@@ -87,6 +89,7 @@ export function travelToDreamSeaFirstStratum(state: GameState): boolean {
   const entropyGrowthRateMultiplier = computeEntropyGrowthRateMultiplierFromCoherence(cost);
   const entropyTuningExponent = getCoherenceEntropyTuningExponent(reality, cost);
   const dreamCrystalMultiplierBonus = getCoherenceNextDreamCrystalMultiplierBonus(reality);
+  recordBestNextStratumEntryCoherencePoints(reality, cost);
 
   state.strata[dreamSeaFirstStratumId] ??= createStratumState({
     entropyFormulaId: "dream-sea-first",
@@ -110,6 +113,7 @@ export function travelToDreamSeaFirstStratum(state: GameState): boolean {
 
   state.activeStratumId = dreamSeaFirstStratumId;
   state.lift.currentLiftPosition = dreamSeaFirstStratumId;
+  syncCoherenceProgressionDreamCrystalMultipliers(state);
   return true;
 }
 
@@ -143,6 +147,7 @@ export function travelToDreamSeaSecondStratum(state: GameState): boolean {
   const entropyGrowthRateMultiplier = computeEntropyGrowthRateMultiplierFromCoherence(cost);
   const entropyTuningExponent = getCoherenceEntropyTuningExponent(dreamSeaFirst, cost);
   const dreamCrystalMultiplierBonus = getCoherenceNextDreamCrystalMultiplierBonus(dreamSeaFirst);
+  recordBestNextStratumEntryCoherencePoints(dreamSeaFirst, cost);
 
   state.strata[dreamSeaSecondStratumId] ??= createStratumState({
     entropyFormulaId: "dream-sea-second",
@@ -166,6 +171,7 @@ export function travelToDreamSeaSecondStratum(state: GameState): boolean {
 
   state.activeStratumId = dreamSeaSecondStratumId;
   state.lift.currentLiftPosition = dreamSeaSecondStratumId;
+  syncCoherenceProgressionDreamCrystalMultipliers(state);
   return true;
 }
 

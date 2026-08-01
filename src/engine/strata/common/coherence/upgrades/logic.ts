@@ -1,16 +1,20 @@
+import type { GameState } from "@/engine/core/state";
 import type { StratumState } from "@/engine/strata/state";
-import { N, ONE, ZERO, add, div, gte, max, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
+import { N, ONE, ZERO, add, div, gte, log10, max, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import {
   computeEntropyGrowthRateMultiplierFromCoherence,
   ENTROPY_DEFAULT_TUNING_EXPONENT,
 } from "@/engine/strata/common/entropy";
 import {
+  COHERENCE_UPGRADE_BEST_ENTRY_COHERENCE_ID,
+  COHERENCE_UPGRADE_BEST_NEXT_DREAM_ENERGY_ID,
   COHERENCE_UPGRADE_DEEPER_INITIAL_DREAM_ENERGY_ID,
   COHERENCE_UPGRADE_ENTROPY_TUNING_ID,
   COHERENCE_UPGRADE_NEXT_DREAM_CRYSTAL_MULTIPLIER_ID,
   COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID,
   COHERENCE_UPGRADE_SOFTCAP_TWO_SLOWDOWN_ID,
+  COHERENCE_UPGRADE_ROWS,
   type CoherenceUpgradeId,
   getCoherenceUpgradeDefinition,
 } from "./definitions";
@@ -19,6 +23,17 @@ import {
   type CoherenceUpgradesState,
 } from "./state";
 import { getConceptCrystalCoherencePointGainMultiplier } from "@/engine/strata/common/concept-crystals";
+import {
+  dreamSeaFirstStratumId,
+  dreamSeaSecondStratumId,
+  realityStratumId,
+} from "@/engine/strata/defs/ids";
+
+const COHERENCE_STRATUM_ORDER = [
+  realityStratumId,
+  dreamSeaFirstStratumId,
+  dreamSeaSecondStratumId,
+] as const;
 
 export function ensureCoherenceUpgradesState(stratum: StratumState): CoherenceUpgradesState {
   stratum.coherenceUpgrades ??= createCoherenceUpgradesState();
@@ -58,6 +73,34 @@ export function getCoherenceUpgradeCost(stratum: StratumState, id: CoherenceUpgr
   return mul(definition.baseCost ?? ZERO, pow(definition.costScale ?? ONE, bought));
 }
 
+export function getCoherenceUpgradeRowIndex(id: CoherenceUpgradeId): number {
+  return COHERENCE_UPGRADE_ROWS.findIndex(row => row.some(rowId => rowId === id));
+}
+
+export function isCoherenceUpgradeRowUnlocked(stratum: StratumState, rowIndex: number): boolean {
+  if (rowIndex <= 0) return true;
+
+  for (let previousRowIndex = 0; previousRowIndex < rowIndex; previousRowIndex++) {
+    const previousRow = COHERENCE_UPGRADE_ROWS[previousRowIndex] ?? [];
+
+    for (const previousId of previousRow) {
+      const definition = getCoherenceUpgradeDefinition(previousId);
+      if (definition.kind === "single" && !hasCoherenceUpgrade(stratum, previousId)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+export function isCoherenceUpgradeUnlockedForPurchase(
+  stratum: StratumState,
+  id: CoherenceUpgradeId,
+): boolean {
+  return isCoherenceUpgradeRowUnlocked(stratum, getCoherenceUpgradeRowIndex(id));
+}
+
 export function isCoherenceRepeatableUpgradeMaxed(
   stratum: StratumState,
   id: CoherenceUpgradeId,
@@ -69,6 +112,8 @@ export function isCoherenceRepeatableUpgradeMaxed(
 }
 
 export function canBuyCoherenceUpgrade(stratum: StratumState, id: CoherenceUpgradeId): boolean {
+  if (!isCoherenceUpgradeUnlockedForPurchase(stratum, id)) return false;
+
   const definition = getCoherenceUpgradeDefinition(id);
   if (definition.kind === "placeholder") return false;
   if (definition.kind === "single" && hasCoherenceUpgrade(stratum, id)) return false;
@@ -139,4 +184,80 @@ export function getCoherencePointGainMultiplier(stratum: StratumState): Num {
 
   const upgradeMultiplier = bought.lte(ZERO) ? ONE : pow(N(2), bought);
   return mul(upgradeMultiplier, getConceptCrystalCoherencePointGainMultiplier(stratum));
+}
+
+function getCoherenceRecordMultiplier(record: Num): Num {
+  return max(ONE, log10(max(record, ONE)));
+}
+
+export function recordBestNextStratumEntryCoherencePoints(
+  stratum: StratumState,
+  coherencePoints: Num,
+): void {
+  stratum.bestNextStratumEntryCoherencePoints = max(
+    stratum.bestNextStratumEntryCoherencePoints ?? ZERO,
+    coherencePoints,
+  );
+}
+
+export function getCoherenceBestNextDreamEnergy(
+  state: GameState,
+  sourceStratumId: string,
+): Num {
+  const sourceIndex = COHERENCE_STRATUM_ORDER.findIndex(id => id === sourceStratumId);
+  const nextStratumId = COHERENCE_STRATUM_ORDER[sourceIndex + 1];
+  if (!nextStratumId) return ZERO;
+
+  return state.strata[nextStratumId]?.bestDreamEnergy ?? ZERO;
+}
+
+export function getCoherenceBestNextDreamEnergyMultiplier(
+  state: GameState,
+  sourceStratumId: string,
+): Num {
+  const source = state.strata[sourceStratumId];
+  if (!source || !hasCoherenceUpgrade(source, COHERENCE_UPGRADE_BEST_NEXT_DREAM_ENERGY_ID)) {
+    return ONE;
+  }
+
+  return getCoherenceRecordMultiplier(getCoherenceBestNextDreamEnergy(state, sourceStratumId));
+}
+
+export function getCoherenceBestEntryCoherenceMultiplier(stratum: StratumState): Num {
+  if (!hasCoherenceUpgrade(stratum, COHERENCE_UPGRADE_BEST_ENTRY_COHERENCE_ID)) return ONE;
+
+  return getCoherenceRecordMultiplier(stratum.bestNextStratumEntryCoherencePoints ?? ZERO);
+}
+
+export function syncCoherenceProgressionDreamCrystalMultipliers(state: GameState): void {
+  for (const stratum of Object.values(state.strata)) {
+    stratum.coherenceProgressionDreamCrystalMultiplier = ONE;
+  }
+
+  for (let index = 0; index < COHERENCE_STRATUM_ORDER.length; index++) {
+    const sourceStratumId = COHERENCE_STRATUM_ORDER[index]!;
+    const source = state.strata[sourceStratumId];
+    if (!source) continue;
+
+    const nextStratumId = COHERENCE_STRATUM_ORDER[index + 1];
+    const next = nextStratumId ? state.strata[nextStratumId] : undefined;
+    const bestDreamEnergyMultiplier = getCoherenceBestNextDreamEnergyMultiplier(
+      state,
+      sourceStratumId,
+    );
+    const bestEntryCoherenceMultiplier = getCoherenceBestEntryCoherenceMultiplier(source);
+    const combinedMultiplier = mul(bestDreamEnergyMultiplier, bestEntryCoherenceMultiplier);
+
+    source.coherenceProgressionDreamCrystalMultiplier = mul(
+      source.coherenceProgressionDreamCrystalMultiplier,
+      combinedMultiplier,
+    );
+
+    if (next) {
+      next.coherenceProgressionDreamCrystalMultiplier = mul(
+        next.coherenceProgressionDreamCrystalMultiplier,
+        combinedMultiplier,
+      );
+    }
+  }
 }

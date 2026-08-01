@@ -35,9 +35,12 @@ import {
 export interface StratumState {
   dreamEnergy: Num;
   rawDreamEnergy: Num;
+  bestDreamEnergy: Num;
   coherencePoints: Num;
+  bestNextStratumEntryCoherencePoints: Num;
   coherenceProductionLoss: Num;
   coherenceDreamCrystalMultiplier: Num;
+  coherenceProgressionDreamCrystalMultiplier: Num;
   chaoticEther: ChaoticEtherAmounts;
   totalChaoticEtherGained: ChaoticEtherAmounts;
   coherenceUpgrades: CoherenceUpgradesState;
@@ -58,9 +61,12 @@ export function createStratumState(options: CreateStratumStateOptions = {}): Str
   return {
     dreamEnergy: N(10),
     rawDreamEnergy: N(10),
+    bestDreamEnergy: N(10),
     coherencePoints: ZERO,
+    bestNextStratumEntryCoherencePoints: ZERO,
     coherenceProductionLoss: COHERENCE_DEFAULT_PRODUCTION_LOSS,
     coherenceDreamCrystalMultiplier: ONE,
+    coherenceProgressionDreamCrystalMultiplier: ONE,
     chaoticEther: { "1": ZERO },
     totalChaoticEtherGained: { "1": ZERO },
     coherenceUpgrades: createCoherenceUpgradesState(),

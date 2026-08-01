@@ -13,7 +13,7 @@ import { getConceptCrystalDreamCrystalCostGrowthFactor } from "@/engine/strata/c
 
 const DREAM_CRYSTAL_COST_SOFTCAP_START = 20;
 const DREAM_CRYSTAL_COST_SOFTCAP_EXACT_STEPS = 128;
-const DREAM_CRYSTAL_COST_SOFTCAP_DEFAULT_GROWTH = N(2);
+const DREAM_CRYSTAL_COST_SOFTCAP_DEFAULT_GROWTH = N(1.5);
 
 export function getDreamCrystalCostSoftcapGrowth(stratum?: StratumState): Num {
     const conceptFactor = stratum ? getConceptCrystalDreamCrystalCostGrowthFactor(stratum) : ONE;
@@ -126,6 +126,7 @@ export function getDreamCrystalMultiplier(
     multiplier = mul(multiplier, getDreamCrystalFirstTierUpgradeMultiplier(stratum, tier))
     multiplier = mul(multiplier, getDreamCrystalBoughtPowerMultiplier(stratum, tier))
     multiplier = mul(multiplier, stratum.coherenceDreamCrystalMultiplier ?? ONE)
+    multiplier = mul(multiplier, stratum.coherenceProgressionDreamCrystalMultiplier ?? ONE)
     return multiplier;
 }
 

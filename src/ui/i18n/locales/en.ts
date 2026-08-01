@@ -109,7 +109,7 @@ export default {
     cycleLine: "Next concept turn: {progress}% | Current interval: {interval}s",
     upgrade: {
       title: "Quicken the circuit",
-      copy: "The hex has been quickened {count} times. Each quickening shortens the turn by 15%.",
+      copy: "The hex has been quickened {count} times. Each quickening shortens the turn by 9%.",
       button: "Spend {cost} Dream Energy",
     },
     effect: {
@@ -200,11 +200,14 @@ export default {
     purchased: "Purchased",
     maxed: "Maxed",
     pending: "Pending",
+    rowLocked: "Requires the previous row's one-time upgrades",
     entropyTuningStatus: "Next-stratum Entropy Tuning: {value}",
     nextDreamCrystalMultiplierStatus: "Next-stratum Dream Crystal multiplier: ×{value}",
     softcapTwoSlowdownStatus: "Current second-stage compression multiplier: ×{value}",
     deeperInitialDreamEnergyStatus: "Bought {count} times | Next stratum starts with +{value} DE",
     pointGainMultiplierStatus: "Bought {count} times | Current Coherence Point gain ×{value}",
+    bestNextDreamEnergyStatus: "Next-stratum best DE: {best} | Current and next-stratum DC ×{value}",
+    bestEntryCoherenceStatus: "Best entry CP: {best} | Current and next-stratum DC ×{value}",
     items: {
       "coherence-upgrade-1": {
         title: "Lucid Lattice",
@@ -225,6 +228,14 @@ export default {
       "coherence-upgrade-5": {
         title: "Distant Diffraction",
         description: "Multiply Coherence Point gain by 2.",
+      },
+      "coherence-upgrade-6": {
+        title: "Deep Echo",
+        description: "Multiply every Dream Crystal in this and the next stratum by log10 of the highest Dream Energy ever reached in the next stratum.",
+      },
+      "coherence-upgrade-7": {
+        title: "Tuned Resonance",
+        description: "Record the most CP ever carried into the next stratum, then multiply every Dream Crystal in this and the next stratum by its log10.",
       },
     },
   },
@@ -271,6 +282,32 @@ export default {
     refinement: {
       title: "Refine Autobuyer",
       interval: "Automatically tries Refine every {interval}s. Next: {remaining}s",
+    },
+  },
+  offlineProgress: {
+    kicker: "Offline Progress",
+    title: "Catching Up With Lost Time",
+    description: "The game is simulating your time away in steps. More ticks produce a more accurate result.",
+    totalOfflineTime: "Time away",
+    remaining: "Time remaining",
+    ticks: "Simulation ticks",
+    tickLength: "Current tick length",
+    modeLabel: "Simulation mode",
+    speedUp: "Speed Up",
+    speedUpHint: "Halve the remaining tick count",
+    skip: "Skip",
+    skipHint: "Finish the remaining time with very few ticks",
+    warning: "Reducing ticks is faster, but autobuyers, Entropy, and production chains will be simulated less precisely.",
+    mode: {
+      accurate: "Standard precision",
+      accelerated: "Accelerated ×{factor}",
+      skipping: "Quick finish",
+    },
+    duration: {
+      days: "{value}d",
+      hours: "{value}h",
+      minutes: "{value}m",
+      seconds: "{value}s",
     },
   },
   save: {

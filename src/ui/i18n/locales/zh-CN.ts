@@ -109,7 +109,7 @@ export default {
     cycleLine: "下一次概念流转：{progress}%｜当前间隔：{interval} 秒",
     upgrade: {
       title: "让概念更快成形",
-      copy: "六边回路已经被催动 {count} 次；每次都会让流转间隔缩短 15%。",
+      copy: "六边回路已经被催动 {count} 次；每次都会让流转间隔缩短 9%。",
       button: "消耗 {cost} 梦能",
     },
     effect: {
@@ -200,11 +200,14 @@ export default {
     purchased: "已购买",
     maxed: "已满级",
     pending: "待定",
+    rowLocked: "需要购买上一行的一次性升级",
     entropyTuningStatus: "进入下一层时 Entropy Tuning：{value}",
     nextDreamCrystalMultiplierStatus: "下一层梦能水晶 multiplier：×{value}",
     softcapTwoSlowdownStatus: "当前第二段压缩倍率：×{value}",
     deeperInitialDreamEnergyStatus: "已购买 {count} 次；进入下一层初始 +{value} DE",
     pointGainMultiplierStatus: "已购买 {count} 次；当前调谐点数获取 ×{value}",
+    bestNextDreamEnergyStatus: "下一层最高 DE：{best}｜本层与下一层 DC ×{value}",
+    bestEntryCoherenceStatus: "最高入场 CP：{best}｜本层与下一层 DC ×{value}",
     items: {
       "coherence-upgrade-1": {
         title: "浅梦回声",
@@ -225,6 +228,14 @@ export default {
       "coherence-upgrade-5": {
         title: "远层折光",
         description: "调谐点数获取量 ×2。",
+      },
+      "coherence-upgrade-6": {
+        title: "深层回响",
+        description: "本层与下一层的所有梦能水晶获得基于下一层历史最高梦能的倍率：log10(最高 DE)。",
+      },
+      "coherence-upgrade-7": {
+        title: "调谐共振",
+        description: "记录进入下一层时携带过的最高 CP，并使本层与下一层的所有梦能水晶获得 log10(最高入场 CP) 倍率。",
       },
     },
   },
@@ -270,6 +281,32 @@ export default {
     refinement: {
       title: "Refine Autobuyer",
       interval: "每 {interval} 秒自动尝试 Refine。下一次：{remaining} 秒",
+    },
+  },
+  offlineProgress: {
+    kicker: "离线进度",
+    title: "正在追赶流逝的时间",
+    description: "游戏正在分段模拟你离开期间的进度。更多 Tick 会得到更精确的结果。",
+    totalOfflineTime: "本次离线时间",
+    remaining: "剩余时间",
+    ticks: "模拟 Tick",
+    tickLength: "当前 Tick 步长",
+    modeLabel: "模拟模式",
+    speedUp: "加速",
+    speedUpHint: "将剩余 Tick 数减半",
+    skip: "跳过",
+    skipHint: "用极少量 Tick 算完剩余时间",
+    warning: "降低 Tick 数会加快计算，但自动购买、熵和多阶生产的结果会更加粗略。",
+    mode: {
+      accurate: "标准精度",
+      accelerated: "加速 ×{factor}",
+      skipping: "快速结算",
+    },
+    duration: {
+      days: "{value} 天",
+      hours: "{value} 小时",
+      minutes: "{value} 分钟",
+      seconds: "{value} 秒",
     },
   },
   save: {

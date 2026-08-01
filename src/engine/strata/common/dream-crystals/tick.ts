@@ -5,14 +5,22 @@ import { getDreamCrystalAmount } from "./selectors";
 import { getDreamCrystalProduction } from "@/engine/math/dream-crystals/computed";
 
 export function tickDreamCrystals(stratum: StratumState, dtSec: Num) {
-    for (let tier = 8; tier >= 2; tier--) {
-        const produced = getDreamCrystalProduction(stratum, tier, dtSec);
-        const lowerCrystal = stratum.dreamCrystals.tiers[tier - 1];
+    const production = [] as Array<{ lowerTier: number; amount: Num }>;
+
+    for (let tier = 2; tier <= 8; tier++) {
+        production.push({
+            lowerTier: tier - 1,
+            amount: getDreamCrystalProduction(stratum, tier, dtSec),
+        });
+    }
+
+    for (const produced of production) {
+        const lowerCrystal = stratum.dreamCrystals.tiers[produced.lowerTier];
 
         if (!lowerCrystal) {
-            throw new Error(`Dream Crystal tier ${tier - 1} not found.`);
+            throw new Error(`Dream Crystal tier ${produced.lowerTier} not found.`);
         }
 
-        lowerCrystal.amount = add(lowerCrystal.amount, produced);
+        lowerCrystal.amount = add(lowerCrystal.amount, produced.amount);
     }
 }

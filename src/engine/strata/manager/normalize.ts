@@ -1,8 +1,11 @@
 import type { GameState } from "@/engine/core/state";
-import { ONE, ZERO, normalizeNum } from "@/engine/math/num";
+import { ONE, ZERO, max, normalizeNum } from "@/engine/math/num";
 import { ensureChaoticEtherState } from "@/engine/strata/common/chaotic-ether";
 import { COHERENCE_DEFAULT_PRODUCTION_LOSS } from "@/engine/strata/common/coherence/balance";
-import { ensureCoherenceUpgradesState } from "@/engine/strata/common/coherence/upgrades";
+import {
+  ensureCoherenceUpgradesState,
+  syncCoherenceProgressionDreamCrystalMultipliers,
+} from "@/engine/strata/common/coherence/upgrades";
 import { ensureConceptCrystalsState } from "@/engine/strata/common/concept-crystals";
 import { ensureDreamCrystalAutobuyersState } from "@/engine/strata/common/dream-crystals/autobuyers";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
@@ -50,12 +53,24 @@ export function normalizeGameState(state: GameState): GameState {
   for (const [id, stratum] of Object.entries(state.strata)) {
     stratum.dreamEnergy = normalizeNum(stratum.dreamEnergy, 10);
     stratum.rawDreamEnergy = normalizeNum(stratum.rawDreamEnergy, stratum.dreamEnergy);
+    stratum.bestDreamEnergy = max(
+      normalizeNum(stratum.bestDreamEnergy, stratum.dreamEnergy),
+      stratum.dreamEnergy,
+    );
     stratum.coherencePoints = normalizeNum(stratum.coherencePoints, ZERO);
+    stratum.bestNextStratumEntryCoherencePoints = normalizeNum(
+      stratum.bestNextStratumEntryCoherencePoints,
+      ZERO,
+    );
     stratum.coherenceProductionLoss = normalizeNum(
       stratum.coherenceProductionLoss,
       COHERENCE_DEFAULT_PRODUCTION_LOSS,
     );
     stratum.coherenceDreamCrystalMultiplier = normalizeNum(stratum.coherenceDreamCrystalMultiplier, ONE);
+    stratum.coherenceProgressionDreamCrystalMultiplier = normalizeNum(
+      stratum.coherenceProgressionDreamCrystalMultiplier,
+      ONE,
+    );
     stratum.stratumSpeed = normalizeNum(stratum.stratumSpeed, ONE);
     normalizeDreamCrystalsState(stratum);
     ensureChaoticEtherState(stratum);
@@ -86,6 +101,8 @@ export function normalizeGameState(state: GameState): GameState {
   if (!(state.lift.currentLiftPosition in state.strata)) {
     state.lift.currentLiftPosition = state.activeStratumId;
   }
+
+  syncCoherenceProgressionDreamCrystalMultipliers(state);
 
   return state;
 }

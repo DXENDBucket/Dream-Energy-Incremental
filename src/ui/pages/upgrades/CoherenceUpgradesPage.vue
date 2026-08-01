@@ -5,15 +5,20 @@ import type { GameState } from "@/engine/core/state";
 import { format, formatInt } from "@/engine/math/format";
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
 import {
+  COHERENCE_UPGRADE_BEST_ENTRY_COHERENCE_ID,
+  COHERENCE_UPGRADE_BEST_NEXT_DREAM_ENERGY_ID,
   COHERENCE_UPGRADE_DEEPER_INITIAL_DREAM_ENERGY_ID,
   COHERENCE_UPGRADE_ENTROPY_TUNING_ID,
   COHERENCE_UPGRADE_NEXT_DREAM_CRYSTAL_MULTIPLIER_ID,
   COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID,
-  COHERENCE_UPGRADE_ROW_ONE,
+  COHERENCE_UPGRADE_ROWS,
   COHERENCE_UPGRADE_SOFTCAP_TWO_SLOWDOWN_ID,
   buyCoherenceUpgrade,
   canBuyCoherenceUpgrade,
   getCoherenceDeeperInitialDreamEnergyBonus,
+  getCoherenceBestEntryCoherenceMultiplier,
+  getCoherenceBestNextDreamEnergy,
+  getCoherenceBestNextDreamEnergyMultiplier,
   getCoherenceEntropyTuningExponent,
   getCoherenceNextDreamCrystalMultiplierBonus,
   getCoherencePointGainMultiplier,
@@ -22,6 +27,7 @@ import {
   getCoherenceUpgradeCost,
   getCoherenceUpgradeDefinition,
   hasCoherenceUpgrade,
+  isCoherenceUpgradeUnlockedForPurchase,
   isCoherenceRepeatableUpgradeMaxed,
   type CoherenceUpgradeId,
 } from "@/engine/strata/common/coherence/upgrades";
@@ -39,8 +45,8 @@ const activeStratum = computed(() => getActiveStratum(props.game.state));
 const coherencePointsText = computed(() => formatInt(getCoherencePoints(activeStratum.value)));
 
 const upgradeRows = computed(() => {
-  return [
-    COHERENCE_UPGRADE_ROW_ONE.map((id) => {
+  return COHERENCE_UPGRADE_ROWS.map(row =>
+    row.map((id) => {
       const definition = getCoherenceUpgradeDefinition(id);
       const isMaxed = isCoherenceRepeatableUpgradeMaxed(activeStratum.value, id);
       const isBought = (
@@ -61,8 +67,8 @@ const upgradeRows = computed(() => {
         canBuy: canBuyCoherenceUpgrade(activeStratum.value, definition.id),
         isBought,
       };
-    }),
-  ];
+    })
+  );
 });
 
 function getUpgradeFooter(id: CoherenceUpgradeId): string {
@@ -104,10 +110,31 @@ function getUpgradeFooter(id: CoherenceUpgradeId): string {
     });
   }
 
+  if (id === COHERENCE_UPGRADE_BEST_NEXT_DREAM_ENERGY_ID) {
+    return t("coherenceUpgrades.bestNextDreamEnergyStatus", {
+      best: format(getCoherenceBestNextDreamEnergy(props.game.state, props.game.state.activeStratumId)),
+      value: format(getCoherenceBestNextDreamEnergyMultiplier(
+        props.game.state,
+        props.game.state.activeStratumId,
+      )),
+    });
+  }
+
+  if (id === COHERENCE_UPGRADE_BEST_ENTRY_COHERENCE_ID) {
+    return t("coherenceUpgrades.bestEntryCoherenceStatus", {
+      best: formatInt(activeStratum.value.bestNextStratumEntryCoherencePoints),
+      value: format(getCoherenceBestEntryCoherenceMultiplier(activeStratum.value)),
+    });
+  }
+
   return "";
 }
 
 function getUpgradeStateText(id: CoherenceUpgradeId): string {
+  if (!isCoherenceUpgradeUnlockedForPurchase(activeStratum.value, id)) {
+    return t("coherenceUpgrades.rowLocked");
+  }
+
   const definition = getCoherenceUpgradeDefinition(id);
   if (definition.kind === "placeholder") return t("coherenceUpgrades.pending");
 

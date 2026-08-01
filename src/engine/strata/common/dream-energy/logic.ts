@@ -61,6 +61,13 @@ export function getRawDreamEnergy(stratum: StratumState): Num {
     return stratum.rawDreamEnergy ?? stratum.dreamEnergy;
 }
 
+export function updateBestDreamEnergy(stratum: StratumState): void {
+    stratum.bestDreamEnergy = max(
+        stratum.bestDreamEnergy ?? ZERO,
+        getDreamEnergy(stratum),
+    );
+}
+
 function applySoftcapStrengthMultiplier(strength: Num, multiplier: Num): Num {
     return add(ONE, mul(max(ZERO, sub(strength, ONE)), max(ZERO, multiplier)));
 }
@@ -244,11 +251,13 @@ export function getRawDreamEnergyFromActual(stratum: StratumState, actual: Num):
 export function syncDreamEnergyActualFromRaw(stratum: StratumState): void {
     stratum.rawDreamEnergy = getRawDreamEnergy(stratum);
     stratum.dreamEnergy = getActualDreamEnergyFromRaw(stratum, stratum.rawDreamEnergy);
+    updateBestDreamEnergy(stratum);
 }
 
 export function setDreamEnergy(stratum: StratumState, actual: Num): void {
     stratum.dreamEnergy = max(actual, ZERO);
     stratum.rawDreamEnergy = getRawDreamEnergyFromActual(stratum, stratum.dreamEnergy);
+    updateBestDreamEnergy(stratum);
 }
 
 export function addDreamEnergy(stratum: StratumState, actualAmount: Num): void {
@@ -259,6 +268,7 @@ export function addRawDreamEnergy(stratum: StratumState, rawAmount: Num): void {
     if (lte(rawAmount, ZERO)) return;
     stratum.rawDreamEnergy = add(getRawDreamEnergy(stratum), rawAmount);
     stratum.dreamEnergy = getActualDreamEnergyFromRaw(stratum, stratum.rawDreamEnergy);
+    updateBestDreamEnergy(stratum);
 }
 
 export function spendDreamEnergy(stratum: StratumState, cost: Num): void {

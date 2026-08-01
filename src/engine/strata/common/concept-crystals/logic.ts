@@ -23,6 +23,8 @@ import {
 const CONCEPT_CRYSTAL_PRODUCTION_RATIO = ONE;
 const CONCEPT_CRYSTAL_NODE_DEFAULT_POWER = N(4);
 const CONCEPT_CRYSTAL_DC_COST_SCALE = div(N(2), N(3));
+const CONCEPT_CRYSTAL_DC_COST_LOG_POWER = div(ONE, N(4));
+const CONCEPT_CRYSTAL_STANDARD_EFFECT_LOG_POWER = N(Math.LN10);
 const CONCEPT_CRYSTAL_CP_GAIN_SCALE = N(5);
 const CONCEPT_CRYSTAL_ASSIMILATION_SCALE = div(ONE, N(5));
 
@@ -165,25 +167,48 @@ export function getConceptCrystalNodeContribution(stratum: StratumState, nodeId:
   return getConceptCrystalNodeEffect(stratum, nodeId, getConceptCrystalNodeScale(nodeId));
 }
 
-export function getConceptCrystalDreamCrystalCostGrowthFactor(stratum: StratumState): Num {
+function softenConceptCrystalRatio(rawFactor: Num, logPower: Num): Num {
+  if (gte(rawFactor, ONE)) {
+    return pow(
+      add(ONE, log10(rawFactor)),
+      logPower,
+    );
+  }
+
   return div(
+    ONE,
+    pow(
+      add(ONE, log10(div(ONE, rawFactor))),
+      logPower,
+    ),
+  );
+}
+
+export function getConceptCrystalDreamCrystalCostGrowthFactor(stratum: StratumState): Num {
+  const rawFactor = div(
     getConceptCrystalNodeContribution(stratum, "war"),
     getConceptCrystalNodeContribution(stratum, "law"),
   );
+
+  return softenConceptCrystalRatio(rawFactor, CONCEPT_CRYSTAL_DC_COST_LOG_POWER);
 }
 
 export function getConceptCrystalCoherencePointGainMultiplier(stratum: StratumState): Num {
-  return div(
+  const rawFactor = div(
     getConceptCrystalNodeContribution(stratum, "enlightenment"),
     getConceptCrystalNodeContribution(stratum, "conquest"),
   );
+
+  return softenConceptCrystalRatio(rawFactor, CONCEPT_CRYSTAL_STANDARD_EFFECT_LOG_POWER);
 }
 
 export function getConceptCrystalAssimilationStrengthMultiplier(stratum: StratumState): Num {
-  return div(
+  const rawFactor = div(
     getConceptCrystalNodeContribution(stratum, "shackle"),
     getConceptCrystalNodeContribution(stratum, "hope"),
   );
+
+  return softenConceptCrystalRatio(rawFactor, CONCEPT_CRYSTAL_STANDARD_EFFECT_LOG_POWER);
 }
 
 export function runConceptCrystalProduction(stratum: StratumState): void {
