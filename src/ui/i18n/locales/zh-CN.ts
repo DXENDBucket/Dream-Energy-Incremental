@@ -493,6 +493,8 @@ export default {
     dreamSeaSecond: "2nd",
     dreamSeaThird: "3rd",
     dreamSeaFourth: "4th",
+    dreamSeaFifth: "5th",
+    depthLabel: "第 {depth} 层",
     active: "激活",
     returnTarget: "返回",
     needsCoherence: "需要 CP",

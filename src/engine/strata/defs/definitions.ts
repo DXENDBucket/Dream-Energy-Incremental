@@ -2,6 +2,7 @@ import { N } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import {
   dreamSeaFirstStratumId,
+  dreamSeaFifthStratumId,
   dreamSeaFourthStratumId,
   dreamSeaSecondStratumId,
   dreamSeaThirdStratumId,
@@ -13,7 +14,8 @@ export type EntropyFormulaId =
   | "dream-sea-first"
   | "dream-sea-second"
   | "dream-sea-third"
-  | "dream-sea-fourth";
+  | "dream-sea-fourth"
+  | "dream-sea-fifth";
 
 export type StratumContentStatus = "available" | "planned";
 export type StratumVisibilityRule = "entry-resource" | "previous-created";
@@ -92,11 +94,23 @@ export const STRATUM_DEFINITIONS: readonly StratumDefinition[] = [
     labelKey: "strataOverview.dreamSeaFourth",
     contentStatus: "planned",
     visibilityRule: "previous-created",
-    entryTransitionKind: "major-reset",
+    entryTransitionKind: "standard-lift",
     entropyFormulaId: "dream-sea-fourth",
     entropyChaosExponent: N(2),
     producedChaoticEtherTier: 4,
     dreamCrystalUpgradeChaoticEtherTier: 5,
+  },
+  {
+    id: dreamSeaFifthStratumId,
+    depth: 5,
+    labelKey: "strataOverview.dreamSeaFifth",
+    contentStatus: "planned",
+    visibilityRule: "previous-created",
+    entryTransitionKind: "major-reset",
+    entropyFormulaId: "dream-sea-fifth",
+    entropyChaosExponent: N(2),
+    producedChaoticEtherTier: 5,
+    dreamCrystalUpgradeChaoticEtherTier: 6,
   },
 ] as const;
 

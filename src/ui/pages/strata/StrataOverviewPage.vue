@@ -77,8 +77,12 @@ const carriedChaoticEtherText = computed(() => {
   return format(source ? getChaoticEther(source, carriedChaoticEtherTier.value) : ZERO);
 });
 
-function nodeTop(definition: StratumDefinition): string {
-  return `${10 + (definition.depth / maximumAvailableDepth) * 80}%`;
+function layerStyle(definition: StratumDefinition): Record<string, string> {
+  return {
+    "--layer-top": `${10 + (definition.depth / maximumAvailableDepth) * 80}%`,
+    "--layer-width": `${88 - definition.depth * 7}%`,
+    "--layer-hue": `${205 + definition.depth * 28}`,
+  };
 }
 
 function isActive(definition: StratumDefinition): boolean {
@@ -154,19 +158,20 @@ function confirmTravel(): void {
       <button
         v-for="definition in visibleDefinitions"
         :key="definition.id"
-        class="stratum-node"
+        class="stratum-layer"
         :class="[`depth-${definition.depth}`, { active: isActive(definition) }]"
-        :style="{ '--node-top': nodeTop(definition) }"
+        :style="layerStyle(definition)"
         :disabled="isNodeDisabled(definition)"
         @click="selectStratum(definition)"
       >
-        <span class="node-orbit" aria-hidden="true" />
-        <span class="node-core">
-          <span class="node-title">{{ t(definition.labelKey) }}</span>
-          <span v-if="nodeStateKey(definition)" class="node-state">
+        <span class="layer-depth">{{ t("strataOverview.depthLabel", { depth: definition.depth }) }}</span>
+        <span class="layer-content">
+          <span class="layer-title">{{ t(definition.labelKey) }}</span>
+          <span v-if="nodeStateKey(definition)" class="layer-state">
             {{ t(nodeStateKey(definition)!, nodeStateParams(definition)) }}
           </span>
         </span>
+        <span class="layer-ripples" aria-hidden="true" />
       </button>
 
       <transition name="travel-dialog-fade">
@@ -289,56 +294,81 @@ function confirmTravel(): void {
   animation-delay: var(--shard-delay);
 }
 
-.stratum-node {
+.stratum-layer {
   position: absolute;
   z-index: 2;
   left: 50%;
-  top: var(--node-top);
-  width: 94px;
-  aspect-ratio: 1;
+  top: var(--layer-top);
+  width: var(--layer-width);
+  height: 88px;
   transform: translate(-50%, -50%);
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
+  overflow: hidden;
+  border: 1px solid hsla(var(--layer-hue), 78%, 76%, 0.48);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, transparent, hsla(var(--layer-hue), 72%, 68%, 0.12) 18% 82%, transparent),
+    linear-gradient(180deg, hsla(var(--layer-hue), 52%, 38%, 0.92), hsla(var(--layer-hue), 58%, 15%, 0.96));
   color: #f7fbff;
   cursor: pointer;
   font: inherit;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.3),
+    0 0 24px hsla(var(--layer-hue), 72%, 62%, 0.14),
+    inset 0 1px rgba(255, 255, 255, 0.16),
+    inset 0 -18px 28px rgba(0, 0, 0, 0.2);
+  transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-.stratum-node:disabled { cursor: not-allowed; }
+.stratum-layer::before,
+.stratum-layer::after {
+  content: "";
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsla(var(--layer-hue), 95%, 88%, 0.7), transparent);
+}
 
-.node-orbit {
+.stratum-layer::before { top: 13px; }
+.stratum-layer::after { bottom: 13px; opacity: 0.45; }
+.stratum-layer:disabled { cursor: not-allowed; }
+.stratum-layer:disabled:not(.active) { filter: saturate(0.55) brightness(0.72); }
+.stratum-layer:not(:disabled):hover { transform: translate(-50%, -50%) scale(1.012); box-shadow: 0 14px 34px rgba(0,0,0,.34), 0 0 34px hsla(var(--layer-hue), 78%, 68%, .28); }
+.stratum-layer.active { border-color: hsla(var(--layer-hue), 100%, 90%, 0.9); box-shadow: 0 14px 34px rgba(0,0,0,.34), 0 0 38px hsla(var(--layer-hue), 92%, 72%, .42), inset 0 0 28px hsla(var(--layer-hue), 90%, 80%, .1); }
+
+.layer-content {
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(210, 234, 255, 0.62);
-  border-radius: 50%;
-  background: conic-gradient(from 18deg, transparent, rgba(121, 209, 255, 0.34), transparent 36%, rgba(225, 174, 255, 0.32), transparent 70%);
-  box-shadow: 0 0 28px rgba(127, 199, 255, 0.28), inset 0 0 24px rgba(255, 255, 255, 0.08);
-  animation: node-orbit 14s linear infinite;
-}
-
-.node-core {
-  position: absolute;
-  inset: 10px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 20%, rgba(255,255,255,.25), transparent 30%), linear-gradient(180deg, #5d4892, #1b1849);
-  box-shadow: inset 0 0 24px rgba(255, 255, 255, 0.12), 0 10px 24px rgba(0, 0, 0, 0.28);
+  gap: 12px;
+  z-index: 1;
 }
 
-.depth-0 .node-core { background: linear-gradient(180deg, #5786b8, #172e53); }
-.depth-2 .node-core { background: linear-gradient(180deg, #7e3e6e, #231340); }
-.depth-3 .node-core { background: linear-gradient(180deg, #754337, #2c1529); }
-.depth-4 .node-core { background: linear-gradient(180deg, #49334f, #120d24); }
-.stratum-node.active .node-orbit { box-shadow: 0 0 40px rgba(175, 225, 255, .55), inset 0 0 26px rgba(255,255,255,.14); }
-.stratum-node:disabled:not(.active) { opacity: .62; }
+.layer-depth {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  z-index: 1;
+  transform: translateY(-50%);
+  color: hsla(var(--layer-hue), 90%, 89%, 0.72);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
 
-.node-title { font-size: .94rem; font-weight: 800; }
-.node-state { padding: 2px 7px; border: 1px solid rgba(220,243,255,.42); border-radius: 999px; background: rgba(10,22,43,.62); color: #c9edff; font-size: .66rem; font-weight: 700; }
+.layer-title { font-size: 1.08rem; font-weight: 850; letter-spacing: .04em; text-shadow: 0 2px 12px rgba(0,0,0,.45); }
+.layer-state { padding: 3px 9px; border: 1px solid hsla(var(--layer-hue), 90%, 88%, .36); border-radius: 999px; background: rgba(6,14,31,.48); color: #d9f2ff; font-size: .68rem; font-weight: 750; }
+
+.layer-ripples {
+  position: absolute;
+  inset: 18px 8%;
+  border: 1px solid hsla(var(--layer-hue), 86%, 84%, 0.12);
+  border-radius: 50%;
+  box-shadow: 0 0 0 12px hsla(var(--layer-hue), 80%, 76%, 0.045), 0 0 0 25px hsla(var(--layer-hue), 80%, 76%, 0.025);
+}
 
 .travel-dialog-backdrop {
   position: absolute;
@@ -378,13 +408,14 @@ function confirmTravel(): void {
 .travel-dialog-fade-enter-active, .travel-dialog-fade-leave-active { transition: opacity .16s ease; }
 .travel-dialog-fade-enter-from, .travel-dialog-fade-leave-to { opacity: 0; }
 
-@keyframes node-orbit { to { transform: rotate(360deg); } }
 @keyframes shard-glimmer { 0%, 100% { opacity: .2; } 50% { opacity: .58; } }
 
 @media (max-width: 720px) {
   .strata-overview, .depth-map { min-height: 560px; }
-  .stratum-node { width: 82px; }
-  .node-state { max-width: 76px; }
+  .stratum-layer { height: 78px; }
+  .layer-depth { left: 10px; font-size: .6rem; }
+  .layer-title { font-size: .95rem; }
+  .layer-state { font-size: .6rem; }
   .travel-readout { flex-direction: column; gap: 3px; }
   .travel-readout strong { text-align: left; }
 }

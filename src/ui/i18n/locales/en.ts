@@ -495,6 +495,8 @@ export default {
     dreamSeaSecond: "2nd",
     dreamSeaThird: "3rd",
     dreamSeaFourth: "4th",
+    dreamSeaFifth: "5th",
+    depthLabel: "Depth {depth}",
     active: "Active",
     returnTarget: "Return",
     needsCoherence: "Needs CP",
