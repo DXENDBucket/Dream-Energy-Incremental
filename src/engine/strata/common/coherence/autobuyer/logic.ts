@@ -12,9 +12,10 @@ import {
   type CoherenceAutobuyerState,
 } from "./state";
 
-export const COHERENCE_AUTOBUYER_MIN_INTERVAL_SEC = N(0.05);
-export const COHERENCE_AUTOBUYER_MIN_GAIN = ONE;
-export const COHERENCE_AUTOBUYER_MIN_RATIO = ONE;
+export const COHERENCE_AUTOBUYER_MIN_GAIN = ZERO;
+export const COHERENCE_AUTOBUYER_MIN_RATIO = ZERO;
+export const COHERENCE_AUTOBUYER_DEFAULT_INTERVAL_SEC = N(0.5);
+export const COHERENCE_AUTOBUYER_MIN_INTERVAL_SEC = ZERO;
 
 const VALID_MODES = new Set<CoherenceAutobuyerMode>(["interval", "amount", "ratio"]);
 
@@ -37,7 +38,7 @@ export function ensureCoherenceAutobuyerState(stratum: StratumState): CoherenceA
   autobuyer.elapsedSec = max(ZERO, normalizeFinite(autobuyer.elapsedSec, ZERO));
   autobuyer.intervalSec = max(
     COHERENCE_AUTOBUYER_MIN_INTERVAL_SEC,
-    normalizeFinite(autobuyer.intervalSec, 10),
+    normalizeFinite(autobuyer.intervalSec, COHERENCE_AUTOBUYER_DEFAULT_INTERVAL_SEC),
   );
   autobuyer.minimumGain = max(
     COHERENCE_AUTOBUYER_MIN_GAIN,

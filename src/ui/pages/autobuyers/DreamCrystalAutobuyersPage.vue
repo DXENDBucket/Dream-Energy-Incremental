@@ -20,6 +20,8 @@ import {
 } from "@/engine/strata/common/dream-crystals/upgrades";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import { getDreamCrystalTitle } from "@/ui/meta/dreamCrystals";
+import { isCoherenceAutobuyerUnlocked } from "@/engine/strata/common/coherence/autobuyer";
+import CoherenceAutobuyerPanel from "./CoherenceAutobuyerPanel.vue";
 
 const props = defineProps<{
   game: {
@@ -31,6 +33,7 @@ const { t } = useI18n();
 const activeStratum = computed(() => getActiveStratum(props.game.state));
 const unlocked = computed(() => isDreamCrystalAutobuyerUnlocked(activeStratum.value));
 const refineUnlocked = computed(() => isDreamCrystalRefineAutobuyerUnlocked(activeStratum.value));
+const coherenceAutobuyerUnlocked = computed(() => isCoherenceAutobuyerUnlocked(activeStratum.value));
 const remainingText = computed(() => format(getDreamCrystalAutobuyerRemainingSec(activeStratum.value)));
 const refineRemainingText = computed(() => format(getDreamCrystalRefineAutobuyerRemainingSec(activeStratum.value)));
 const intervalText = computed(() => format(DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC));
@@ -63,28 +66,29 @@ function onToggleRefine(tier: number) {
 
 <template>
   <div class="autobuyers-page">
-    <div class="autobuyers-header">
-      <div class="autobuyers-title">{{ t("autobuyers.dreamCrystals.title") }}</div>
-      <div class="autobuyers-sub">
-        {{ t("autobuyers.dreamCrystals.interval", { interval: intervalText, remaining: remainingText }) }}
+    <template v-if="unlocked">
+      <div class="autobuyers-header">
+        <div class="autobuyers-title">{{ t("autobuyers.dreamCrystals.title") }}</div>
+        <div class="autobuyers-sub">
+          {{ t("autobuyers.dreamCrystals.interval", { interval: intervalText, remaining: remainingText }) }}
+        </div>
       </div>
-    </div>
 
-    <div class="autobuyer-grid">
-      <button
-        v-for="row in rows"
-        :key="row.tier"
-        class="autobuyer-button"
-        :class="{ enabled: row.enabled }"
-        :disabled="!unlocked"
-        @click="onToggle(row.tier)"
-      >
-        <span class="autobuyer-title">{{ row.title }}</span>
-        <span class="autobuyer-state">
-          {{ row.enabled ? t("autobuyers.enabled") : t("autobuyers.disabled") }}
-        </span>
-      </button>
-    </div>
+      <div class="autobuyer-grid">
+        <button
+          v-for="row in rows"
+          :key="row.tier"
+          class="autobuyer-button"
+          :class="{ enabled: row.enabled }"
+          @click="onToggle(row.tier)"
+        >
+          <span class="autobuyer-title">{{ row.title }}</span>
+          <span class="autobuyer-state">
+            {{ row.enabled ? t("autobuyers.enabled") : t("autobuyers.disabled") }}
+          </span>
+        </button>
+      </div>
+    </template>
 
     <template v-if="refineUnlocked">
       <div class="autobuyers-header refine-header">
@@ -109,6 +113,11 @@ function onToggleRefine(tier: number) {
         </button>
       </div>
     </template>
+
+    <CoherenceAutobuyerPanel
+      v-if="coherenceAutobuyerUnlocked"
+      :game="props.game"
+    />
   </div>
 </template>
 

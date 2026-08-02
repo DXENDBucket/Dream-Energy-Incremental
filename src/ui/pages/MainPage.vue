@@ -46,6 +46,7 @@ import {
   isDreamCrystalAutobuyerUnlocked,
   isDreamCrystalRefineAutobuyerUnlocked,
 } from "@/engine/strata/common/dream-crystals/upgrades";
+import { isCoherenceAutobuyerUnlocked } from "@/engine/strata/common/coherence/autobuyer";
 import { STRATUM_DEFINITIONS } from "@/engine/strata/defs";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
 import LiftPage from "./strata/LiftPage.vue";
@@ -70,7 +71,8 @@ const availablePrimaryTabs = computed(() => {
       if (tab.id === "autobuyers") {
         return (
           isDreamCrystalAutobuyerUnlocked(activeStratum.value) ||
-          isDreamCrystalRefineAutobuyerUnlocked(activeStratum.value)
+          isDreamCrystalRefineAutobuyerUnlocked(activeStratum.value) ||
+          isCoherenceAutobuyerUnlocked(activeStratum.value)
         );
       }
       return true;

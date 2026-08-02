@@ -1,8 +1,7 @@
 import type { GameState } from "@/engine/core/state";
-import { ZERO, add, div, floor, gte, mul, sub } from "@/engine/math/num";
+import { ZERO, add, div, floor, gte, lte, mul, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import {
-  canCondenseCoherence,
   condenseCoherence,
   getCoherencePointGain,
   getCoherencePoints,
@@ -24,6 +23,12 @@ export function tickCoherenceAutobuyer(state: GameState, dtSec: Num): void {
   if (!autobuyer.enabled) return;
 
   if (autobuyer.mode === "interval") {
+    if (lte(autobuyer.intervalSec, ZERO)) {
+      autobuyer.elapsedSec = ZERO;
+      condenseCoherence(state);
+      return;
+    }
+
     autobuyer.elapsedSec = add(autobuyer.elapsedSec, dtSec);
     if (!gte(autobuyer.elapsedSec, autobuyer.intervalSec)) return;
 
@@ -32,7 +37,7 @@ export function tickCoherenceAutobuyer(state: GameState, dtSec: Num): void {
       autobuyer.elapsedSec,
       mul(autobuyer.intervalSec, completedIntervals),
     );
-    if (canCondenseCoherence(state)) condenseCoherence(state);
+    condenseCoherence(state);
     return;
   }
 

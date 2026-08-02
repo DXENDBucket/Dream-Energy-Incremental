@@ -19,7 +19,7 @@ export function createCoherenceAutobuyerState(): CoherenceAutobuyerState {
     enabled: false,
     mode: "interval",
     elapsedSec: ZERO,
-    intervalSec: N(10),
+    intervalSec: N(0.5),
     minimumGain: N(1),
     dynamicAmount: false,
     dynamicAmountLastMultiplier: N(1),
