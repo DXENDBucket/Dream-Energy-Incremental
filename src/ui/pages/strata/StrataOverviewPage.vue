@@ -40,6 +40,8 @@ const maximumAvailableDepth = Math.max(
     .map(definition => definition.depth),
   1,
 );
+const layerSpacingPercent = Math.min(15, 80 / maximumAvailableDepth);
+const firstLayerTopPercent = 50 - (maximumAvailableDepth * layerSpacingPercent) / 2;
 
 const sourceDefinition = computed(() =>
   getStratumDefinition(props.game.state.activeStratumId),
@@ -79,7 +81,7 @@ const carriedChaoticEtherText = computed(() => {
 
 function layerStyle(definition: StratumDefinition): Record<string, string> {
   return {
-    "--layer-top": `${10 + (definition.depth / maximumAvailableDepth) * 80}%`,
+    "--layer-top": `${firstLayerTopPercent + definition.depth * layerSpacingPercent}%`,
     "--layer-width": `${88 - definition.depth * 7}%`,
     "--layer-hue": `${205 + definition.depth * 28}`,
   };
