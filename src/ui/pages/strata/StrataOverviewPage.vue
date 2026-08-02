@@ -41,7 +41,7 @@ const maximumAvailableDepth = Math.max(
   1,
 );
 const layerSpacingPercent = Math.min(15, 80 / maximumAvailableDepth);
-const firstLayerTopPercent = 50 - (maximumAvailableDepth * layerSpacingPercent) / 2;
+const firstLayerTopPercent = 10;
 
 const sourceDefinition = computed(() =>
   getStratumDefinition(props.game.state.activeStratumId),

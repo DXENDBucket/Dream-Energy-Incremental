@@ -6,6 +6,10 @@ import {
 } from "./defs";
 import { COHERENCE_DEFAULT_PRODUCTION_LOSS } from "./common/coherence/balance";
 import {
+  createCoherenceAutobuyerState,
+  type CoherenceAutobuyerState,
+} from "./common/coherence/autobuyer/state";
+import {
   createCoherenceUpgradesState,
   type CoherenceUpgradesState,
 } from "./common/coherence/upgrades";
@@ -46,6 +50,7 @@ export interface StratumState {
   coherenceProductionLoss: Num;
   coherenceDreamCrystalMultiplier: Num;
   coherenceProgressionDreamCrystalMultiplier: Num;
+  coherenceAutobuyer: CoherenceAutobuyerState;
   chaoticEther: ChaoticEtherAmounts;
   totalChaoticEtherGained: ChaoticEtherAmounts;
   coherenceUpgrades: CoherenceUpgradesState;
@@ -80,6 +85,7 @@ export function createStratumState(options: CreateStratumStateOptions = {}): Str
     coherenceProductionLoss: COHERENCE_DEFAULT_PRODUCTION_LOSS,
     coherenceDreamCrystalMultiplier: ONE,
     coherenceProgressionDreamCrystalMultiplier: ONE,
+    coherenceAutobuyer: createCoherenceAutobuyerState(),
     chaoticEther: { "1": ZERO },
     totalChaoticEtherGained: { "1": ZERO },
     coherenceUpgrades: createCoherenceUpgradesState(),

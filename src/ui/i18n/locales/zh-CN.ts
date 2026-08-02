@@ -4,6 +4,8 @@ export default {
     ready: "就绪。",
     language: "语言",
     pause: "暂停",
+    enabled: "已开启",
+    disabled: "已关闭",
   },
   navigation: {
     primary: {
@@ -208,6 +210,22 @@ export default {
     pointGainMultiplierStatus: "已购买 {count} 次；当前调谐点数获取 ×{value}",
     bestNextDreamEnergyStatus: "下一层最高 DE：{best}｜本层与下一层 DC ×{value}",
     bestEntryCoherenceStatus: "最高入场 CP：{best}｜本层与下一层 DC ×{value}",
+    autobuyer: {
+      title: "Coherence Autobuyer",
+      pendingGain: "当前凝缩可获得 {value} CP",
+      enabledStatus: "自动器已开启",
+      disabledStatus: "自动器已关闭",
+      seconds: "秒",
+      intervalLabel: "每隔多长时间尝试凝缩一次",
+      amountLabel: "当本次可获得 CP 至少达到",
+      ratioLabel: "当本次可获得 CP 达到当前 CP 的",
+      ratioRequired: "按当前持有量，需要本次至少获得 {value} CP。当前 CP 为 0 时按 1 计算。",
+      modes: {
+        interval: { title: "时间模式", description: "按固定间隔尝试凝缩一次。" },
+        amount: { title: "数量模式", description: "本次可获得 CP 达到设定值时凝缩。" },
+        ratio: { title: "倍数模式", description: "本次收益达到当前持有 CP 的指定倍数时凝缩。" },
+      },
+    },
     items: {
       "coherence-upgrade-1": {
         title: "浅梦回声",
@@ -236,6 +254,10 @@ export default {
       "coherence-upgrade-7": {
         title: "调谐共振",
         description: "记录进入下一层时携带过的最高 CP，并使本层与下一层的所有梦能水晶获得 log10(最高入场 CP) 倍率。",
+      },
+      "coherence-upgrade-8": {
+        title: "自律调谐",
+        description: "解锁 Coherence Autobuyer，可按时间、本次 CP 收益或相对当前 CP 的倍数自动凝缩。",
       },
     },
   },

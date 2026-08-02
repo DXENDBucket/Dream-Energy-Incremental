@@ -4,6 +4,8 @@ export default {
     ready: "Ready.",
     language: "Language",
     pause: "Pause",
+    enabled: "Enabled",
+    disabled: "Disabled",
   },
   navigation: {
     primary: {
@@ -208,6 +210,22 @@ export default {
     pointGainMultiplierStatus: "Bought {count} times | Current Coherence Point gain ×{value}",
     bestNextDreamEnergyStatus: "Next-stratum best DE: {best} | Current and next-stratum DC ×{value}",
     bestEntryCoherenceStatus: "Best entry CP: {best} | Current and next-stratum DC ×{value}",
+    autobuyer: {
+      title: "Coherence Autobuyer",
+      pendingGain: "A Condense would currently gain {value} CP",
+      enabledStatus: "Autobuyer enabled",
+      disabledStatus: "Autobuyer disabled",
+      seconds: "seconds",
+      intervalLabel: "How often to attempt a Condense",
+      amountLabel: "Condense when the pending CP gain reaches",
+      ratioLabel: "Condense when pending CP gain is this many times current CP",
+      ratioRequired: "At the current amount, the Condense must gain at least {value} CP. Zero current CP is treated as 1.",
+      modes: {
+        interval: { title: "Time", description: "Attempt one Condense at a fixed interval." },
+        amount: { title: "Amount", description: "Condense when the pending CP gain reaches the configured amount." },
+        ratio: { title: "Ratio", description: "Condense when the pending gain reaches a multiple of currently owned CP." },
+      },
+    },
     items: {
       "coherence-upgrade-1": {
         title: "Lucid Lattice",
@@ -236,6 +254,10 @@ export default {
       "coherence-upgrade-7": {
         title: "Tuned Resonance",
         description: "Record the most CP ever carried into the next stratum, then multiply every Dream Crystal in this and the next stratum by its log10.",
+      },
+      "coherence-upgrade-8": {
+        title: "Autonomous Tuning",
+        description: "Unlock the Coherence Autobuyer, configurable by time, pending CP gain, or gain relative to current CP.",
       },
     },
   },
