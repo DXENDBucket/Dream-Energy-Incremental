@@ -1,17 +1,17 @@
 import type { GameState } from "@/engine/core/state";
-import { add, mul, ONE, sub, type Num } from "@/engine/math/num";
+import { add, mul, normalizeNum, ONE, sub, type Num } from "@/engine/math/num";
 import { STRATUM_DEFINITIONS } from "@/engine/strata/defs";
 import {
   ALPHA_CHARACTER_ID,
   CHAOTIC_ETHER_GAIN_MULTIPLIER_AFFIX_ID,
   CHARACTER_DEFINITIONS,
-  CHARACTER_MAX_LEVEL,
   CHARACTER_MIN_LEVEL,
   CHARACTER_PRODUCTION_SLOT_COUNT,
   CHARACTER_ROSTER_SLOT_COUNT,
   COHERENCE_POINT_GAIN_MULTIPLIER_AFFIX_ID,
   DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID,
   DREAM_CRYSTAL_MULTIPLIER_POWER_AFFIX_ID,
+  clampCharacterLevel,
   getCharacterAffixValue,
   getCharacterDefinition,
   type CharacterAffixId,
@@ -45,10 +45,9 @@ export function normalizeCharacterSystemState(state: GameState): CharacterSystem
   )];
 
   for (const characterId of characters.ownedCharacterIds) {
-    const rawLevel = Number(characters.levels[characterId]);
-    characters.levels[characterId] = Number.isFinite(rawLevel)
-      ? Math.min(CHARACTER_MAX_LEVEL, Math.max(CHARACTER_MIN_LEVEL, Math.floor(rawLevel)))
-      : CHARACTER_MIN_LEVEL;
+    characters.levels[characterId] = clampCharacterLevel(
+      normalizeNum(characters.levels[characterId], CHARACTER_MIN_LEVEL),
+    );
   }
 
   const ownedIds = new Set(characters.ownedCharacterIds);
@@ -117,9 +116,9 @@ export function grantCharacter(state: GameState, characterId: string): void {
   }
 }
 
-export function getCharacterLevel(state: GameState, characterId: string): number {
+export function getCharacterLevel(state: GameState, characterId: string): Num {
   const level = ensureCharacterSystemState(state).levels[characterId] ?? CHARACTER_MIN_LEVEL;
-  return Math.min(CHARACTER_MAX_LEVEL, Math.max(CHARACTER_MIN_LEVEL, Math.floor(level)));
+  return clampCharacterLevel(normalizeNum(level, CHARACTER_MIN_LEVEL));
 }
 
 export function getCharacterRosterSlots(state: GameState): Array<string | null> {

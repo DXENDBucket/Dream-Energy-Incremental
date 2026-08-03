@@ -318,7 +318,13 @@ export default {
   },
   characterLevels: {
     title: "Character Levels",
-    placeholder: "Character levels range from 1 to {max}. Level upgrades will be added here later.",
+    available: "Available: {amount} {resource}",
+    upgrade: "Upgrade — {cost} {resource}",
+    resources: {
+      "dream-energy": "Reality DE",
+      "chaotic-ether-1": "Reality CE I",
+      "coherence-points": "Reality CP",
+    },
   },
   milestones: {
     claim: "Claim",

@@ -1,31 +1,161 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { CHARACTER_MAX_LEVEL } from "@/engine/characters";
+import type { GameState } from "@/engine/core/state";
+import { format, formatInt } from "@/engine/math/format";
+import {
+  CHARACTER_DEFINITIONS,
+  canUpgradeCharacterLevel,
+  getCharacterAffixDefinition,
+  getCharacterAffixValue,
+  getCharacterLevel,
+  getCharacterLevelCost,
+  getCharacterLevelCostDefinition,
+  getCharacterLevelResourceAmount,
+  isCharacterOwned,
+  upgradeCharacterLevel,
+} from "@/engine/characters";
 
+const props = defineProps<{ game: { state: GameState } }>();
 const { t } = useI18n();
+
+const characterRows = computed(() => CHARACTER_DEFINITIONS
+  .filter(character => isCharacterOwned(props.game.state, character.id))
+  .map(character => {
+    const level = getCharacterLevel(props.game.state, character.id);
+    const costDefinition = getCharacterLevelCostDefinition(character.id)!;
+    return {
+      character,
+      levelText: formatInt(level),
+      costText: format(getCharacterLevelCost(props.game.state, character.id)),
+      resourceName: t(`characterLevels.resources.${costDefinition.resource}`),
+      resourceAmountText: format(
+        getCharacterLevelResourceAmount(props.game.state, costDefinition.resource),
+      ),
+      canUpgrade: canUpgradeCharacterLevel(props.game.state, character.id),
+      effects: character.affixIds.map(affixId => {
+        const affix = getCharacterAffixDefinition(affixId);
+        const value = getCharacterAffixValue(affixId, level);
+        return {
+          id: affix.id,
+          label: t(affix.labelKey),
+          value: `${affix.operator === "power" ? "^" : "×"}${
+            affix.operator === "power" ? value.toFixed(3) : format(value)
+          }`,
+        };
+      }),
+    };
+  }));
+
+function onUpgrade(characterId: string): void {
+  upgradeCharacterLevel(props.game.state, characterId);
+}
 </script>
 
 <template>
-  <section class="levels-placeholder">
-    <div class="level-icon">↑</div>
-    <h2>{{ t("characterLevels.title") }}</h2>
-    <p>{{ t("characterLevels.placeholder", { max: CHARACTER_MAX_LEVEL }) }}</p>
+  <section class="levels-page">
+    <article
+      v-for="row in characterRows"
+      :key="row.character.id"
+      class="level-card"
+      :class="`theme-${row.character.theme}`"
+    >
+      <div class="identity">
+        <span class="symbol">{{ row.character.symbol }}</span>
+        <div>
+          <h3>{{ t(row.character.nameKey) }}</h3>
+          <strong class="level-number">{{ row.levelText }}</strong>
+        </div>
+      </div>
+
+      <div class="effects">
+        <div v-for="effect in row.effects" :key="effect.id" class="effect-row">
+          <span>{{ effect.label }}</span>
+          <strong>{{ effect.value }}</strong>
+        </div>
+      </div>
+
+      <div class="upgrade-area">
+        <div class="resource-owned">
+          {{ t("characterLevels.available", {
+            resource: row.resourceName,
+            amount: row.resourceAmountText,
+          }) }}
+        </div>
+        <button
+          :disabled="!row.canUpgrade"
+          @click="onUpgrade(row.character.id)"
+        >
+          {{ t("characterLevels.upgrade", { cost: row.costText, resource: row.resourceName }) }}
+        </button>
+      </div>
+    </article>
   </section>
 </template>
 
 <style scoped>
-.levels-placeholder {
-  width: min(720px, 94%);
-  margin: 40px auto;
-  padding: 42px 28px;
-  border: 1px solid #3c455d;
-  border-radius: 9px;
+.levels-page {
+  width: min(1080px, 97%);
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
   color: #edf0ff;
-  background: linear-gradient(145deg, rgba(23,29,45,0.96), rgba(9,13,22,0.98));
-  text-align: center;
 }
 
-.level-icon { color: #dce5ff; font-size: 3rem; }
-h2 { margin: 10px 0; }
-p { margin: 0; color: #aeb8d3; }
+.level-card {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(230px, 1.2fr) minmax(240px, 1fr);
+  align-items: center;
+  gap: 18px;
+  padding: 16px 18px;
+  border: 1px solid var(--theme-border);
+  border-radius: 8px;
+  background: var(--theme-background);
+  box-shadow: inset 0 0 20px var(--theme-glow), 0 8px 22px rgba(0,0,0,0.22);
+}
+
+.theme-monochrome {
+  --theme-border: #e8e8eb;
+  --theme-background: linear-gradient(145deg, #292b31, #0b0c10 70%);
+  --theme-glow: rgba(255,255,255,0.08);
+}
+
+.theme-cyan {
+  --theme-border: #7ff8ff;
+  --theme-background: linear-gradient(145deg, #123d48, #071c24 70%);
+  --theme-glow: rgba(89,240,255,0.1);
+}
+
+.theme-gold {
+  --theme-border: #ffe28a;
+  --theme-background: linear-gradient(145deg, #50380d, #1d1304 70%);
+  --theme-glow: rgba(255,208,76,0.11);
+}
+
+.identity { display: flex; align-items: center; gap: 15px; }
+.symbol { font: 3.2rem/1 Georgia, serif; text-shadow: 0 0 12px currentColor; }
+h3 { margin: 0 0 4px; }
+.level-number { font-family: var(--font-number, monospace); font-size: 1.15rem; }
+
+.effects { display: grid; gap: 6px; }
+.effect-row { display: flex; justify-content: space-between; gap: 14px; color: #c4cce0; }
+.effect-row strong { color: #fff; }
+
+.upgrade-area { display: grid; gap: 7px; }
+.resource-owned { color: #aeb8d3; font-size: 0.78rem; text-align: center; }
+button {
+  min-height: 48px;
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 5px;
+  color: #10131a;
+  background: #eef2ff;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+button:disabled { color: #858c9d; background: #202631; cursor: not-allowed; }
+
+@media (max-width: 780px) {
+  .level-card { grid-template-columns: 1fr; }
+}
 </style>

@@ -318,7 +318,13 @@ export default {
   },
   characterLevels: {
     title: "角色等级",
-    placeholder: "角色等级范围为 1 至 {max}。等级升级功能之后会添加在这里。",
+    available: "拥有：{amount} {resource}",
+    upgrade: "升级 — {cost} {resource}",
+    resources: {
+      "dream-energy": "现实层 DE",
+      "chaotic-ether-1": "现实层 CE I",
+      "coherence-points": "现实层 CP",
+    },
   },
   milestones: {
     claim: "领取",

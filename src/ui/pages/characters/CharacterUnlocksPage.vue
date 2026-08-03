@@ -69,7 +69,7 @@ function onUnlock(characterId: UnlockableCharacterId): void {
         <div class="character-preview">
           <div class="preview-symbol">{{ row.character.symbol }}</div>
           <h3>{{ t(row.character.nameKey) }}</h3>
-          <span>Lv. 1</span>
+          <span>1</span>
         </div>
 
         <div class="effect-list">

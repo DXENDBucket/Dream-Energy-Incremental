@@ -587,7 +587,7 @@ const secondaryTooltipStyle = computed(() => ({
         </div>
 
         <div v-else-if="selectedSecondary === 'character-levels'" class="page-card">
-          <CharacterLevelsPage />
+          <CharacterLevelsPage :game="props.game" />
         </div>
 
         <div v-else-if="selectedSecondary === 'stratum-speed'" class="dream-crystals-page">

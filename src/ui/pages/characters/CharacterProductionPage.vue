@@ -2,8 +2,9 @@
 import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { GameState } from "@/engine/core/state";
-import { format } from "@/engine/math/format";
+import { format, formatInt } from "@/engine/math/format";
 import {
+  CHARACTER_MIN_LEVEL,
   assignCharacterToProduction,
   getCharacterAffixDefinition,
   getCharacterAffixValue,
@@ -60,7 +61,7 @@ const hoveredCharacter = computed(() =>
 );
 const hoveredCharacterLevel = computed(() => hoveredCharacter.value
   ? getCharacterLevel(props.game.state, hoveredCharacter.value.id)
-  : 1,
+  : CHARACTER_MIN_LEVEL,
 );
 const hoveredCharacterEffects = computed(() => hoveredCharacter.value?.affixIds.map(affixId => {
   const affix = getCharacterAffixDefinition(affixId);
@@ -168,7 +169,7 @@ function dropOnRoster(slotIndex: number): void {
             >
               <div class="character-symbol">{{ getCharacterDefinition(characterId)?.symbol }}</div>
               <div class="character-name">{{ t(getCharacterDefinition(characterId)!.nameKey) }}</div>
-              <div class="character-level">Lv. {{ getCharacterLevel(props.game.state, characterId) }}</div>
+              <div class="character-level">{{ formatInt(getCharacterLevel(props.game.state, characterId)) }}</div>
             </div>
             <span v-else class="empty-label">{{ t("characters.emptySlot") }}</span>
           </div>
@@ -197,7 +198,7 @@ function dropOnRoster(slotIndex: number): void {
             >
               <div class="character-symbol">{{ getCharacterDefinition(characterId)?.symbol }}</div>
               <div class="character-name">{{ t(getCharacterDefinition(characterId)!.nameKey) }}</div>
-              <div class="character-level">Lv. {{ getCharacterLevel(props.game.state, characterId) }}</div>
+              <div class="character-level">{{ formatInt(getCharacterLevel(props.game.state, characterId)) }}</div>
             </div>
           </div>
         </div>
@@ -234,7 +235,7 @@ function dropOnRoster(slotIndex: number): void {
       <div class="tooltip-heading">
         <span class="tooltip-symbol">{{ hoveredCharacter.symbol }}</span>
         <strong>{{ t(hoveredCharacter.nameKey) }}</strong>
-        <span class="tooltip-level">Lv. {{ hoveredCharacterLevel }}</span>
+        <span class="tooltip-level">{{ formatInt(hoveredCharacterLevel) }}</span>
       </div>
       <div
         v-for="effect in hoveredCharacterEffects"
@@ -314,7 +315,7 @@ h2 { margin: 4px 0 0; }
 }
 
 .production-zone {
-  grid-template-columns: repeat(2, calc((100% - 63px) / 10));
+  grid-template-columns: repeat(2, calc((100% - 49px) / 8));
   justify-content: center;
   margin-top: 9px;
   border: 1px solid #3d4458;
@@ -350,7 +351,7 @@ h2 { margin: 4px 0 0; }
 .roster-title { margin-top: 25px; }
 
 .roster-grid {
-  grid-template-columns: repeat(10, minmax(0, 1fr));
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   margin-top: 9px;
   border: 1px solid transparent;
   border-radius: 7px;
@@ -375,6 +376,7 @@ h2 { margin: 4px 0 0; }
 }
 
 .character-card {
+  position: relative;
   box-sizing: border-box;
   container-type: inline-size;
   width: 100%;
@@ -431,8 +433,16 @@ h2 { margin: 4px 0 0; }
 }
 
 .character-level {
-  margin-top: 2cqw;
-  font-size: max(7px, 9cqw);
+  position: absolute;
+  right: 3px;
+  bottom: 2px;
+  max-width: calc(100% - 6px);
+  overflow: hidden;
+  font-family: var(--font-number, monospace);
+  font-size: max(7px, 8cqw);
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   opacity: 0.84;
 }
 
