@@ -2,6 +2,7 @@ import type { Num } from "@/engine/math/num";
 import { ONE, ZERO, add, div, gt, log10, lte, max, min, mul, normalizeNum, pow } from "@/engine/math/num";
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals";
 import type { StratumState } from "@/engine/strata/state";
+import { getStratumDefinition } from "@/engine/strata/defs";
 import { ENTROPY_DEFAULT_TUNING_EXPONENT } from "./balance";
 import { createEntropyState, getDefaultEntropyChaosExponent } from "./state";
 
@@ -36,6 +37,10 @@ export function getEntropyChaosExponent(stratum: StratumState): Num {
 
 export function getEntropyGrowthRateMultiplier(stratum: StratumState): Num {
   return ensureEntropyState(stratum).growthRateMultiplier;
+}
+
+export function getEntropyBaseGrowthMultiplier(stratum: StratumState): Num {
+  return getStratumDefinition(stratum.stratumId)?.entropyBaseGrowthMultiplier ?? ONE;
 }
 
 export function computeEntropyGrowthRateMultiplierFromCoherence(coherencePoints: Num): Num {

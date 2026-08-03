@@ -1,5 +1,5 @@
 import type { GameState } from "@/engine/core/state";
-import { ONE, TEN, ZERO, add, div, gt, gte, log10, max, min } from "@/engine/math/num";
+import { ONE, TEN, ZERO, add, div, gt, gte, log10, max, min, mul } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import {
   addChaoticEther,
@@ -92,8 +92,14 @@ export function getStratumEntryEntropyGrowthRateMultiplier(
   state: GameState,
   targetStratumId: string,
 ): Num {
-  return computeEntropyGrowthRateMultiplierFromCoherence(
-    getStratumEntryCoherenceCost(state, targetStratumId),
+  const targetDefinition = getStratumDefinition(targetStratumId);
+  if (!targetDefinition) return ZERO;
+
+  return mul(
+    targetDefinition.entropyBaseGrowthMultiplier,
+    computeEntropyGrowthRateMultiplierFromCoherence(
+      getStratumEntryCoherenceCost(state, targetStratumId),
+    ),
   );
 }
 

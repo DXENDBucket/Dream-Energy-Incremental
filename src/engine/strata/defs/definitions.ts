@@ -30,6 +30,7 @@ export interface StratumDefinition {
   entryTransitionKind: StratumEntryTransitionKind;
   entropyFormulaId: EntropyFormulaId;
   entropyChaosExponent: Num;
+  entropyBaseGrowthMultiplier: Num;
   producedChaoticEtherTier: number;
   dreamCrystalUpgradeChaoticEtherTier: number;
 }
@@ -49,6 +50,7 @@ export const STRATUM_DEFINITIONS: readonly StratumDefinition[] = [
     entryTransitionKind: "standard-lift",
     entropyFormulaId: "none",
     entropyChaosExponent: N(2),
+    entropyBaseGrowthMultiplier: N(1),
     producedChaoticEtherTier: 0,
     dreamCrystalUpgradeChaoticEtherTier: 1,
   },
@@ -61,6 +63,7 @@ export const STRATUM_DEFINITIONS: readonly StratumDefinition[] = [
     entryTransitionKind: "standard-lift",
     entropyFormulaId: "dream-sea-first",
     entropyChaosExponent: N(2),
+    entropyBaseGrowthMultiplier: N(1),
     producedChaoticEtherTier: 1,
     dreamCrystalUpgradeChaoticEtherTier: 2,
   },
@@ -73,6 +76,7 @@ export const STRATUM_DEFINITIONS: readonly StratumDefinition[] = [
     entryTransitionKind: "standard-lift",
     entropyFormulaId: "dream-sea-second",
     entropyChaosExponent: N(3),
+    entropyBaseGrowthMultiplier: N(1),
     producedChaoticEtherTier: 2,
     dreamCrystalUpgradeChaoticEtherTier: 3,
   },
@@ -80,11 +84,12 @@ export const STRATUM_DEFINITIONS: readonly StratumDefinition[] = [
     id: dreamSeaThirdStratumId,
     depth: 3,
     labelKey: "strataOverview.dreamSeaThird",
-    contentStatus: "planned",
+    contentStatus: "available",
     visibilityRule: "previous-created",
     entryTransitionKind: "standard-lift",
     entropyFormulaId: "dream-sea-third",
-    entropyChaosExponent: N(2),
+    entropyChaosExponent: N(9),
+    entropyBaseGrowthMultiplier: N(5),
     producedChaoticEtherTier: 3,
     dreamCrystalUpgradeChaoticEtherTier: 4,
   },
@@ -97,6 +102,7 @@ export const STRATUM_DEFINITIONS: readonly StratumDefinition[] = [
     entryTransitionKind: "standard-lift",
     entropyFormulaId: "dream-sea-fourth",
     entropyChaosExponent: N(2),
+    entropyBaseGrowthMultiplier: N(1),
     producedChaoticEtherTier: 4,
     dreamCrystalUpgradeChaoticEtherTier: 5,
   },
@@ -109,6 +115,7 @@ export const STRATUM_DEFINITIONS: readonly StratumDefinition[] = [
     entryTransitionKind: "major-reset",
     entropyFormulaId: "dream-sea-fifth",
     entropyChaosExponent: N(2),
+    entropyBaseGrowthMultiplier: N(1),
     producedChaoticEtherTier: 5,
     dreamCrystalUpgradeChaoticEtherTier: 6,
   },
