@@ -236,7 +236,7 @@ export default {
     entropyTuningStatus: "进入下一层时 Entropy Tuning：{value}",
     nextDreamCrystalMultiplierStatus: "下一层梦能水晶 multiplier：×{value}",
     softcapTwoSlowdownStatus: "当前第二段压缩倍率：×{value}",
-    softcapThreeSlowdownStatus: "已购买 {count} 次｜当前第三软上限强度 ×{value}",
+    softcapTwoRepeatableSlowdownStatus: "已购买 {count} 次｜当前第二软上限强度 ×{value}",
     autobuyerSpeedStatus: "已购买 {count} 次｜当前自动器间隔 {value} 秒",
     deeperInitialDreamEnergyStatus: "已购买 {count} 次；进入下一层初始 +{value} DE",
     pointGainMultiplierStatus: "已购买 {count} 次；当前调谐点数获取 ×{value}",
@@ -293,8 +293,8 @@ export default {
         description: "解锁 Coherence Autobuyer，可按时间、本次 CP 收益或相对当前 CP 的倍数自动凝缩。",
       },
       "coherence-upgrade-9": {
-        title: "兼并释压",
-        description: "每次购买使第三个梦能软上限的强度乘以 0.9。",
+        title: "强力释压",
+        description: "每次购买使第二个梦能软上限的强度乘以 0.99。",
       },
       "coherence-upgrade-10": {
         title: "自动化超频",

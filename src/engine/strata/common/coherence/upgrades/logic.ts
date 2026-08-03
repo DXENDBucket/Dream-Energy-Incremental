@@ -14,8 +14,8 @@ import {
   COHERENCE_UPGRADE_ENTROPY_TUNING_ID,
   COHERENCE_UPGRADE_NEXT_DREAM_CRYSTAL_MULTIPLIER_ID,
   COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID,
+  COHERENCE_UPGRADE_SOFTCAP_TWO_REPEATABLE_SLOWDOWN_ID,
   COHERENCE_UPGRADE_SOFTCAP_TWO_SLOWDOWN_ID,
-  COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID,
   COHERENCE_UPGRADE_ROWS,
   type CoherenceUpgradeId,
   getCoherenceUpgradeDefinition,
@@ -155,10 +155,21 @@ export function getCoherenceNextDreamCrystalMultiplierBonus(stratum: StratumStat
 }
 
 export function getCoherenceSoftcapTwoStrengthMultiplier(stratum: StratumState): Num {
-  if (!hasCoherenceUpgrade(stratum, COHERENCE_UPGRADE_SOFTCAP_TWO_SLOWDOWN_ID)) return ONE;
+  let fixedMultiplier = ONE;
+  if (hasCoherenceUpgrade(stratum, COHERENCE_UPGRADE_SOFTCAP_TWO_SLOWDOWN_ID)) {
+    const fullSlowdown = computeEntropyGrowthRateMultiplierFromCoherence(getOwnedCoherencePoints(stratum));
+    fixedMultiplier = div(add(ONE, fullSlowdown), N(2));
+  }
 
-  const fullSlowdown = computeEntropyGrowthRateMultiplierFromCoherence(getOwnedCoherencePoints(stratum));
-  return div(add(ONE, fullSlowdown), N(2));
+  return mul(fixedMultiplier, getCoherenceSoftcapTwoRepeatableStrengthMultiplier(stratum));
+}
+
+export function getCoherenceSoftcapTwoRepeatableStrengthMultiplier(stratum: StratumState): Num {
+  const bought = getCoherenceRepeatableUpgradeBought(
+    stratum,
+    COHERENCE_UPGRADE_SOFTCAP_TWO_REPEATABLE_SLOWDOWN_ID,
+  );
+  return pow(N("0.99"), bought);
 }
 
 export function getCoherenceDeeperInitialDreamEnergyBonus(stratum: StratumState): Num {
@@ -182,14 +193,6 @@ export function getCoherencePointGainMultiplier(stratum: StratumState): Num {
     mul(upgradeMultiplier, getConceptCrystalCoherencePointGainMultiplier(stratum)),
     stratum.characterCoherencePointGainMultiplier ?? ONE,
   );
-}
-
-export function getCoherenceSoftcapThreeStrengthMultiplier(stratum: StratumState): Num {
-  const bought = getCoherenceRepeatableUpgradeBought(
-    stratum,
-    COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID,
-  );
-  return pow(N("0.9"), bought);
 }
 
 export const COHERENCE_AUTOBUYER_INTERVAL_REDUCTION_PER_LEVEL_SEC = N(0.05);

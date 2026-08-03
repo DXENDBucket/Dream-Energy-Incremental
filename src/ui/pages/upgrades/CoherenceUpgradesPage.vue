@@ -14,8 +14,8 @@ import {
   COHERENCE_UPGRADE_NEXT_DREAM_CRYSTAL_MULTIPLIER_ID,
   COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID,
   COHERENCE_UPGRADE_ROWS,
+  COHERENCE_UPGRADE_SOFTCAP_TWO_REPEATABLE_SLOWDOWN_ID,
   COHERENCE_UPGRADE_SOFTCAP_TWO_SLOWDOWN_ID,
-  COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID,
   buyCoherenceUpgrade,
   canBuyCoherenceUpgrade,
   getCoherenceBestEntryCoherenceMultiplier,
@@ -26,8 +26,8 @@ import {
   getCoherenceNextDreamCrystalMultiplierBonus,
   getCoherencePointGainMultiplier,
   getCoherenceRepeatableUpgradeBought,
+  getCoherenceSoftcapTwoRepeatableStrengthMultiplier,
   getCoherenceSoftcapTwoStrengthMultiplier,
-  getCoherenceSoftcapThreeStrengthMultiplier,
   getCoherenceUpgradeCost,
   getCoherenceUpgradeDefinition,
   hasCoherenceUpgrade,
@@ -90,10 +90,10 @@ function getUpgradeFooter(id: CoherenceUpgradeId): string {
       value: format(getCoherenceSoftcapTwoStrengthMultiplier(activeStratum.value)),
     });
   }
-  if (id === COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID) {
-    return t("coherenceUpgrades.softcapThreeSlowdownStatus", {
+  if (id === COHERENCE_UPGRADE_SOFTCAP_TWO_REPEATABLE_SLOWDOWN_ID) {
+    return t("coherenceUpgrades.softcapTwoRepeatableSlowdownStatus", {
       count: formatInt(getCoherenceRepeatableUpgradeBought(activeStratum.value, id)),
-      value: format(getCoherenceSoftcapThreeStrengthMultiplier(activeStratum.value)),
+      value: format(getCoherenceSoftcapTwoRepeatableStrengthMultiplier(activeStratum.value)),
     });
   }
   if (id === COHERENCE_UPGRADE_AUTOBUYER_SPEED_ID) {

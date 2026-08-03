@@ -26,7 +26,6 @@ import {
     getDreamCrystalSoftcapTwoStrengthMultiplier,
 } from "@/engine/strata/common/dream-crystals/upgrades";
 import {
-    getCoherenceSoftcapThreeStrengthMultiplier,
     getCoherenceSoftcapTwoStrengthMultiplier,
 } from "@/engine/strata/common/coherence/upgrades";
 import { getConceptCrystalAssimilationStrengthMultiplier } from "@/engine/strata/common/concept-crystals";
@@ -569,12 +568,9 @@ export function getDreamEnergySoftcapThreeStrengthGrowth(stratum?: StratumState)
     if (!stratum) return DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH;
     return max(
         ONE,
-        mul(
-            applySoftcapStrengthMultiplier(
-                DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH,
-                getConceptCrystalAssimilationStrengthMultiplier(stratum),
-            ),
-            getCoherenceSoftcapThreeStrengthMultiplier(stratum),
+        applySoftcapStrengthMultiplier(
+            DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH,
+            getConceptCrystalAssimilationStrengthMultiplier(stratum),
         ),
     );
 }
