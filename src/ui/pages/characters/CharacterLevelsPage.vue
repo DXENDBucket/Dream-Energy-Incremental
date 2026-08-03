@@ -12,8 +12,10 @@ import {
   getCharacterLevelCost,
   getCharacterLevelCostDefinition,
   getCharacterLevelResourceAmount,
+  getMaxAffordableCharacterLevels,
   isCharacterOwned,
   upgradeCharacterLevel,
+  upgradeCharacterLevelMax,
 } from "@/engine/characters";
 
 const props = defineProps<{ game: { state: GameState } }>();
@@ -33,6 +35,7 @@ const characterRows = computed(() => CHARACTER_DEFINITIONS
         getCharacterLevelResourceAmount(props.game.state, costDefinition.resource),
       ),
       canUpgrade: canUpgradeCharacterLevel(props.game.state, character.id),
+      maxLevelGainText: formatInt(getMaxAffordableCharacterLevels(props.game.state, character.id)),
       effects: character.affixIds.map(affixId => {
         const affix = getCharacterAffixDefinition(affixId);
         const value = getCharacterAffixValue(affixId, level);
@@ -49,6 +52,10 @@ const characterRows = computed(() => CHARACTER_DEFINITIONS
 
 function onUpgrade(characterId: string): void {
   upgradeCharacterLevel(props.game.state, characterId);
+}
+
+function onUpgradeMax(characterId: string): void {
+  upgradeCharacterLevelMax(props.game.state, characterId);
 }
 </script>
 
@@ -82,12 +89,20 @@ function onUpgrade(characterId: string): void {
             amount: row.resourceAmountText,
           }) }}
         </div>
-        <button
-          :disabled="!row.canUpgrade"
-          @click="onUpgrade(row.character.id)"
-        >
-          {{ t("characterLevels.upgrade", { cost: row.costText, resource: row.resourceName }) }}
-        </button>
+        <div class="upgrade-buttons">
+          <button
+            :disabled="!row.canUpgrade"
+            @click="onUpgrade(row.character.id)"
+          >
+            {{ t("characterLevels.upgrade", { cost: row.costText, resource: row.resourceName }) }}
+          </button>
+          <button
+            :disabled="!row.canUpgrade"
+            @click="onUpgradeMax(row.character.id)"
+          >
+            {{ t("characterLevels.upgradeMax", { count: row.maxLevelGainText }) }}
+          </button>
+        </div>
       </div>
     </article>
   </section>
@@ -95,7 +110,8 @@ function onUpgrade(characterId: string): void {
 
 <style scoped>
 .levels-page {
-  width: min(1080px, 97%);
+  box-sizing: border-box;
+  width: min(1240px, 100%);
   margin: 0 auto;
   display: grid;
   gap: 14px;
@@ -103,8 +119,9 @@ function onUpgrade(characterId: string): void {
 }
 
 .level-card {
+  box-sizing: border-box;
   display: grid;
-  grid-template-columns: minmax(180px, 0.8fr) minmax(230px, 1.2fr) minmax(240px, 1fr);
+  grid-template-columns: minmax(140px, 0.65fr) minmax(180px, 0.9fr) minmax(300px, 1.2fr);
   align-items: center;
   gap: 18px;
   padding: 16px 18px;
@@ -145,17 +162,26 @@ h3 { margin: 0 0 4px; }
 .resource-owned { color: #aeb8d3; font-size: 0.78rem; text-align: center; }
 button {
   min-height: 48px;
+  padding: 0 14px;
   border: 1px solid rgba(255,255,255,0.5);
   border-radius: 5px;
   color: #10131a;
   background: #eef2ff;
   font: inherit;
   font-weight: 900;
+  white-space: nowrap;
   cursor: pointer;
 }
 button:disabled { color: #858c9d; background: #202631; cursor: not-allowed; }
 
-@media (max-width: 780px) {
+.upgrade-buttons {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 7px;
+}
+
+@media (max-width: 850px) {
   .level-card { grid-template-columns: 1fr; }
+  .upgrade-area { width: min(100%, 460px); justify-self: center; }
 }
 </style>

@@ -1,5 +1,22 @@
 import type { GameState } from "@/engine/core/state";
-import { N, ONE, ZERO, add, gte, mul, pow, sub, type Num } from "@/engine/math/num";
+import {
+  N,
+  ONE,
+  TEN,
+  ZERO,
+  add,
+  div,
+  floor,
+  gt,
+  gte,
+  logn,
+  lte,
+  max,
+  mul,
+  pow,
+  sub,
+  type Num,
+} from "@/engine/math/num";
 import { getChaoticEther, setChaoticEther } from "@/engine/strata/common/chaotic-ether";
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
 import { getDreamEnergy, spendDreamEnergy } from "@/engine/strata/common/dream-energy";
@@ -67,6 +84,14 @@ export function getCharacterLevelResourceAmount(
   return getCoherencePoints(reality);
 }
 
+function getSpendableCharacterLevelResourceAmount(
+  state: GameState,
+  resource: CharacterLevelResource,
+): Num {
+  const amount = getCharacterLevelResourceAmount(state, resource);
+  return resource === "dream-energy" ? max(ZERO, sub(amount, TEN)) : amount;
+}
+
 export function canUpgradeCharacterLevel(state: GameState, characterId: string): boolean {
   const definition = getCharacterLevelCostDefinition(characterId);
   if (
@@ -74,9 +99,47 @@ export function canUpgradeCharacterLevel(state: GameState, characterId: string):
     || !ensureCharacterSystemState(state).ownedCharacterIds.includes(characterId)
   ) return false;
   return gte(
-    getCharacterLevelResourceAmount(state, definition.resource),
+    getSpendableCharacterLevelResourceAmount(state, definition.resource),
     getCharacterLevelCost(state, characterId),
   );
+}
+
+export function getCharacterLevelBulkCost(
+  state: GameState,
+  characterId: string,
+  levelCount: Num,
+): Num {
+  const definition = getCharacterLevelCostDefinition(characterId);
+  if (!definition || lte(levelCount, ZERO)) return ZERO;
+  const firstCost = getCharacterLevelCost(state, characterId);
+  return div(
+    mul(firstCost, sub(pow(definition.costScale, floor(levelCount)), ONE)),
+    sub(definition.costScale, ONE),
+  );
+}
+
+export function getMaxAffordableCharacterLevels(state: GameState, characterId: string): Num {
+  const definition = getCharacterLevelCostDefinition(characterId);
+  if (!definition || !ensureCharacterSystemState(state).ownedCharacterIds.includes(characterId)) {
+    return ZERO;
+  }
+
+  const available = getSpendableCharacterLevelResourceAmount(state, definition.resource);
+  const firstCost = getCharacterLevelCost(state, characterId);
+  if (!gte(available, firstCost)) return ZERO;
+
+  const geometricTarget = add(
+    ONE,
+    div(mul(available, sub(definition.costScale, ONE)), firstCost),
+  );
+  let count = max(ZERO, floor(logn(geometricTarget, definition.costScale)));
+
+  if (gt(getCharacterLevelBulkCost(state, characterId, count), available)) {
+    count = max(ZERO, sub(count, ONE));
+  } else if (lte(getCharacterLevelBulkCost(state, characterId, add(count, ONE)), available)) {
+    count = add(count, ONE);
+  }
+  return floor(count);
 }
 
 function spendCharacterLevelResource(
@@ -102,6 +165,22 @@ export function upgradeCharacterLevel(state: GameState, characterId: string): bo
   ensureCharacterSystemState(state).levels[characterId] = add(
     getCharacterLevel(state, characterId),
     ONE,
+  );
+  syncCharacterProductionPowers(state);
+  return true;
+}
+
+export function upgradeCharacterLevelMax(state: GameState, characterId: string): boolean {
+  const definition = getCharacterLevelCostDefinition(characterId);
+  if (!definition) return false;
+  const levelCount = getMaxAffordableCharacterLevels(state, characterId);
+  if (lte(levelCount, ZERO)) return false;
+
+  const totalCost = getCharacterLevelBulkCost(state, characterId, levelCount);
+  spendCharacterLevelResource(state, definition.resource, totalCost);
+  ensureCharacterSystemState(state).levels[characterId] = add(
+    getCharacterLevel(state, characterId),
+    levelCount,
   );
   syncCharacterProductionPowers(state);
   return true;

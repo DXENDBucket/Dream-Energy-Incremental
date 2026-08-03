@@ -320,6 +320,7 @@ export default {
     title: "Character Levels",
     available: "Available: {amount} {resource}",
     upgrade: "Upgrade — {cost} {resource}",
+    upgradeMax: "Upgrade Max (+{count})",
     resources: {
       "dream-energy": "Reality DE",
       "chaotic-ether-1": "Reality CE I",
