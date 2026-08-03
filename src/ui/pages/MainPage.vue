@@ -11,6 +11,8 @@ import DreamCrystalUpgradesPage from "./upgrades/DreamCrystalUpgradesPage.vue";
 import CoherenceUpgradesPage from "./upgrades/CoherenceUpgradesPage.vue";
 import DreamCrystalAutobuyersPage from "./autobuyers/DreamCrystalAutobuyersPage.vue";
 import DreamEnergyMilestonesPage from "./milestones/DreamEnergyMilestones.vue";
+import RealityMilestonesPage from "./milestones/RealityMilestonesPage.vue";
+import CharacterProductionPage from "./characters/CharacterProductionPage.vue";
 import StratumSpeedPage from "./debug/StratumSpeedPage.vue";
 import DebugProgressionPage from "./debug/DebugProgressionPage.vue";
 import {
@@ -47,7 +49,8 @@ import {
   isDreamCrystalRefineAutobuyerUnlocked,
 } from "@/engine/strata/common/dream-crystals/upgrades";
 import { isCoherenceAutobuyerUnlocked } from "@/engine/strata/common/coherence/autobuyer";
-import { STRATUM_DEFINITIONS } from "@/engine/strata/defs";
+import { STRATUM_DEFINITIONS, realityStratumId } from "@/engine/strata/defs";
+import { isCharacterProductionUnlocked } from "@/engine/reality/milestones";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
 import LiftPage from "./strata/LiftPage.vue";
 import StrataOverviewPage from "./strata/StrataOverviewPage.vue";
@@ -68,6 +71,7 @@ const availablePrimaryTabs = computed(() => {
   return PRIMARY_TABS
     .filter(tab => {
       if (tab.id === "upgrades") return isUpgradesUnlocked(activeStratum.value);
+      if (tab.id === "characters") return isCharacterProductionUnlocked(props.game.state);
       if (tab.id === "autobuyers") {
         return (
           isDreamCrystalAutobuyerUnlocked(activeStratum.value) ||
@@ -84,6 +88,16 @@ const availablePrimaryTabs = computed(() => {
           children: tab.children.filter(child => {
             return child.id !== "concept-crystals" || isConceptCrystalsUnlocked(activeStratum.value);
           }),
+        };
+      }
+
+      if (tab.id === "milestones") {
+        return {
+          ...tab,
+          children: tab.children.filter(child =>
+            child.id !== "reality-milestones"
+            || props.game.state.activeStratumId === realityStratumId,
+          ),
         };
       }
 
@@ -556,6 +570,14 @@ const secondaryTooltipStyle = computed(() => ({
 
         <div v-else-if="selectedSecondary === 'de-milestones'" class="page-card">
           <DreamEnergyMilestonesPage :game="props.game" />
+        </div>
+
+        <div v-else-if="selectedSecondary === 'reality-milestones'" class="page-card">
+          <RealityMilestonesPage :game="props.game" />
+        </div>
+
+        <div v-else-if="selectedSecondary === 'character-production'" class="page-card">
+          <CharacterProductionPage :game="props.game" />
         </div>
 
         <div v-else-if="selectedSecondary === 'stratum-speed'" class="dream-crystals-page">

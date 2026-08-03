@@ -127,7 +127,7 @@ export function getDreamCrystalMultiplier(
     multiplier = mul(multiplier, getDreamCrystalBoughtPowerMultiplier(stratum, tier))
     multiplier = mul(multiplier, stratum.coherenceDreamCrystalMultiplier ?? ONE)
     multiplier = mul(multiplier, stratum.coherenceProgressionDreamCrystalMultiplier ?? ONE)
-    return multiplier;
+    return pow(multiplier, stratum.dreamCrystalMultiplierPower ?? ONE);
 }
 
 export function getDreamCrystalIncrement(

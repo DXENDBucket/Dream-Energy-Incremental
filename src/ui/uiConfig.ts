@@ -91,6 +91,16 @@ export const PRIMARY_TABS = [
     textColor: "#dce6ff",
     children: [
       { id: "de-milestones", icon: "⚐", labelKey: "navigation.secondary.dreamEnergyMilestones" },
+      { id: "reality-milestones", icon: "R", labelKey: "navigation.secondary.realityMilestones" },
+    ],
+  },
+  {
+    id: "characters",
+    labelKey: "navigation.primary.characters",
+    borderColor: "#f0f0f0",
+    textColor: "#ffffff",
+    children: [
+      { id: "character-production", icon: "α", labelKey: "navigation.secondary.characterProduction" },
     ],
   },
   {

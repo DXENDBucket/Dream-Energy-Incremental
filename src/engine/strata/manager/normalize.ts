@@ -26,6 +26,18 @@ import {
 import { createStratumState } from "@/engine/strata/state";
 import type { StratumState } from "@/engine/strata/state";
 import { createMilestonesState } from "@/engine/strata/common/milestones";
+import {
+  grantStarterCharacters,
+  normalizeCharacterSystemState,
+  syncCharacterProductionPowers,
+} from "@/engine/characters";
+import {
+  ensureRealityMilestonesState,
+  hasRealityMilestone,
+  markRealityLiftMilestoneClaimed,
+  REALITY_MILESTONE_CHARACTER_PRODUCTION_ID,
+  REALITY_MILESTONE_LIFT_UNLOCK_ID,
+} from "@/engine/reality/milestones";
 
 function normalizeDreamCrystalsState(stratum: StratumState): void {
   const defaults = createDreamCrystalsState();
@@ -49,6 +61,18 @@ export function normalizeGameState(state: GameState): GameState {
   state.simTimeSec = Number.isFinite(state.simTimeSec) ? state.simTimeSec : 0;
 
   state.strata[realityStratumId] ??= createStratumState();
+  ensureRealityMilestonesState(state);
+  normalizeCharacterSystemState(state);
+
+  if (state.lift.isLiftUnlocked) {
+    markRealityLiftMilestoneClaimed(state);
+  } else if (hasRealityMilestone(state, REALITY_MILESTONE_LIFT_UNLOCK_ID)) {
+    state.lift.isLiftUnlocked = true;
+  }
+
+  if (hasRealityMilestone(state, REALITY_MILESTONE_CHARACTER_PRODUCTION_ID)) {
+    grantStarterCharacters(state);
+  }
 
   for (const [id, stratum] of Object.entries(state.strata)) {
     stratum.stratumId = id;
@@ -99,6 +123,7 @@ export function normalizeGameState(state: GameState): GameState {
   }
 
   syncCoherenceProgressionDreamCrystalMultipliers(state);
+  syncCharacterProductionPowers(state);
 
   return state;
 }

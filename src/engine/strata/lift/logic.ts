@@ -36,6 +36,7 @@ import {
 import { getActiveStratum, getStratum } from "@/engine/strata/manager/selectors";
 import { createStratumState, type StratumState } from "@/engine/strata/state";
 import { LIFT_UNLOCK_REQUIREMENT } from "./balance";
+import { markRealityLiftMilestoneClaimed } from "@/engine/reality/milestones";
 
 export type StratumTravelDirection = "deeper" | "shallower";
 
@@ -65,6 +66,7 @@ export function unlockLift(state: GameState): void {
 
   state.lift.isLiftUnlocked = true;
   state.lift.currentLiftPosition = state.activeStratumId;
+  markRealityLiftMilestoneClaimed(state);
 }
 
 export function getStratumTravelDirection(
