@@ -287,13 +287,15 @@ export default {
   },
   characters: {
     currentStratum: "当前生产层",
-    productionPower: "最终 DC 倍率乘方",
+    characterBonuses: "角色加成",
+    dreamCrystalMultiplier: "DC 倍率",
+    dreamCrystalMultiplierPower: "DC 倍率乘方",
     productionZone: "生产区",
     sharedRoster: "共享角色栏",
     emptySlot: "空",
     alpha: {
       name: "阿尔法",
-      effect: "DC 倍率 ^1.005",
+      effect: "DC 倍率 ×10，随后 ^1.01",
     },
   },
   milestones: {

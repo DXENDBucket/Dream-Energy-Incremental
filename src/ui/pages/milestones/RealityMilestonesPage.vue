@@ -47,7 +47,10 @@ function onClaim(id: RealityMilestoneId): void {
       <div class="milestone-copy">
         <div class="milestone-title-row">
           <h3>{{ t(milestone.titleKey) }}</h3>
-          <span class="status">
+          <span
+            class="status"
+            :class="{ claimed: milestone.claimed, reachable: milestone.canClaim }"
+          >
             {{ milestone.claimed
               ? t("realityMilestones.claimed")
               : milestone.canClaim
@@ -62,6 +65,7 @@ function onClaim(id: RealityMilestoneId): void {
 
       <button
         class="claim-button"
+        :class="{ claimed: milestone.claimed }"
         :disabled="milestone.claimed || !milestone.canClaim"
         @click="onClaim(milestone.id)"
       >
@@ -126,6 +130,18 @@ h3 {
   font-weight: 800;
 }
 
+.status.claimed {
+  border-color: rgba(122, 231, 159, 0.8);
+  color: #baffcf;
+  background: rgba(28, 79, 50, 0.74);
+}
+
+.status.reachable:not(.claimed) {
+  border-color: rgba(255, 192, 94, 0.85);
+  color: #ffe3a8;
+  background: rgba(94, 56, 18, 0.74);
+}
+
 .reward,
 .detail,
 .requirement {
@@ -154,6 +170,13 @@ h3 {
   color: #858a9a;
   background: #20232b;
   cursor: not-allowed;
+}
+
+.claim-button.claimed,
+.claim-button.claimed:disabled {
+  border-color: #5b8f70;
+  color: #baffcf;
+  background: linear-gradient(180deg, #294634 0%, #1b2f22 100%);
 }
 
 @media (max-width: 700px) {

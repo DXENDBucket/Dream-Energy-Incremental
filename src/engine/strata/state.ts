@@ -50,6 +50,7 @@ export interface StratumState {
   coherenceProductionLoss: Num;
   coherenceDreamCrystalMultiplier: Num;
   coherenceProgressionDreamCrystalMultiplier: Num;
+  characterDreamCrystalMultiplier: Num;
   dreamCrystalMultiplierPower: Num;
   coherenceAutobuyer: CoherenceAutobuyerState;
   chaoticEther: ChaoticEtherAmounts;
@@ -86,6 +87,7 @@ export function createStratumState(options: CreateStratumStateOptions = {}): Str
     coherenceProductionLoss: COHERENCE_DEFAULT_PRODUCTION_LOSS,
     coherenceDreamCrystalMultiplier: ONE,
     coherenceProgressionDreamCrystalMultiplier: ONE,
+    characterDreamCrystalMultiplier: ONE,
     dreamCrystalMultiplierPower: ONE,
     coherenceAutobuyer: createCoherenceAutobuyerState(),
     chaoticEther: { "1": ZERO },

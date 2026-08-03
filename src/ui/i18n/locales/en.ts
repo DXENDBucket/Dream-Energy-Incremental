@@ -287,13 +287,15 @@ export default {
   },
   characters: {
     currentStratum: "Current production stratum",
-    productionPower: "Final DC multiplier power",
+    characterBonuses: "Character Bonuses",
+    dreamCrystalMultiplier: "DC multiplier",
+    dreamCrystalMultiplierPower: "DC multiplier power",
     productionZone: "Production Zone",
     sharedRoster: "Shared Character Roster",
     emptySlot: "Empty",
     alpha: {
       name: "Alpha",
-      effect: "DC multiplier ^1.005",
+      effect: "DC multiplier ×10, then ^1.01",
     },
   },
   milestones: {

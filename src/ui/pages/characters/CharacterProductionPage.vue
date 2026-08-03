@@ -1,27 +1,32 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { GameState } from "@/engine/core/state";
+import { format } from "@/engine/math/format";
+import { add, ONE } from "@/engine/math/num";
 import {
-  CHARACTER_ROSTER_SLOT_COUNT,
   assignCharacterToProduction,
   getCharacterDefinition,
+  getCharacterDreamCrystalMultiplier,
   getCharacterDreamCrystalMultiplierPower,
   getCharacterProductionSlots,
-  getUnassignedCharacterIds,
-  unassignCharacterFromProduction,
+  getCharacterRosterSlots,
+  moveCharacterToRosterSlot,
+  normalizeCharacterSystemState,
+  syncCharacterProductionPowers,
 } from "@/engine/characters";
 import { getStratumDefinition } from "@/engine/strata/defs";
 
 interface DraggedCharacter {
   characterId: string;
-  sourceStratumId?: string;
-  sourceSlotIndex?: number;
 }
 
 const props = defineProps<{ game: { state: GameState } }>();
 const { t } = useI18n();
 const draggedCharacter = ref<DraggedCharacter | null>(null);
+const hoveredCharacterId = ref<string | null>(null);
+const tooltipX = ref(0);
+const tooltipY = ref(0);
 
 const activeStratumId = computed(() => props.game.state.activeStratumId);
 const activeStratumName = computed(() => {
@@ -32,19 +37,54 @@ const productionSlots = computed(() =>
   getCharacterProductionSlots(props.game.state, activeStratumId.value),
 );
 const rosterSlots = computed(() => {
-  const unassigned = getUnassignedCharacterIds(props.game.state);
-  return Array.from({ length: CHARACTER_ROSTER_SLOT_COUNT }, (_, index) => unassigned[index] ?? null);
+  return getCharacterRosterSlots(props.game.state);
 });
-const powerText = computed(() =>
+const bonusMultiplierText = computed(() =>
+  format(getCharacterDreamCrystalMultiplier(props.game.state, activeStratumId.value)),
+);
+const bonusPowerText = computed(() =>
   getCharacterDreamCrystalMultiplierPower(props.game.state, activeStratumId.value).toFixed(3),
 );
+const hoveredCharacter = computed(() =>
+  hoveredCharacterId.value ? getCharacterDefinition(hoveredCharacterId.value) : undefined,
+);
+const hoveredCharacterMultiplierText = computed(() =>
+  hoveredCharacter.value ? format(hoveredCharacter.value.dreamCrystalMultiplier) : "1",
+);
+const hoveredCharacterPowerText = computed(() =>
+  hoveredCharacter.value
+    ? add(ONE, hoveredCharacter.value.dreamCrystalMultiplierPowerBonus).toFixed(3)
+    : "1.000",
+);
+const tooltipStyle = computed(() => ({
+  left: `${tooltipX.value}px`,
+  top: `${tooltipY.value}px`,
+}));
 
-function beginDrag(characterId: string, event: DragEvent, sourceSlotIndex?: number): void {
-  draggedCharacter.value = {
-    characterId,
-    sourceStratumId: sourceSlotIndex === undefined ? undefined : activeStratumId.value,
-    sourceSlotIndex,
-  };
+onMounted(() => {
+  normalizeCharacterSystemState(props.game.state);
+  syncCharacterProductionPowers(props.game.state);
+});
+
+function updateTooltipPosition(event: MouseEvent): void {
+  const tooltipWidth = 280;
+  const tooltipHeight = 138;
+  tooltipX.value = Math.max(8, Math.min(event.clientX + 16, window.innerWidth - tooltipWidth - 8));
+  tooltipY.value = Math.max(8, Math.min(event.clientY + 16, window.innerHeight - tooltipHeight - 8));
+}
+
+function showTooltip(characterId: string, event: MouseEvent): void {
+  hoveredCharacterId.value = characterId;
+  updateTooltipPosition(event);
+}
+
+function hideTooltip(): void {
+  hoveredCharacterId.value = null;
+}
+
+function beginDrag(characterId: string, event: DragEvent): void {
+  hideTooltip();
+  draggedCharacter.value = { characterId };
   event.dataTransfer?.setData("text/plain", characterId);
   if (event.dataTransfer) event.dataTransfer.effectAllowed = "move";
 }
@@ -65,15 +105,10 @@ function dropOnProduction(slotIndex: number): void {
   draggedCharacter.value = null;
 }
 
-function dropOnRoster(): void {
+function dropOnRoster(slotIndex: number): void {
   const dragged = draggedCharacter.value;
-  if (dragged?.sourceStratumId !== undefined && dragged.sourceSlotIndex !== undefined) {
-    unassignCharacterFromProduction(
-      props.game.state,
-      dragged.sourceStratumId,
-      dragged.sourceSlotIndex,
-    );
-  }
+  if (!dragged) return;
+  moveCharacterToRosterSlot(props.game.state, slotIndex, dragged.characterId);
   draggedCharacter.value = null;
 }
 </script>
@@ -85,83 +120,125 @@ function dropOnRoster(): void {
         <div class="eyebrow">{{ t("characters.currentStratum") }}</div>
         <h2>{{ activeStratumName }}</h2>
       </div>
-      <div class="power-readout">
-        <span>{{ t("characters.productionPower") }}</span>
-        <strong>^{{ powerText }}</strong>
-      </div>
     </header>
 
-    <div class="zone-title">{{ t("characters.productionZone") }}</div>
-    <div class="production-zone">
-      <div
-        v-for="(characterId, index) in productionSlots"
-        :key="index"
-        class="production-slot"
-        :class="{ occupied: characterId !== null }"
-        @dragover.prevent
-        @drop.prevent="dropOnProduction(index)"
-      >
-        <div
-          v-if="characterId && getCharacterDefinition(characterId)"
-          class="character-card alpha-card production-card"
-          draggable="true"
-          @dragstart="beginDrag(characterId, $event, index)"
-          @dragend="endDrag"
-        >
-          <div class="character-symbol">{{ getCharacterDefinition(characterId)?.symbol }}</div>
-          <div class="character-name">{{ t(getCharacterDefinition(characterId)!.nameKey) }}</div>
-          <div class="character-effect">{{ t("characters.alpha.effect") }}</div>
+    <div class="character-layout">
+      <div class="character-storage">
+        <div class="zone-title">{{ t("characters.productionZone") }}</div>
+        <div class="production-zone">
+          <div
+            v-for="(characterId, index) in productionSlots"
+            :key="index"
+            class="production-slot"
+            :class="{ occupied: characterId !== null }"
+            @dragover.prevent
+            @drop.prevent="dropOnProduction(index)"
+          >
+            <div
+              v-if="characterId && getCharacterDefinition(characterId)"
+              class="character-card alpha-card"
+              draggable="true"
+              @dragstart="beginDrag(characterId, $event)"
+              @dragend="endDrag"
+              @mouseenter="showTooltip(characterId, $event)"
+              @mousemove="updateTooltipPosition"
+              @mouseleave="hideTooltip"
+            >
+              <div class="character-symbol">{{ getCharacterDefinition(characterId)?.symbol }}</div>
+              <div class="character-name">{{ t(getCharacterDefinition(characterId)!.nameKey) }}</div>
+            </div>
+            <span v-else class="empty-label">{{ t("characters.emptySlot") }}</span>
+          </div>
         </div>
-        <span v-else class="empty-label">{{ t("characters.emptySlot") }}</span>
-      </div>
-    </div>
 
-    <div class="zone-title roster-title">{{ t("characters.sharedRoster") }}</div>
-    <div
-      class="roster-grid"
-      @dragover.prevent
-      @drop.prevent="dropOnRoster"
-    >
-      <div
-        v-for="(characterId, index) in rosterSlots"
-        :key="index"
-        class="roster-slot"
-        :class="{ occupied: characterId !== null }"
-      >
-        <div
-          v-if="characterId && getCharacterDefinition(characterId)"
-          class="character-card alpha-card"
-          draggable="true"
-          @dragstart="beginDrag(characterId, $event)"
-          @dragend="endDrag"
-        >
-          <div class="character-symbol">{{ getCharacterDefinition(characterId)?.symbol }}</div>
-          <div class="character-name">{{ t(getCharacterDefinition(characterId)!.nameKey) }}</div>
-          <div class="character-effect">{{ t("characters.alpha.effect") }}</div>
+        <div class="zone-title roster-title">{{ t("characters.sharedRoster") }}</div>
+        <div class="roster-grid">
+          <div
+            v-for="(characterId, index) in rosterSlots"
+            :key="index"
+            class="roster-slot"
+            :class="{ occupied: characterId !== null }"
+            @dragover.prevent
+            @drop.stop.prevent="dropOnRoster(index)"
+          >
+            <div
+              v-if="characterId && getCharacterDefinition(characterId)"
+              class="character-card alpha-card"
+              draggable="true"
+              @dragstart="beginDrag(characterId, $event)"
+              @dragend="endDrag"
+              @mouseenter="showTooltip(characterId, $event)"
+              @mousemove="updateTooltipPosition"
+              @mouseleave="hideTooltip"
+            >
+              <div class="character-symbol">{{ getCharacterDefinition(characterId)?.symbol }}</div>
+              <div class="character-name">{{ t(getCharacterDefinition(characterId)!.nameKey) }}</div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <aside class="bonus-panel">
+        <div class="bonus-heading">{{ t("characters.characterBonuses") }}</div>
+        <div class="bonus-row">
+          <span>{{ t("characters.dreamCrystalMultiplier") }}</span>
+          <strong>×{{ bonusMultiplierText }}</strong>
+        </div>
+        <div class="bonus-row">
+          <span>{{ t("characters.dreamCrystalMultiplierPower") }}</span>
+          <strong>^{{ bonusPowerText }}</strong>
+        </div>
+      </aside>
     </div>
   </section>
+
+  <Teleport to="body">
+    <div
+      v-if="hoveredCharacter"
+      class="character-tooltip"
+      :style="tooltipStyle"
+    >
+      <div class="tooltip-heading">
+        <span class="tooltip-symbol">{{ hoveredCharacter.symbol }}</span>
+        <strong>{{ t(hoveredCharacter.nameKey) }}</strong>
+      </div>
+      <div class="tooltip-ability">
+        <span>{{ t("characters.dreamCrystalMultiplier") }}</span>
+        <b>×{{ hoveredCharacterMultiplierText }}</b>
+      </div>
+      <div class="tooltip-ability">
+        <span>{{ t("characters.dreamCrystalMultiplierPower") }}</span>
+        <b>^{{ hoveredCharacterPowerText }}</b>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>
 .characters-page {
-  width: min(1040px, 96%);
+  box-sizing: border-box;
+  width: min(1280px, 99%);
   margin: 0 auto;
+  padding: 0 8px;
   color: #e9ecff;
 }
 
 .characters-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 20px;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
+
+.character-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  align-items: start;
+  gap: 18px;
+}
+
+.character-storage { min-width: 0; }
 
 .eyebrow,
 .zone-title,
-.power-readout span {
+.bonus-heading {
   color: #9fa9c6;
   font-size: 0.78rem;
   font-weight: 800;
@@ -171,25 +248,41 @@ function dropOnRoster(): void {
 
 h2 { margin: 4px 0 0; }
 
-.power-readout {
+.bonus-panel {
   display: grid;
-  justify-items: end;
-  gap: 3px;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #3d4458;
+  border-radius: 8px;
+  background: linear-gradient(145deg, rgba(20, 25, 38, 0.98), rgba(9, 12, 19, 0.98));
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
 }
 
-.power-readout strong {
+.bonus-heading {
+  margin-bottom: 4px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #353c4e;
+}
+
+.bonus-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 24px;
+  color: #aeb8d3;
+  font-size: 0.78rem;
+}
+
+.bonus-row strong {
   color: #fff;
   font-family: var(--font-number, monospace);
-  font-size: 1.45rem;
+  font-size: 1rem;
 }
 
 .production-zone {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(116px, 148px));
+  grid-template-columns: repeat(5, calc((100% - 63px) / 10));
   justify-content: center;
-  gap: 12px;
   margin-top: 9px;
-  padding: 20px;
   border: 1px solid #3d4458;
   border-radius: 8px;
   background: radial-gradient(circle at 50% 10%, rgba(255,255,255,0.06), transparent 45%), #10141f;
@@ -223,13 +316,20 @@ h2 { margin: 4px 0 0; }
 .roster-title { margin-top: 25px; }
 
 .roster-grid {
-  display: grid;
-  grid-template-columns: repeat(10, minmax(66px, 1fr));
-  gap: 7px;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
   margin-top: 9px;
-  padding: 10px;
+  border: 1px solid transparent;
   border-radius: 7px;
   background: rgba(8, 11, 18, 0.62);
+}
+
+.production-zone,
+.roster-grid {
+  box-sizing: border-box;
+  width: 100%;
+  display: grid;
+  gap: 7px;
+  padding: 10px;
 }
 
 .roster-slot {
@@ -242,6 +342,7 @@ h2 { margin: 4px 0 0; }
 
 .character-card {
   box-sizing: border-box;
+  container-type: inline-size;
   width: 100%;
   height: 100%;
   display: flex;
@@ -266,35 +367,60 @@ h2 { margin: 4px 0 0; }
 
 .character-symbol {
   font-family: Georgia, serif;
-  font-size: clamp(1.5rem, 3vw, 2.6rem);
+  font-size: max(20px, 45cqw);
   line-height: 1;
   text-shadow: 0 0 8px #fff;
 }
 
 .character-name {
-  margin-top: 5px;
-  font-size: 0.72rem;
+  margin-top: 5cqw;
+  font-size: max(8px, 12cqw);
   font-weight: 900;
 }
 
-.character-effect {
-  width: 100%;
-  margin-top: auto;
-  padding: 3px 2px;
-  color: #111;
-  background: rgba(255,255,255,0.9);
-  font-size: clamp(0.48rem, 0.8vw, 0.65rem);
-  font-weight: 800;
-  text-align: center;
-  white-space: nowrap;
+.character-tooltip {
+  position: fixed;
+  z-index: 10000;
+  box-sizing: border-box;
+  width: 280px;
+  padding: 12px 14px;
+  pointer-events: none;
+  border: 1px solid #f2f2f2;
+  border-radius: 6px;
+  color: #f7f7f7;
+  background: rgba(7, 8, 11, 0.97);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.48), inset 0 0 18px rgba(255,255,255,0.06);
 }
 
-.production-card .character-effect { font-size: 0.62rem; }
+.tooltip-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 9px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #3f424b;
+}
 
-@media (max-width: 760px) {
-  .production-zone { grid-template-columns: repeat(5, minmax(54px, 1fr)); padding: 10px; gap: 7px; }
-  .roster-grid { grid-template-columns: repeat(5, minmax(54px, 1fr)); }
-  .character-name { display: none; }
-  .character-effect { white-space: normal; }
+.tooltip-symbol {
+  font-family: Georgia, serif;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.tooltip-ability {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 3px 0;
+  color: #bfc4d1;
+  font-size: 0.82rem;
+}
+
+.tooltip-ability b { color: #fff; }
+
+@media (max-width: 720px) {
+  .character-layout { grid-template-columns: 1fr; }
+  .production-zone { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .roster-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 </style>

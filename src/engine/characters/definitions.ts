@@ -9,6 +9,7 @@ export interface CharacterDefinition {
   symbol: string;
   nameKey: string;
   theme: "monochrome";
+  dreamCrystalMultiplier: Num;
   dreamCrystalMultiplierPowerBonus: Num;
 }
 
@@ -18,7 +19,8 @@ export const CHARACTER_DEFINITIONS: readonly CharacterDefinition[] = [
     symbol: "α",
     nameKey: "characters.alpha.name",
     theme: "monochrome",
-    dreamCrystalMultiplierPowerBonus: N("0.005"),
+    dreamCrystalMultiplier: N(10),
+    dreamCrystalMultiplierPowerBonus: N("0.01"),
   },
 ];
 
