@@ -101,6 +101,8 @@ export const PRIMARY_TABS = [
     textColor: "#ffffff",
     children: [
       { id: "character-production", icon: "α", labelKey: "navigation.secondary.characterProduction" },
+      { id: "character-unlocks", icon: "+", labelKey: "navigation.secondary.characterUnlocks" },
+      { id: "character-levels", icon: "↑", labelKey: "navigation.secondary.characterLevels" },
     ],
   },
   {

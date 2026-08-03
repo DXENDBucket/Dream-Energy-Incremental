@@ -176,7 +176,10 @@ export function getCoherencePointGainMultiplier(stratum: StratumState): Num {
   );
 
   const upgradeMultiplier = bought.lte(ZERO) ? ONE : pow(N(2), bought);
-  return mul(upgradeMultiplier, getConceptCrystalCoherencePointGainMultiplier(stratum));
+  return mul(
+    mul(upgradeMultiplier, getConceptCrystalCoherencePointGainMultiplier(stratum)),
+    stratum.characterCoherencePointGainMultiplier ?? ONE,
+  );
 }
 
 function getCoherenceRecordMultiplier(record: Num): Num {

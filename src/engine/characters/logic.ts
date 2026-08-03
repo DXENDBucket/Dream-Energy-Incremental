@@ -1,12 +1,20 @@
 import type { GameState } from "@/engine/core/state";
-import { add, mul, ONE, type Num } from "@/engine/math/num";
+import { add, mul, ONE, sub, type Num } from "@/engine/math/num";
 import { STRATUM_DEFINITIONS } from "@/engine/strata/defs";
 import {
   ALPHA_CHARACTER_ID,
+  CHAOTIC_ETHER_GAIN_MULTIPLIER_AFFIX_ID,
   CHARACTER_DEFINITIONS,
+  CHARACTER_MAX_LEVEL,
+  CHARACTER_MIN_LEVEL,
   CHARACTER_PRODUCTION_SLOT_COUNT,
   CHARACTER_ROSTER_SLOT_COUNT,
+  COHERENCE_POINT_GAIN_MULTIPLIER_AFFIX_ID,
+  DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID,
+  DREAM_CRYSTAL_MULTIPLIER_POWER_AFFIX_ID,
+  getCharacterAffixValue,
   getCharacterDefinition,
+  type CharacterAffixId,
 } from "./definitions";
 import { createCharacterSystemState, type CharacterSystemState } from "./state";
 
@@ -21,6 +29,7 @@ function createEmptyRosterSlots(): Array<string | null> {
 export function ensureCharacterSystemState(state: GameState): CharacterSystemState {
   state.characters ??= createCharacterSystemState();
   state.characters.ownedCharacterIds ??= [];
+  state.characters.levels ??= {};
   state.characters.rosterSlots ??= createEmptyRosterSlots();
   state.characters.productionSlotsByStratum ??= {};
 
@@ -34,6 +43,13 @@ export function normalizeCharacterSystemState(state: GameState): CharacterSystem
   characters.ownedCharacterIds = [...new Set(
     characters.ownedCharacterIds.filter(id => validIds.has(id)),
   )];
+
+  for (const characterId of characters.ownedCharacterIds) {
+    const rawLevel = Number(characters.levels[characterId]);
+    characters.levels[characterId] = Number.isFinite(rawLevel)
+      ? Math.min(CHARACTER_MAX_LEVEL, Math.max(CHARACTER_MIN_LEVEL, Math.floor(rawLevel)))
+      : CHARACTER_MIN_LEVEL;
+  }
 
   const ownedIds = new Set(characters.ownedCharacterIds);
   const placedIds = new Set<string>();
@@ -85,14 +101,25 @@ export function normalizeCharacterSystemState(state: GameState): CharacterSystem
 }
 
 export function grantStarterCharacters(state: GameState): void {
+  grantCharacter(state, ALPHA_CHARACTER_ID);
+}
+
+export function grantCharacter(state: GameState, characterId: string): void {
+  if (!getCharacterDefinition(characterId)) return;
   const characters = ensureCharacterSystemState(state);
-  if (!characters.ownedCharacterIds.includes(ALPHA_CHARACTER_ID)) {
-    characters.ownedCharacterIds.push(ALPHA_CHARACTER_ID);
+  if (!characters.ownedCharacterIds.includes(characterId)) {
+    characters.ownedCharacterIds.push(characterId);
   }
-  if (!findCharacterLocation(state, ALPHA_CHARACTER_ID)) {
+  characters.levels[characterId] ??= CHARACTER_MIN_LEVEL;
+  if (!findCharacterLocation(state, characterId)) {
     const emptyIndex = characters.rosterSlots.indexOf(null);
-    if (emptyIndex >= 0) characters.rosterSlots[emptyIndex] = ALPHA_CHARACTER_ID;
+    if (emptyIndex >= 0) characters.rosterSlots[emptyIndex] = characterId;
   }
+}
+
+export function getCharacterLevel(state: GameState, characterId: string): number {
+  const level = ensureCharacterSystemState(state).levels[characterId] ?? CHARACTER_MIN_LEVEL;
+  return Math.min(CHARACTER_MAX_LEVEL, Math.max(CHARACTER_MIN_LEVEL, Math.floor(level)));
 }
 
 export function getCharacterRosterSlots(state: GameState): Array<string | null> {
@@ -230,30 +257,68 @@ export function unassignCharacterFromProduction(
   return moveCharacterToRosterSlot(state, emptyRosterIndex, characterId);
 }
 
+function getProductionCharacterAffixValues(
+  state: GameState,
+  stratumId: string,
+  affixId: CharacterAffixId,
+): Num[] {
+  const values: Num[] = [];
+  for (const characterId of getCharacterProductionSlots(state, stratumId)) {
+    if (characterId === null) continue;
+    const definition = getCharacterDefinition(characterId);
+    if (!definition?.affixIds.includes(affixId)) continue;
+    values.push(getCharacterAffixValue(affixId, getCharacterLevel(state, characterId)));
+  }
+  return values;
+}
+
+function getMultiplicativeCharacterAffix(
+  state: GameState,
+  stratumId: string,
+  affixId: CharacterAffixId,
+): Num {
+  return getProductionCharacterAffixValues(state, stratumId, affixId)
+    .reduce((product, value) => mul(product, value), ONE);
+}
+
 export function getCharacterDreamCrystalMultiplierPower(
   state: GameState,
   stratumId: string,
 ): Num {
-  return getCharacterProductionSlots(state, stratumId).reduce((power, characterId) => {
-    if (characterId === null) return power;
-    const definition = getCharacterDefinition(characterId);
-    return definition
-      ? add(power, definition.dreamCrystalMultiplierPowerBonus)
-      : power;
-  }, ONE);
+  return getProductionCharacterAffixValues(
+    state,
+    stratumId,
+    DREAM_CRYSTAL_MULTIPLIER_POWER_AFFIX_ID,
+  ).reduce((power, value) => add(power, sub(value, ONE)), ONE);
 }
 
 export function getCharacterDreamCrystalMultiplier(
   state: GameState,
   stratumId: string,
 ): Num {
-  return getCharacterProductionSlots(state, stratumId).reduce((multiplier, characterId) => {
-    if (characterId === null) return multiplier;
-    const definition = getCharacterDefinition(characterId);
-    return definition
-      ? mul(multiplier, definition.dreamCrystalMultiplier)
-      : multiplier;
-  }, ONE);
+  return getMultiplicativeCharacterAffix(state, stratumId, DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID);
+}
+
+export function getCharacterCoherencePointGainMultiplier(
+  state: GameState,
+  stratumId: string,
+): Num {
+  return getMultiplicativeCharacterAffix(
+    state,
+    stratumId,
+    COHERENCE_POINT_GAIN_MULTIPLIER_AFFIX_ID,
+  );
+}
+
+export function getCharacterChaoticEtherGainMultiplier(
+  state: GameState,
+  stratumId: string,
+): Num {
+  return getMultiplicativeCharacterAffix(
+    state,
+    stratumId,
+    CHAOTIC_ETHER_GAIN_MULTIPLIER_AFFIX_ID,
+  );
 }
 
 export function syncCharacterProductionPowers(state: GameState): void {
@@ -261,5 +326,13 @@ export function syncCharacterProductionPowers(state: GameState): void {
   for (const [stratumId, stratum] of Object.entries(state.strata)) {
     stratum.characterDreamCrystalMultiplier = getCharacterDreamCrystalMultiplier(state, stratumId);
     stratum.dreamCrystalMultiplierPower = getCharacterDreamCrystalMultiplierPower(state, stratumId);
+    stratum.characterCoherencePointGainMultiplier = getCharacterCoherencePointGainMultiplier(
+      state,
+      stratumId,
+    );
+    stratum.characterChaoticEtherGainMultiplier = getCharacterChaoticEtherGainMultiplier(
+      state,
+      stratumId,
+    );
   }
 }

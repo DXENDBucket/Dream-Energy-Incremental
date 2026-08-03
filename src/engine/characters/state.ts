@@ -1,5 +1,8 @@
+import { CHARACTER_ROSTER_SLOT_COUNT } from "./definitions";
+
 export interface CharacterSystemState {
   ownedCharacterIds: string[];
+  levels: Record<string, number>;
   rosterSlots: Array<string | null>;
   productionSlotsByStratum: Record<string, Array<string | null>>;
 }
@@ -7,8 +10,8 @@ export interface CharacterSystemState {
 export function createCharacterSystemState(): CharacterSystemState {
   return {
     ownedCharacterIds: [],
+    levels: {},
     rosterSlots: Array.from({ length: CHARACTER_ROSTER_SLOT_COUNT }, () => null),
     productionSlotsByStratum: {},
   };
 }
-import { CHARACTER_ROSTER_SLOT_COUNT } from "./definitions";

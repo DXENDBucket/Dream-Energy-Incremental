@@ -13,6 +13,8 @@ import DreamCrystalAutobuyersPage from "./autobuyers/DreamCrystalAutobuyersPage.
 import DreamEnergyMilestonesPage from "./milestones/DreamEnergyMilestones.vue";
 import RealityMilestonesPage from "./milestones/RealityMilestonesPage.vue";
 import CharacterProductionPage from "./characters/CharacterProductionPage.vue";
+import CharacterUnlocksPage from "./characters/CharacterUnlocksPage.vue";
+import CharacterLevelsPage from "./characters/CharacterLevelsPage.vue";
 import StratumSpeedPage from "./debug/StratumSpeedPage.vue";
 import DebugProgressionPage from "./debug/DebugProgressionPage.vue";
 import {
@@ -578,6 +580,14 @@ const secondaryTooltipStyle = computed(() => ({
 
         <div v-else-if="selectedSecondary === 'character-production'" class="page-card">
           <CharacterProductionPage :game="props.game" />
+        </div>
+
+        <div v-else-if="selectedSecondary === 'character-unlocks'" class="page-card">
+          <CharacterUnlocksPage :game="props.game" />
+        </div>
+
+        <div v-else-if="selectedSecondary === 'character-levels'" class="page-card">
+          <CharacterLevelsPage />
         </div>
 
         <div v-else-if="selectedSecondary === 'stratum-speed'" class="dream-crystals-page">

@@ -3,12 +3,16 @@ import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { GameState } from "@/engine/core/state";
 import { format } from "@/engine/math/format";
-import { add, ONE } from "@/engine/math/num";
 import {
   assignCharacterToProduction,
+  getCharacterAffixDefinition,
+  getCharacterAffixValue,
+  getCharacterChaoticEtherGainMultiplier,
+  getCharacterCoherencePointGainMultiplier,
   getCharacterDefinition,
   getCharacterDreamCrystalMultiplier,
   getCharacterDreamCrystalMultiplierPower,
+  getCharacterLevel,
   getCharacterProductionSlots,
   getCharacterRosterSlots,
   moveCharacterToRosterSlot,
@@ -45,17 +49,30 @@ const bonusMultiplierText = computed(() =>
 const bonusPowerText = computed(() =>
   getCharacterDreamCrystalMultiplierPower(props.game.state, activeStratumId.value).toFixed(3),
 );
+const bonusCoherencePointText = computed(() =>
+  format(getCharacterCoherencePointGainMultiplier(props.game.state, activeStratumId.value)),
+);
+const bonusChaoticEtherText = computed(() =>
+  format(getCharacterChaoticEtherGainMultiplier(props.game.state, activeStratumId.value)),
+);
 const hoveredCharacter = computed(() =>
   hoveredCharacterId.value ? getCharacterDefinition(hoveredCharacterId.value) : undefined,
 );
-const hoveredCharacterMultiplierText = computed(() =>
-  hoveredCharacter.value ? format(hoveredCharacter.value.dreamCrystalMultiplier) : "1",
+const hoveredCharacterLevel = computed(() => hoveredCharacter.value
+  ? getCharacterLevel(props.game.state, hoveredCharacter.value.id)
+  : 1,
 );
-const hoveredCharacterPowerText = computed(() =>
-  hoveredCharacter.value
-    ? add(ONE, hoveredCharacter.value.dreamCrystalMultiplierPowerBonus).toFixed(3)
-    : "1.000",
-);
+const hoveredCharacterEffects = computed(() => hoveredCharacter.value?.affixIds.map(affixId => {
+  const affix = getCharacterAffixDefinition(affixId);
+  const value = getCharacterAffixValue(affixId, hoveredCharacterLevel.value);
+  return {
+    id: affix.id,
+    label: t(affix.labelKey),
+    value: `${affix.operator === "power" ? "^" : "×"}${
+      affix.operator === "power" ? value.toFixed(3) : format(value)
+    }`,
+  };
+}) ?? []);
 const tooltipStyle = computed(() => ({
   left: `${tooltipX.value}px`,
   top: `${tooltipY.value}px`,
@@ -68,7 +85,7 @@ onMounted(() => {
 
 function updateTooltipPosition(event: MouseEvent): void {
   const tooltipWidth = 280;
-  const tooltipHeight = 138;
+  const tooltipHeight = 170;
   tooltipX.value = Math.max(8, Math.min(event.clientX + 16, window.innerWidth - tooltipWidth - 8));
   tooltipY.value = Math.max(8, Math.min(event.clientY + 16, window.innerHeight - tooltipHeight - 8));
 }
@@ -80,6 +97,10 @@ function showTooltip(characterId: string, event: MouseEvent): void {
 
 function hideTooltip(): void {
   hoveredCharacterId.value = null;
+}
+
+function getCharacterThemeClass(characterId: string): string {
+  return `theme-${getCharacterDefinition(characterId)?.theme ?? "monochrome"}`;
 }
 
 function beginDrag(characterId: string, event: DragEvent): void {
@@ -136,7 +157,8 @@ function dropOnRoster(slotIndex: number): void {
           >
             <div
               v-if="characterId && getCharacterDefinition(characterId)"
-              class="character-card alpha-card"
+              class="character-card"
+              :class="getCharacterThemeClass(characterId)"
               draggable="true"
               @dragstart="beginDrag(characterId, $event)"
               @dragend="endDrag"
@@ -146,6 +168,7 @@ function dropOnRoster(slotIndex: number): void {
             >
               <div class="character-symbol">{{ getCharacterDefinition(characterId)?.symbol }}</div>
               <div class="character-name">{{ t(getCharacterDefinition(characterId)!.nameKey) }}</div>
+              <div class="character-level">Lv. {{ getCharacterLevel(props.game.state, characterId) }}</div>
             </div>
             <span v-else class="empty-label">{{ t("characters.emptySlot") }}</span>
           </div>
@@ -163,7 +186,8 @@ function dropOnRoster(slotIndex: number): void {
           >
             <div
               v-if="characterId && getCharacterDefinition(characterId)"
-              class="character-card alpha-card"
+              class="character-card"
+              :class="getCharacterThemeClass(characterId)"
               draggable="true"
               @dragstart="beginDrag(characterId, $event)"
               @dragend="endDrag"
@@ -173,6 +197,7 @@ function dropOnRoster(slotIndex: number): void {
             >
               <div class="character-symbol">{{ getCharacterDefinition(characterId)?.symbol }}</div>
               <div class="character-name">{{ t(getCharacterDefinition(characterId)!.nameKey) }}</div>
+              <div class="character-level">Lv. {{ getCharacterLevel(props.game.state, characterId) }}</div>
             </div>
           </div>
         </div>
@@ -188,6 +213,14 @@ function dropOnRoster(slotIndex: number): void {
           <span>{{ t("characters.dreamCrystalMultiplierPower") }}</span>
           <strong>^{{ bonusPowerText }}</strong>
         </div>
+        <div class="bonus-row">
+          <span>{{ t("characters.coherencePointGainMultiplier") }}</span>
+          <strong>×{{ bonusCoherencePointText }}</strong>
+        </div>
+        <div class="bonus-row">
+          <span>{{ t("characters.chaoticEtherGainMultiplier") }}</span>
+          <strong>×{{ bonusChaoticEtherText }}</strong>
+        </div>
       </aside>
     </div>
   </section>
@@ -201,14 +234,15 @@ function dropOnRoster(slotIndex: number): void {
       <div class="tooltip-heading">
         <span class="tooltip-symbol">{{ hoveredCharacter.symbol }}</span>
         <strong>{{ t(hoveredCharacter.nameKey) }}</strong>
+        <span class="tooltip-level">Lv. {{ hoveredCharacterLevel }}</span>
       </div>
-      <div class="tooltip-ability">
-        <span>{{ t("characters.dreamCrystalMultiplier") }}</span>
-        <b>×{{ hoveredCharacterMultiplierText }}</b>
-      </div>
-      <div class="tooltip-ability">
-        <span>{{ t("characters.dreamCrystalMultiplierPower") }}</span>
-        <b>^{{ hoveredCharacterPowerText }}</b>
+      <div
+        v-for="effect in hoveredCharacterEffects"
+        :key="effect.id"
+        class="tooltip-ability"
+      >
+        <span>{{ effect.label }}</span>
+        <b>{{ effect.value }}</b>
       </div>
     </div>
   </Teleport>
@@ -280,7 +314,7 @@ h2 { margin: 4px 0 0; }
 }
 
 .production-zone {
-  grid-template-columns: repeat(5, calc((100% - 63px) / 10));
+  grid-template-columns: repeat(2, calc((100% - 63px) / 10));
   justify-content: center;
   margin-top: 9px;
   border: 1px solid #3d4458;
@@ -356,13 +390,31 @@ h2 { margin: 4px 0 0; }
 
 .character-card:active { cursor: grabbing; }
 
-.alpha-card {
+.theme-monochrome {
   border: 2px solid #fff;
   color: #fff;
   background:
     repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 7px),
     radial-gradient(circle at 50% 35%, #555 0%, #171717 46%, #050505 100%);
   box-shadow: inset 0 0 12px rgba(255,255,255,0.22), 0 0 9px rgba(255,255,255,0.16);
+}
+
+.theme-cyan {
+  border: 2px solid #8cffff;
+  color: #dfffff;
+  background:
+    repeating-linear-gradient(135deg, rgba(128,255,255,0.12) 0 2px, transparent 2px 7px),
+    radial-gradient(circle at 50% 35%, #1f8990 0%, #0b3e48 46%, #041a22 100%);
+  box-shadow: inset 0 0 12px rgba(130,255,255,0.3), 0 0 9px rgba(87,244,255,0.2);
+}
+
+.theme-gold {
+  border: 2px solid #ffe79a;
+  color: #fff4c7;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,224,120,0.13) 0 2px, transparent 2px 7px),
+    radial-gradient(circle at 50% 35%, #a47720 0%, #4a3109 46%, #1d1303 100%);
+  box-shadow: inset 0 0 12px rgba(255,225,125,0.32), 0 0 9px rgba(255,207,75,0.22);
 }
 
 .character-symbol {
@@ -373,9 +425,15 @@ h2 { margin: 4px 0 0; }
 }
 
 .character-name {
-  margin-top: 5cqw;
+  margin-top: 3cqw;
   font-size: max(8px, 12cqw);
   font-weight: 900;
+}
+
+.character-level {
+  margin-top: 2cqw;
+  font-size: max(7px, 9cqw);
+  opacity: 0.84;
 }
 
 .character-tooltip {
@@ -407,6 +465,12 @@ h2 { margin: 4px 0 0; }
   line-height: 1;
 }
 
+.tooltip-level {
+  margin-left: auto;
+  color: #aeb5c7;
+  font-size: 0.78rem;
+}
+
 .tooltip-ability {
   display: flex;
   justify-content: space-between;
@@ -420,7 +484,7 @@ h2 { margin: 4px 0 0; }
 
 @media (max-width: 720px) {
   .character-layout { grid-template-columns: 1fr; }
-  .production-zone { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .production-zone { grid-template-columns: repeat(2, calc((100% - 28px) / 5)); }
   .roster-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 </style>
