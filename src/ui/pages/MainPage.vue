@@ -22,6 +22,7 @@ import {
   isDreamEnergySoftcapOneActive,
   isDreamEnergySoftcapThreeActive,
   isDreamEnergySoftcapTwoActive,
+  isDreamEnergyShieldingActive,
 } from "@/engine/strata/common/dream-energy";
 import {
   isCoherenceUpgradesUnlocked,
@@ -293,6 +294,10 @@ const isThirdDreamEnergySoftcapReached = computed(() => {
   return isDreamEnergySoftcapThreeActive(activeStratum.value);
 });
 
+const isDreamEnergyShieldingReached = computed(() => {
+  return isDreamEnergyShieldingActive(activeStratum.value);
+});
+
 const dreamEnergySoftcapWarningText = computed(() => {
   if (isThirdDreamEnergySoftcapReached.value) {
     return t("mainPage.softcapThreeWarning");
@@ -519,6 +524,9 @@ const secondaryTooltipStyle = computed(() => ({
         </div>
         <div v-if="isFirstDreamEnergySoftcapReached" class="top-softcap-line">
           {{ dreamEnergySoftcapWarningText }}
+        </div>
+        <div v-if="isDreamEnergyShieldingReached" class="top-shielding-line">
+          {{ t("mainPage.shieldingWarning") }}
         </div>
 
         <div v-if="showChaoticEther" class="chaotic-ether-panel">
@@ -1017,6 +1025,12 @@ const secondaryTooltipStyle = computed(() => ({
   color: var(--text-dim);
   font-size: 0.95rem;
   color: #B03060
+}
+
+.top-shielding-line {
+  color: #8edfff;
+  font-size: 0.95rem;
+  text-shadow: 0 0 10px rgba(112, 211, 255, 0.24);
 }
 
 .entropy-panel {

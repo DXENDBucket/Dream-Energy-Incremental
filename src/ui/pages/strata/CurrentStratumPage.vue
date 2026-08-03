@@ -17,6 +17,10 @@ import {
   getDreamEnergySoftcapTwoStrengthBase,
   getDreamEnergySoftcapTwoStrengthGrowth,
   getDreamEnergySoftcapTwoStrengthMultiplier,
+  getDreamEnergyBeforeShielding,
+  getDreamEnergyShieldingDivisor,
+  getDreamEnergyShieldingRootDegree,
+  isDreamEnergyShieldingActive,
   isDreamEnergySoftcapOneActive,
   isDreamEnergySoftcapThreeActive,
   isDreamEnergySoftcapTwoActive,
@@ -24,6 +28,7 @@ import {
 import {
   DREAM_ENERGY_SOFTCAP_THREE_START,
   DREAM_ENERGY_SOFTCAP_TWO_START,
+  DREAM_ENERGY_SHIELDING_START,
 } from "@/engine/math/dream-energy/balance";
 import { getDreamEnergy } from "@/engine/strata/manager/selectors";
 
@@ -107,6 +112,12 @@ const softcapThreeStrengthBaseText = computed(() => {
 const softcapThreeStrengthGrowthText = computed(() => {
   return format(getDreamEnergySoftcapThreeStrengthGrowth(activeStratum.value));
 });
+
+const shieldingActive = computed(() => isDreamEnergyShieldingActive(activeStratum.value));
+const shieldingThresholdText = computed(() => format(DREAM_ENERGY_SHIELDING_START));
+const shieldingRootDegreeText = computed(() => format(getDreamEnergyShieldingRootDegree(activeStratum.value)));
+const beforeShieldingText = computed(() => format(getDreamEnergyBeforeShielding(activeStratum.value)));
+const shieldingDivisorText = computed(() => format(getDreamEnergyShieldingDivisor(activeStratum.value)));
 </script>
 
 <template>
@@ -213,6 +224,34 @@ const softcapThreeStrengthGrowthText = computed(() => {
         </template>
       </i18n-t>
     </div>
+
+    <div v-if="shieldingActive" class="detail-card shielding-card">
+      <div class="detail-title shielding-title">{{ t("currentStratum.shielding.title") }}</div>
+
+      <i18n-t keypath="currentStratum.shielding.threshold" tag="div" class="detail-line shielding-line">
+        <template #value>
+          <span class="detail-number shielding-number">{{ shieldingThresholdText }}</span>
+        </template>
+      </i18n-t>
+
+      <i18n-t keypath="currentStratum.shielding.rootDegree" tag="div" class="detail-line shielding-line">
+        <template #value>
+          <span class="detail-number shielding-number">{{ shieldingRootDegreeText }}</span>
+        </template>
+      </i18n-t>
+
+      <i18n-t keypath="currentStratum.shielding.reduction" tag="div" class="detail-line shielding-line">
+        <template #before>
+          <span class="detail-number shielding-number">{{ beforeShieldingText }}</span>
+        </template>
+        <template #after>
+          <span class="detail-number shielding-number">{{ currentDreamEnergyText }}</span>
+        </template>
+        <template #divisor>
+          <span class="detail-number shielding-number">÷{{ shieldingDivisorText }}</span>
+        </template>
+      </i18n-t>
+    </div>
   </div>
 </template>
 
@@ -303,5 +342,27 @@ const softcapThreeStrengthGrowthText = computed(() => {
 .softcap-three-number {
   color: #ffe2e8;
   text-shadow: 0 0 14px rgba(255, 100, 126, 0.3);
+}
+
+.shielding-card {
+  margin-top: 14px;
+  border-color: rgba(108, 205, 244, 0.82);
+  background: linear-gradient(180deg, rgba(13, 47, 67, 0.95), rgba(5, 22, 34, 0.99));
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.32),
+    0 0 24px rgba(105, 211, 255, 0.12),
+    inset 0 0 24px rgba(134, 224, 255, 0.07);
+}
+
+.shielding-title {
+  color: #d8f5ff;
+  text-shadow: 0 0 14px rgba(125, 218, 255, 0.34);
+}
+
+.shielding-line { color: #85d9fa; }
+
+.shielding-number {
+  color: #dcf7ff;
+  text-shadow: 0 0 12px rgba(128, 221, 255, 0.3);
 }
 </style>

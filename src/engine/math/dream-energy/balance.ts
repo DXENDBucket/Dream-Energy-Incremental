@@ -1,4 +1,4 @@
-import { N } from "../num"
+import { N, pow } from "../num"
 
 export const DREAM_ENERGY_SOFTCAP_ONE_START = N(2147483647)
 export const DREAM_ENERGY_SOFTCAP_POWER_DISPLAY = N(10)
@@ -10,3 +10,4 @@ export const DREAM_ENERGY_SOFTCAP_TWO_EFFECT_SCALE = N(0.5);
 export const DREAM_ENERGY_SOFTCAP_THREE_START = N("1e28");
 export const DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_BASE = N(10);
 export const DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH = N(9);
+export const DREAM_ENERGY_SHIELDING_START = pow(N(2), 128);

@@ -59,6 +59,7 @@ export default {
     softcapWarning: "梦能开始排斥自身。原始梦能仍会增长，但只有一部分能沉淀为实际梦能。",
     softcapTwoWarning: "强相互作用力正在梦能之间显现。越过边界后的原始梦能会被更深地压缩。",
     softcapThreeWarning: "梦能开始兼并自身。超过兼并边界后，强相互作用的压缩曲线会被进一步拉高。",
+    shieldingWarning: "Shielding 正在消耗超额梦能以维持现实壁垒。",
     placeholders: {
       upgrades: "升级页占位",
       numbers: "数值统计占位",
@@ -552,6 +553,12 @@ export default {
       excessExponent: "你已经在这个兼并边界外推进了 {value} 个 10 倍区间。",
       strengthBase: "兼并同样以每 {base} 倍为一个区间；当前用于抬高第二段的增长基准为 {growth}。",
       strengthMultiplier: "当前兼并对第二段压缩额外施加的强度约为 {value}。",
+    },
+    shielding: {
+      title: "Shielding",
+      threshold: "常规软上限计算完成后，实际梦能高于 2^128（{value}）时会启动现实壁垒。",
+      rootDegree: "当前层的混沌使 Shielding 采用 {value} 次方根。",
+      reduction: "现实壁垒仅压缩超过 2^128 的部分，将 {before} 梦能压缩为 {after}（{divisor}）。",
     },
   },
   lift: {

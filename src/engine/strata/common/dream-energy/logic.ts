@@ -1,5 +1,5 @@
 import type { StratumState } from "../../state";
-import { ONE, TEN, ZERO, add, div, gte, log10, logn, lte, max, mul, pow, sqrt, sub, type Num } from "@/engine/math/num";
+import { ONE, TEN, ZERO, add, div, gt, gte, log10, logn, lte, max, min, mul, pow, sqrt, sub, type Num } from "@/engine/math/num";
 import {
     DREAM_ENERGY_SOFTCAP_ONE_START,
     DREAM_ENERGY_SOFTCAP_POWER_DISPLAY,
@@ -10,6 +10,7 @@ import {
     DREAM_ENERGY_SOFTCAP_THREE_START,
     DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_BASE,
     DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH,
+    DREAM_ENERGY_SHIELDING_START,
 } from "@/engine/math/dream-energy/balance";
 import {
     convertDreamEnergySoftcapOneToPower,
@@ -25,6 +26,11 @@ import {
     getCoherenceSoftcapTwoStrengthMultiplier,
 } from "@/engine/strata/common/coherence/upgrades";
 import { getConceptCrystalAssimilationStrengthMultiplier } from "@/engine/strata/common/concept-crystals";
+import {
+    getEntropyChaosExponent,
+    getEntropyValue,
+} from "@/engine/strata/common/entropy/logic";
+import { realityStratumId } from "@/engine/strata/defs";
 import { getDreamEnergy } from "../../manager/selectors";
 
 export function getDreamEnergyGain(stratum: StratumState) {
@@ -208,7 +214,7 @@ function solveDreamEnergyActualLogFromRawLog(
     return div(add(sub(ZERO, linear), sqrt(discriminant)), mul(quadratic, 2));
 }
 
-export function getActualDreamEnergyFromRaw(stratum: StratumState, raw: Num): Num {
+function getActualDreamEnergyAfterStandardSoftcaps(stratum: StratumState, raw: Num): Num {
     const targetRaw = max(raw, ZERO);
     if (lte(targetRaw, DREAM_ENERGY_SOFTCAP_ONE_START)) return targetRaw;
 
@@ -244,11 +250,77 @@ export function getActualDreamEnergyFromRaw(stratum: StratumState, raw: Num): Nu
     );
 }
 
-export function getRawDreamEnergyFromActual(stratum: StratumState, actual: Num): Num {
-    const targetActual = max(actual, ZERO);
+function getRawDreamEnergyFromStandardSoftcapped(
+    stratum: StratumState,
+    standardSoftcapped: Num,
+): Num {
+    const targetActual = max(standardSoftcapped, ZERO);
     if (lte(targetActual, DREAM_ENERGY_SOFTCAP_ONE_START)) return targetActual;
 
     return pow(TEN, getRawDreamEnergyLogFromActualLog(stratum, log10(targetActual)));
+}
+
+export function getDreamEnergyShieldingRootDegree(stratum: StratumState): Num {
+    const entropy = min(max(getEntropyValue(stratum), ZERO), ONE);
+    const chaosExponent = max(ONE, getEntropyChaosExponent(stratum));
+    return add(ONE, mul(entropy, chaosExponent));
+}
+
+export function isDreamEnergyShieldingEnabled(stratum: StratumState): boolean {
+    return stratum.stratumId !== realityStratumId;
+}
+
+export function applyDreamEnergyShielding(stratum: StratumState, standardSoftcapped: Num): Num {
+    if (!isDreamEnergyShieldingEnabled(stratum)) return standardSoftcapped;
+    if (lte(standardSoftcapped, DREAM_ENERGY_SHIELDING_START)) return standardSoftcapped;
+    return add(
+        DREAM_ENERGY_SHIELDING_START,
+        pow(
+            sub(standardSoftcapped, DREAM_ENERGY_SHIELDING_START),
+            div(ONE, getDreamEnergyShieldingRootDegree(stratum)),
+        ),
+    );
+}
+
+export function removeDreamEnergyShielding(stratum: StratumState, shielded: Num): Num {
+    if (!isDreamEnergyShieldingEnabled(stratum)) return shielded;
+    if (lte(shielded, DREAM_ENERGY_SHIELDING_START)) return shielded;
+    return add(
+        DREAM_ENERGY_SHIELDING_START,
+        pow(
+            sub(shielded, DREAM_ENERGY_SHIELDING_START),
+            getDreamEnergyShieldingRootDegree(stratum),
+        ),
+    );
+}
+
+export function getActualDreamEnergyFromRaw(stratum: StratumState, raw: Num): Num {
+    return applyDreamEnergyShielding(
+        stratum,
+        getActualDreamEnergyAfterStandardSoftcaps(stratum, raw),
+    );
+}
+
+export function getRawDreamEnergyFromActual(stratum: StratumState, actual: Num): Num {
+    return getRawDreamEnergyFromStandardSoftcapped(
+        stratum,
+        removeDreamEnergyShielding(stratum, max(actual, ZERO)),
+    );
+}
+
+export function isDreamEnergyShieldingActive(stratum: StratumState): boolean {
+    return isDreamEnergyShieldingEnabled(stratum)
+        && gt(getDreamEnergy(stratum), DREAM_ENERGY_SHIELDING_START);
+}
+
+export function getDreamEnergyBeforeShielding(stratum: StratumState): Num {
+    return removeDreamEnergyShielding(stratum, getDreamEnergy(stratum));
+}
+
+export function getDreamEnergyShieldingDivisor(stratum: StratumState): Num {
+    const actual = getDreamEnergy(stratum);
+    if (lte(actual, ZERO)) return ONE;
+    return max(ONE, div(getDreamEnergyBeforeShielding(stratum), actual));
 }
 
 export function syncDreamEnergyActualFromRaw(stratum: StratumState): void {

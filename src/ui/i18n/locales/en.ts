@@ -59,6 +59,7 @@ export default {
     softcapWarning: "Dream Energy is beginning to repel itself. Raw Dream Energy still grows, but only part of it settles as actual Dream Energy.",
     softcapTwoWarning: "The strong interaction is surfacing between Dream Energy. Raw Dream Energy past the boundary is compressed more deeply.",
     softcapThreeWarning: "Dream Energy is assimilating itself. Beyond the assimilation boundary, the strong-interaction compression curve is pulled higher.",
+    shieldingWarning: "Shielding is consuming excess Dream Energy to maintain the reality barrier.",
     placeholders: {
       upgrades: "Upgrades placeholder",
       numbers: "Numbers/statistics placeholder",
@@ -554,6 +555,12 @@ export default {
       excessExponent: "You have pushed {value} base-10 intervals beyond this assimilating boundary.",
       strengthBase: "Assimilation also advances once per {base}x interval. Current growth base used to lift the second stage is {growth}.",
       strengthMultiplier: "Current extra strength applied by assimilation to second-stage compression is about {value}.",
+    },
+    shielding: {
+      title: "Shielding",
+      threshold: "After the standard softcaps, the reality barrier activates above 2^128 ({value}) actual Dream Energy.",
+      rootDegree: "This stratum's current chaos gives Shielding a {value}th root.",
+      reduction: "The reality barrier only compresses the portion above 2^128, reducing {before} Dream Energy to {after} ({divisor}).",
     },
   },
   lift: {
