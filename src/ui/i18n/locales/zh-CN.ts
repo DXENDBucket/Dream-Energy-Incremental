@@ -59,6 +59,7 @@ export default {
     softcapWarning: "梦能开始排斥自身。原始梦能仍会增长，但只有一部分能沉淀为实际梦能。",
     softcapTwoWarning: "强相互作用力正在梦能之间显现。越过边界后的原始梦能会被更深地压缩。",
     softcapThreeWarning: "梦能开始兼并自身。超过兼并边界后，强相互作用的压缩曲线会被进一步拉高。",
+    conceptConflictWarning: "梦的概念逐渐化为实质，彼此开始冲突。",
     shieldingWarning: "Shielding 正在消耗超额梦能以维持现实壁垒。",
     placeholders: {
       upgrades: "升级页占位",
@@ -587,6 +588,13 @@ export default {
       excessExponent: "你已经在这个兼并边界外推进了 {value} 个 10 倍区间。",
       strengthBase: "兼并同样以每 {base} 倍为一个区间；当前用于抬高第二段的增长基准为 {growth}。",
       strengthMultiplier: "当前兼并对第二段压缩额外施加的强度约为 {value}。",
+    },
+    conceptConflict: {
+      title: "概念冲突",
+      threshold: "前三段软上限结算后，梦能超过 2^256（{value}）时，梦的概念开始化为实质。",
+      description: "梦的概念逐渐化为实质，彼此开始冲突。",
+      excessExponent: "你已经在概念冲突边界外推进了 {value} 个 10 倍区间。",
+      strengthMultiplier: "概念冲突使第三个 softcap 的局部 strength 额外变为 {value}。",
     },
     shielding: {
       title: "Shielding",

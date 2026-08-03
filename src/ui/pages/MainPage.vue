@@ -19,6 +19,7 @@ import StratumSpeedPage from "./debug/StratumSpeedPage.vue";
 import DebugProgressionPage from "./debug/DebugProgressionPage.vue";
 import {
   getDreamEnergyPercentageGainPerSecond,
+  isDreamEnergyConceptConflictActive,
   isDreamEnergySoftcapOneActive,
   isDreamEnergySoftcapThreeActive,
   isDreamEnergySoftcapTwoActive,
@@ -294,11 +295,19 @@ const isThirdDreamEnergySoftcapReached = computed(() => {
   return isDreamEnergySoftcapThreeActive(activeStratum.value);
 });
 
+const isDreamEnergyConceptConflictReached = computed(() => {
+  return isDreamEnergyConceptConflictActive(activeStratum.value);
+});
+
 const isDreamEnergyShieldingReached = computed(() => {
   return isDreamEnergyShieldingActive(activeStratum.value);
 });
 
 const dreamEnergySoftcapWarningText = computed(() => {
+  if (isDreamEnergyConceptConflictReached.value) {
+    return t("mainPage.conceptConflictWarning");
+  }
+
   if (isThirdDreamEnergySoftcapReached.value) {
     return t("mainPage.softcapThreeWarning");
   }

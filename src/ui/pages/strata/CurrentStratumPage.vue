@@ -7,6 +7,8 @@ import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import {
   getDreamEnergyGainPerSecond,
   getRawDreamEnergyGainPerSecond,
+  getDreamEnergyConceptConflictExcessExponent,
+  getDreamEnergyConceptConflictStrengthMultiplier,
   getDreamEnergySoftcapOneDivisor,
   getDreamEnergySoftcapOnePowerDisplay,
   getDreamEnergySoftcapThreeExcessExponent,
@@ -22,11 +24,13 @@ import {
   getDreamEnergyShieldingRootDegree,
   getDreamEnergyShieldingStrength,
   isDreamEnergyShieldingActive,
+  isDreamEnergyConceptConflictActive,
   isDreamEnergySoftcapOneActive,
   isDreamEnergySoftcapThreeActive,
   isDreamEnergySoftcapTwoActive,
 } from "@/engine/strata/common/dream-energy";
 import {
+  DREAM_ENERGY_CONCEPT_CONFLICT_START,
   DREAM_ENERGY_SOFTCAP_THREE_START,
   DREAM_ENERGY_SOFTCAP_TWO_START,
   DREAM_ENERGY_SHIELDING_START,
@@ -113,6 +117,15 @@ const softcapThreeStrengthBaseText = computed(() => {
 const softcapThreeStrengthGrowthText = computed(() => {
   return format(getDreamEnergySoftcapThreeStrengthGrowth(activeStratum.value));
 });
+
+const conceptConflictActive = computed(() => isDreamEnergyConceptConflictActive(activeStratum.value));
+const conceptConflictThresholdText = computed(() => format(DREAM_ENERGY_CONCEPT_CONFLICT_START));
+const conceptConflictExcessExponentText = computed(() => format(
+  getDreamEnergyConceptConflictExcessExponent(activeStratum.value),
+));
+const conceptConflictStrengthMultiplierText = computed(() => format(
+  getDreamEnergyConceptConflictStrengthMultiplier(activeStratum.value),
+));
 
 const shieldingActive = computed(() => isDreamEnergyShieldingActive(activeStratum.value));
 const shieldingThresholdText = computed(() => format(DREAM_ENERGY_SHIELDING_START));
@@ -226,6 +239,46 @@ const shieldingDivisorText = computed(() => format(getDreamEnergyShieldingDiviso
       <i18n-t keypath="currentStratum.softcapThree.strengthMultiplier" tag="div" class="detail-line softcap-three-line">
         <template #value>
           <span class="detail-number softcap-three-number">×{{ softcapThreeStrengthMultiplierText }}</span>
+        </template>
+      </i18n-t>
+    </div>
+
+    <div v-if="conceptConflictActive" class="detail-card concept-conflict-card">
+      <div class="detail-title concept-conflict-title">
+        {{ t("currentStratum.conceptConflict.title") }}
+      </div>
+
+      <i18n-t
+        keypath="currentStratum.conceptConflict.threshold"
+        tag="div"
+        class="detail-line concept-conflict-line"
+      >
+        <template #value>
+          <span class="detail-number concept-conflict-number">{{ conceptConflictThresholdText }}</span>
+        </template>
+      </i18n-t>
+
+      <div class="detail-line concept-conflict-line">
+        {{ t("currentStratum.conceptConflict.description") }}
+      </div>
+
+      <i18n-t
+        keypath="currentStratum.conceptConflict.excessExponent"
+        tag="div"
+        class="detail-line concept-conflict-line"
+      >
+        <template #value>
+          <span class="detail-number concept-conflict-number">{{ conceptConflictExcessExponentText }}</span>
+        </template>
+      </i18n-t>
+
+      <i18n-t
+        keypath="currentStratum.conceptConflict.strengthMultiplier"
+        tag="div"
+        class="detail-line concept-conflict-line"
+      >
+        <template #value>
+          <span class="detail-number concept-conflict-number">×{{ conceptConflictStrengthMultiplierText }}</span>
         </template>
       </i18n-t>
     </div>
@@ -353,6 +406,29 @@ const shieldingDivisorText = computed(() => format(getDreamEnergyShieldingDiviso
 .softcap-three-number {
   color: #ffe2e8;
   text-shadow: 0 0 14px rgba(255, 100, 126, 0.3);
+}
+
+.concept-conflict-card {
+  margin-top: 14px;
+  border: 1px solid rgba(91, 4, 26, 0.94);
+  background:
+    linear-gradient(180deg, rgba(22, 0, 8, 0.98) 0%, rgba(5, 0, 3, 0.995) 100%);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.44),
+    0 0 26px rgba(190, 17, 57, 0.12),
+    inset 0 0 28px rgba(255, 38, 82, 0.045);
+}
+
+.concept-conflict-title {
+  color: #fff0f3;
+  text-shadow: 0 0 16px rgba(255, 68, 105, 0.34);
+}
+
+.concept-conflict-line { color: #bd3c59; }
+
+.concept-conflict-number {
+  color: #ffe8ed;
+  text-shadow: 0 0 14px rgba(255, 77, 112, 0.32);
 }
 
 .shielding-card {

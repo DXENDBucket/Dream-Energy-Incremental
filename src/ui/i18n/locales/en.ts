@@ -59,6 +59,7 @@ export default {
     softcapWarning: "Dream Energy is beginning to repel itself. Raw Dream Energy still grows, but only part of it settles as actual Dream Energy.",
     softcapTwoWarning: "The strong interaction is surfacing between Dream Energy. Raw Dream Energy past the boundary is compressed more deeply.",
     softcapThreeWarning: "Dream Energy is assimilating itself. Beyond the assimilation boundary, the strong-interaction compression curve is pulled higher.",
+    conceptConflictWarning: "The concepts of dreams are becoming substantial and beginning to conflict with one another.",
     shieldingWarning: "Shielding is consuming excess Dream Energy to maintain the reality barrier.",
     placeholders: {
       upgrades: "Upgrades placeholder",
@@ -589,6 +590,13 @@ export default {
       excessExponent: "You have pushed {value} base-10 intervals beyond this assimilating boundary.",
       strengthBase: "Assimilation also advances once per {base}x interval. Current growth base used to lift the second stage is {growth}.",
       strengthMultiplier: "Current extra strength applied by assimilation to second-stage compression is about {value}.",
+    },
+    conceptConflict: {
+      title: "Concept Conflict",
+      threshold: "After the first three softcaps, dream concepts become substantial above 2^256 ({value}) Dream Energy.",
+      description: "The concepts of dreams are becoming substantial and beginning to conflict with one another.",
+      excessExponent: "You have pushed {value} base-10 intervals beyond the concept-conflict boundary.",
+      strengthMultiplier: "Concept Conflict multiplies the third softcap's local strength by {value}.",
     },
     shielding: {
       title: "Shielding",
