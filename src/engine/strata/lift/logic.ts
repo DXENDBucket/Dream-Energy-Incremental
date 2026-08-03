@@ -37,6 +37,7 @@ import { getActiveStratum, getStratum } from "@/engine/strata/manager/selectors"
 import { createStratumState, type StratumState } from "@/engine/strata/state";
 import { LIFT_UNLOCK_REQUIREMENT } from "./balance";
 import { markRealityLiftMilestoneClaimed } from "@/engine/reality/milestones";
+import { returnCharactersToRosterFromStratum } from "@/engine/characters";
 
 export type StratumTravelDirection = "deeper" | "shallower";
 
@@ -188,6 +189,7 @@ function travelShallower(state: GameState, targetDefinition: StratumDefinition):
   const target = getStratum(state, targetDefinition.id);
 
   carryProducedChaoticEther(source, target, sourceDefinition.id);
+  returnCharactersToRosterFromStratum(state, sourceDefinition.id);
   resetStratumAfterReturn(source, sourceDefinition);
   return true;
 }

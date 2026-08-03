@@ -256,6 +256,27 @@ export function unassignCharacterFromProduction(
   return moveCharacterToRosterSlot(state, emptyRosterIndex, characterId);
 }
 
+export function returnCharactersToRosterFromStratum(
+  state: GameState,
+  stratumId: string,
+): void {
+  const productionSlots = getCharacterProductionSlots(state, stratumId);
+  const rosterSlots = getCharacterRosterSlots(state);
+  let changed = false;
+
+  for (let slotIndex = 0; slotIndex < productionSlots.length; slotIndex++) {
+    const characterId = productionSlots[slotIndex];
+    if (typeof characterId !== "string") continue;
+    const emptyRosterIndex = rosterSlots.indexOf(null);
+    if (emptyRosterIndex < 0) break;
+    rosterSlots[emptyRosterIndex] = characterId;
+    productionSlots[slotIndex] = null;
+    changed = true;
+  }
+
+  if (changed) syncCharacterProductionPowers(state);
+}
+
 function getProductionCharacterAffixValues(
   state: GameState,
   stratumId: string,
