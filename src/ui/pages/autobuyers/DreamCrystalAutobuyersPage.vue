@@ -5,9 +5,9 @@ import { DREAM_CRYSTAL_TIERS, type DreamCrystalTier } from "@/engine/math/dream-
 import { format } from "@/engine/math/format";
 import type { GameState } from "@/engine/core/state";
 import {
-  DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC,
-  DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC,
+  getDreamCrystalAutobuyerIntervalSec,
   getDreamCrystalAutobuyerRemainingSec,
+  getDreamCrystalRefineAutobuyerIntervalSec,
   getDreamCrystalRefineAutobuyerRemainingSec,
   isDreamCrystalAutobuyerEnabled,
   isDreamCrystalRefineAutobuyerEnabled,
@@ -36,8 +36,8 @@ const refineUnlocked = computed(() => isDreamCrystalRefineAutobuyerUnlocked(acti
 const coherenceAutobuyerUnlocked = computed(() => isCoherenceAutobuyerUnlocked(activeStratum.value));
 const remainingText = computed(() => format(getDreamCrystalAutobuyerRemainingSec(activeStratum.value)));
 const refineRemainingText = computed(() => format(getDreamCrystalRefineAutobuyerRemainingSec(activeStratum.value)));
-const intervalText = computed(() => format(DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC));
-const refineIntervalText = computed(() => format(DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC));
+const intervalText = computed(() => format(getDreamCrystalAutobuyerIntervalSec(activeStratum.value)));
+const refineIntervalText = computed(() => format(getDreamCrystalRefineAutobuyerIntervalSec(activeStratum.value)));
 
 const rows = computed(() => {
   return DREAM_CRYSTAL_TIERS.map((tier) => ({

@@ -10,7 +10,7 @@ export type UnlockableCharacterId = (typeof CHARACTER_UNLOCK_ORDER)[number];
 
 export const CHARACTER_UNLOCK_COSTS: Record<UnlockableCharacterId, Num> = {
   [DAWN_CHARACTER_ID]: N(5e9),
-  [DELTA_CHARACTER_ID]: N(2e10),
+  [DELTA_CHARACTER_ID]: N(2e11),
 };
 
 export function isCharacterOwned(state: GameState, characterId: string): boolean {
@@ -18,13 +18,10 @@ export function isCharacterOwned(state: GameState, characterId: string): boolean
 }
 
 export function isCharacterUnlockAvailable(
-  state: GameState,
-  characterId: UnlockableCharacterId,
+  _state: GameState,
+  _characterId: UnlockableCharacterId,
 ): boolean {
-  const index = CHARACTER_UNLOCK_ORDER.indexOf(characterId);
-  if (index <= 0) return true;
-  const previousId = CHARACTER_UNLOCK_ORDER[index - 1];
-  return previousId !== undefined && isCharacterOwned(state, previousId);
+  return true;
 }
 
 export function canUnlockCharacter(

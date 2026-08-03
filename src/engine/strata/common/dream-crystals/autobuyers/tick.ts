@@ -2,9 +2,9 @@ import { add, div, floor, gte, mul, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import type { StratumState } from "@/engine/strata/state";
 import {
-  DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC,
-  DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC,
   ensureDreamCrystalAutobuyersState,
+  getDreamCrystalAutobuyerIntervalSec,
+  getDreamCrystalRefineAutobuyerIntervalSec,
   runDreamCrystalAutobuyers,
   runDreamCrystalRefineAutobuyers,
 } from "./logic";
@@ -15,12 +15,13 @@ export function tickDreamCrystalAutobuyers(stratum: StratumState, dtSec: Num): v
 
   if (isDreamCrystalAutobuyerUnlocked(stratum)) {
     autobuyers.elapsedSec = add(autobuyers.elapsedSec, dtSec);
+    const intervalSec = getDreamCrystalAutobuyerIntervalSec(stratum);
 
-    if (gte(autobuyers.elapsedSec, DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC)) {
-      const elapsedCycles = floor(div(autobuyers.elapsedSec, DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC));
+    if (gte(autobuyers.elapsedSec, intervalSec)) {
+      const elapsedCycles = floor(div(autobuyers.elapsedSec, intervalSec));
       autobuyers.elapsedSec = sub(
         autobuyers.elapsedSec,
-        mul(DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC, elapsedCycles),
+        mul(intervalSec, elapsedCycles),
       );
       runDreamCrystalAutobuyers(stratum);
     }
@@ -28,12 +29,13 @@ export function tickDreamCrystalAutobuyers(stratum: StratumState, dtSec: Num): v
 
   if (isDreamCrystalRefineAutobuyerUnlocked(stratum)) {
     autobuyers.refineElapsedSec = add(autobuyers.refineElapsedSec, dtSec);
+    const intervalSec = getDreamCrystalRefineAutobuyerIntervalSec(stratum);
 
-    if (gte(autobuyers.refineElapsedSec, DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC)) {
-      const elapsedCycles = floor(div(autobuyers.refineElapsedSec, DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC));
+    if (gte(autobuyers.refineElapsedSec, intervalSec)) {
+      const elapsedCycles = floor(div(autobuyers.refineElapsedSec, intervalSec));
       autobuyers.refineElapsedSec = sub(
         autobuyers.refineElapsedSec,
-        mul(DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC, elapsedCycles),
+        mul(intervalSec, elapsedCycles),
       );
       runDreamCrystalRefineAutobuyers(stratum);
     }

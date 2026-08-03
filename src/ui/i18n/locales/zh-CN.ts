@@ -213,6 +213,7 @@ export default {
     nextDreamCrystalMultiplierStatus: "下一层梦能水晶 multiplier：×{value}",
     softcapTwoSlowdownStatus: "当前第二段压缩倍率：×{value}",
     softcapThreeSlowdownStatus: "已购买 {count} 次｜当前第三软上限强度 ×{value}",
+    autobuyerSpeedStatus: "已购买 {count} 次｜当前自动器间隔 {value} 秒",
     deeperInitialDreamEnergyStatus: "已购买 {count} 次；进入下一层初始 +{value} DE",
     pointGainMultiplierStatus: "已购买 {count} 次；当前调谐点数获取 ×{value}",
     bestNextDreamEnergyStatus: "下一层最高 DE：{best}｜本层与下一层 DC ×{value}",
@@ -270,6 +271,10 @@ export default {
       "coherence-upgrade-9": {
         title: "兼并释压",
         description: "每次购买使第三个梦能软上限的强度乘以 0.9。",
+      },
+      "coherence-upgrade-10": {
+        title: "自动化超频",
+        description: "每次购买使 Refinery Autobuyers 与 DC Autobuyers 的间隔减少 0.05 秒。",
       },
     },
   },
@@ -562,7 +567,8 @@ export default {
     shielding: {
       title: "Shielding",
       threshold: "常规软上限计算完成后，实际梦能高于 2^128（{value}）时会启动现实壁垒。",
-      rootDegree: "当前层的混沌使 Shielding 采用 {value} 次方根。",
+      strength: "当前层级混沌与 Tuning 结算后的 Shielding strength：{value}。",
+      rootDegree: "当前推进量使 Shielding 采用 {value} 次方根。",
       reduction: "现实壁垒仅压缩超过 2^128 的部分，将 {before} 梦能压缩为 {after}（{divisor}）。",
     },
   },

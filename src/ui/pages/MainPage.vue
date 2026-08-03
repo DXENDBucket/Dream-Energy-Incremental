@@ -501,32 +501,34 @@ const secondaryTooltipStyle = computed(() => ({
 
     <main class="right-area">
       <section class="top-panel">
-        <div class="top-title">{{ t("mainPage.title") }}</div>
-        <i18n-t keypath="mainPage.haveDreamEnergy" tag="div" class="top-main-line">
-          <template #amount>
-            <span class="big-number">{{ activeDreamEnergyText }}</span>
-          </template>
-        </i18n-t>
-        <div class="top-sub-line">
-          {{ t("mainPage.activeStratum", { id: props.game.state.activeStratumId }) }}
-        </div>
-        <div class="top-sub-line">{{ t("mainPage.gain", { value: activeDreamEnergyPercentageText }) }}</div>
-        <div v-if="showEntropy" class="entropy-panel">
-          <div class="entropy-primary">
-            <span class="entropy-label">{{ t("entropy.label") }}</span>
-            <span class="entropy-value">{{ entropyPercentText }}</span>
+        <div class="top-center-content">
+          <div class="top-title">{{ t("mainPage.title") }}</div>
+          <i18n-t keypath="mainPage.haveDreamEnergy" tag="div" class="top-main-line">
+            <template #amount>
+              <span class="big-number">{{ activeDreamEnergyText }}</span>
+            </template>
+          </i18n-t>
+          <div class="top-sub-line">
+            {{ t("mainPage.activeStratum", { id: props.game.state.activeStratumId }) }}
           </div>
-          <div class="entropy-meta">
-            {{ t("entropy.meta", {
-              tuning: entropyTuningText,
-            }) }}
+          <div class="top-sub-line">{{ t("mainPage.gain", { value: activeDreamEnergyPercentageText }) }}</div>
+          <div v-if="showEntropy" class="entropy-panel">
+            <div class="entropy-primary">
+              <span class="entropy-label">{{ t("entropy.label") }}</span>
+              <span class="entropy-value">{{ entropyPercentText }}</span>
+            </div>
+            <div class="entropy-meta">
+              {{ t("entropy.meta", {
+                tuning: entropyTuningText,
+              }) }}
+            </div>
           </div>
-        </div>
-        <div v-if="isFirstDreamEnergySoftcapReached" class="top-softcap-line">
-          {{ dreamEnergySoftcapWarningText }}
-        </div>
-        <div v-if="isDreamEnergyShieldingReached" class="top-shielding-line">
-          {{ t("mainPage.shieldingWarning") }}
+          <div v-if="isFirstDreamEnergySoftcapReached" class="top-softcap-line">
+            {{ dreamEnergySoftcapWarningText }}
+          </div>
+          <div v-if="isDreamEnergyShieldingReached" class="top-shielding-line">
+            {{ t("mainPage.shieldingWarning") }}
+          </div>
         </div>
 
         <div v-if="showChaoticEther" class="chaotic-ether-panel">
@@ -819,18 +821,18 @@ const secondaryTooltipStyle = computed(() => ({
 
 .right-area {
   display: grid;
-  grid-template-rows: var(--right-top-height) 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
   min-width: 0;
   text-align: center;
 }
 
 .top-panel {
-  position: relative;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(218px, 1fr) minmax(280px, 2fr) minmax(218px, 1fr);
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  column-gap: clamp(12px, 2vw, 28px);
+  min-height: var(--right-top-height);
+  box-sizing: border-box;
   padding: var(--panel-padding);
   background:
     radial-gradient(circle at center, rgba(114, 88, 211, 0.08), transparent 45%),
@@ -838,13 +840,23 @@ const secondaryTooltipStyle = computed(() => ({
   border-bottom: 1px solid var(--border-soft);
 }
 
+.top-center-content {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
 .coherence-panel {
-  position: absolute;
-  left: 75%;
-  top: 50%;
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: center;
   width: 218px;
   box-sizing: border-box;
-  transform: translate(-50%, -50%);
   padding: 12px;
   border: 1px solid rgba(142, 222, 255, 0.48);
   border-radius: 8px;
@@ -857,12 +869,11 @@ const secondaryTooltipStyle = computed(() => ({
 }
 
 .chaotic-ether-panel {
-  position: absolute;
-  left: 25%;
-  top: 50%;
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
   width: 218px;
   box-sizing: border-box;
-  transform: translate(-50%, -50%);
   padding: 12px;
   border: 1px solid rgba(255, 180, 88, 0.54);
   border-radius: 8px;
@@ -1167,25 +1178,27 @@ const secondaryTooltipStyle = computed(() => ({
 }
 
 @media (max-width: 980px) {
-  .right-area {
-    grid-template-rows: auto 1fr;
+  .top-panel {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0.5rem;
   }
 
-  .top-panel {
-    min-height: var(--right-top-height);
+  .top-center-content {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   .chaotic-ether-panel {
-    position: static;
+    grid-column: 1;
+    grid-row: auto;
     width: min(360px, 100%);
-    transform: none;
     margin-top: 6px;
   }
 
   .coherence-panel {
-    position: static;
+    grid-column: 1;
+    grid-row: auto;
     width: min(360px, 100%);
-    transform: none;
     margin-top: 6px;
   }
 }

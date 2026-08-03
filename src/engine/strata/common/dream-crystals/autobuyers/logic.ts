@@ -1,10 +1,11 @@
-import { N, ZERO, normalizeNum } from "@/engine/math/num";
+import { N, ZERO, normalizeNum, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import type { StratumState } from "@/engine/strata/state";
 import { buyMaxDreamCrystal } from "../logic";
 import { refineDreamCrystal } from "../refinement";
 import { DREAM_CRYSTAL_TIERS } from "@/engine/math/dream-crystals";
 import { isDreamCrystalAutobuyerUnlocked, isDreamCrystalRefineAutobuyerUnlocked } from "../upgrades";
+import { getCoherenceAutobuyerIntervalReductionSec } from "@/engine/strata/common/coherence/upgrades";
 import {
   createDreamCrystalAutobuyersState,
   type DreamCrystalAutobuyersState,
@@ -12,6 +13,20 @@ import {
 
 export const DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC = N(0.5);
 export const DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC = N(0.5);
+
+export function getDreamCrystalAutobuyerIntervalSec(stratum: StratumState): Num {
+  return sub(
+    DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC,
+    getCoherenceAutobuyerIntervalReductionSec(stratum),
+  );
+}
+
+export function getDreamCrystalRefineAutobuyerIntervalSec(stratum: StratumState): Num {
+  return sub(
+    DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC,
+    getCoherenceAutobuyerIntervalReductionSec(stratum),
+  );
+}
 
 export function ensureDreamCrystalAutobuyersState(stratum: StratumState): DreamCrystalAutobuyersState {
   stratum.dreamCrystalAutobuyers ??= createDreamCrystalAutobuyersState();
@@ -72,7 +87,7 @@ export function getDreamCrystalAutobuyerElapsedSec(stratum: StratumState): Num {
 
 export function getDreamCrystalAutobuyerRemainingSec(stratum: StratumState): Num {
   const elapsed = getDreamCrystalAutobuyerElapsedSec(stratum);
-  const remaining = DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC.sub(elapsed);
+  const remaining = getDreamCrystalAutobuyerIntervalSec(stratum).sub(elapsed);
   return remaining.lt(ZERO) ? ZERO : remaining;
 }
 
@@ -82,7 +97,7 @@ export function getDreamCrystalRefineAutobuyerElapsedSec(stratum: StratumState):
 
 export function getDreamCrystalRefineAutobuyerRemainingSec(stratum: StratumState): Num {
   const elapsed = getDreamCrystalRefineAutobuyerElapsedSec(stratum);
-  const remaining = DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC.sub(elapsed);
+  const remaining = getDreamCrystalRefineAutobuyerIntervalSec(stratum).sub(elapsed);
   return remaining.lt(ZERO) ? ZERO : remaining;
 }
 

@@ -14,6 +14,7 @@ export const COHERENCE_UPGRADE_BEST_NEXT_DREAM_ENERGY_ID = "coherence-upgrade-6"
 export const COHERENCE_UPGRADE_BEST_ENTRY_COHERENCE_ID = "coherence-upgrade-7";
 export const COHERENCE_UPGRADE_AUTOBUYER_ID = "coherence-upgrade-8";
 export const COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID = "coherence-upgrade-9";
+export const COHERENCE_UPGRADE_AUTOBUYER_SPEED_ID = "coherence-upgrade-10";
 
 export const COHERENCE_UPGRADE_ROW_ONE = [
   COHERENCE_UPGRADE_PLACEHOLDER_ONE_ID,
@@ -28,6 +29,7 @@ export const COHERENCE_UPGRADE_ROW_TWO = [
   COHERENCE_UPGRADE_BEST_ENTRY_COHERENCE_ID,
   COHERENCE_UPGRADE_AUTOBUYER_ID,
   COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID,
+  COHERENCE_UPGRADE_AUTOBUYER_SPEED_ID,
 ] as const;
 
 export const COHERENCE_UPGRADE_ROWS = [
@@ -95,6 +97,13 @@ export const COHERENCE_UPGRADE_DEFINITIONS = {
     kind: "repeatable",
     baseCost: N(1e10),
     costScale: N(2),
+  },
+  [COHERENCE_UPGRADE_AUTOBUYER_SPEED_ID]: {
+    id: COHERENCE_UPGRADE_AUTOBUYER_SPEED_ID,
+    kind: "repeatable",
+    baseCost: N(1e12),
+    costScale: N(2),
+    maxPurchases: N(9),
   },
 } as const satisfies Record<CoherenceUpgradeId, CoherenceUpgradeDefinition>;
 

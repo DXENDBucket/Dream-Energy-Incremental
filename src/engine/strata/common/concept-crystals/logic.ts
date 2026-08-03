@@ -21,7 +21,10 @@ import {
 } from "./state";
 
 const CONCEPT_CRYSTAL_PRODUCTION_RATIO = ONE;
-const CONCEPT_CRYSTAL_NODE_DEFAULT_POWER = N(4);
+const CONCEPT_CRYSTAL_NODE_MAGNITUDE_POWER = N(1.05);
+const CONCEPT_CRYSTAL_NODE_BASE_LOG_WEIGHT = N(0.035);
+const CONCEPT_CRYSTAL_NODE_SCALE_LOG_WEIGHT = N(0.0425);
+const CONCEPT_CRYSTAL_NODE_PER_CRYSTAL_LOG_WEIGHT = N(0.065);
 const CONCEPT_CRYSTAL_DC_COST_SCALE = div(N(2), N(3));
 const CONCEPT_CRYSTAL_DC_COST_LOG_POWER = div(ONE, N(4));
 const CONCEPT_CRYSTAL_STANDARD_EFFECT_LOG_POWER = N(Math.LN10);
@@ -135,14 +138,20 @@ export function toggleConceptCrystalSevering(stratum: StratumState): void {
   conceptCrystals.isSeveringEnabled = !conceptCrystals.isSeveringEnabled;
 }
 
-function getConceptCrystalLogPower(stratum: StratumState, nodeId: (typeof CONCEPT_CRYSTAL_NODE_IDS)[number]): Num {
+function getConceptCrystalNodeLogWeight(stratum: StratumState, scale: Num): Num {
   const conceptCrystals = ensureConceptCrystalsState(stratum);
-  const nodeAmount = max(conceptCrystals.nodes[nodeId], ONE);
-  const logLogBase = add(ONE, log10(add(ONE, log10(nodeAmount))));
+  const scaleWeight = mul(
+    CONCEPT_CRYSTAL_NODE_SCALE_LOG_WEIGHT,
+    div(scale, add(ONE, scale)),
+  );
+  const additionalCrystalWeight = mul(
+    CONCEPT_CRYSTAL_NODE_PER_CRYSTAL_LOG_WEIGHT,
+    max(ZERO, sub(conceptCrystals.amount, ONE)),
+  );
 
-  return pow(
-    pow(max(logLogBase, ONE), CONCEPT_CRYSTAL_NODE_DEFAULT_POWER),
-    max(conceptCrystals.amount, ONE),
+  return add(
+    add(CONCEPT_CRYSTAL_NODE_BASE_LOG_WEIGHT, scaleWeight),
+    additionalCrystalWeight,
   );
 }
 
@@ -154,7 +163,12 @@ function getConceptCrystalNodeEffect(
   const conceptCrystals = ensureConceptCrystalsState(stratum);
   if (conceptCrystals.nodes[nodeId].lte(ONE)) return ONE;
 
-  return max(ONE, add(ONE, mul(scale, sub(getConceptCrystalLogPower(stratum, nodeId), ONE))));
+  const magnitude = pow(
+    max(ZERO, log10(conceptCrystals.nodes[nodeId])),
+    CONCEPT_CRYSTAL_NODE_MAGNITUDE_POWER,
+  );
+
+  return pow(TEN, mul(getConceptCrystalNodeLogWeight(stratum, scale), magnitude));
 }
 
 function getConceptCrystalNodeScale(nodeId: ConceptCrystalNodeId): Num {

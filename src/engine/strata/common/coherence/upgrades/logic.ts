@@ -1,12 +1,13 @@
 import type { GameState } from "@/engine/core/state";
 import type { StratumState } from "@/engine/strata/state";
-import { N, ONE, ZERO, add, div, gte, log10, max, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
+import { N, ONE, ZERO, add, div, gte, log10, max, min, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import {
   computeEntropyGrowthRateMultiplierFromCoherence,
   ENTROPY_DEFAULT_TUNING_EXPONENT,
 } from "@/engine/strata/common/entropy";
 import {
+  COHERENCE_UPGRADE_AUTOBUYER_SPEED_ID,
   COHERENCE_UPGRADE_BEST_ENTRY_COHERENCE_ID,
   COHERENCE_UPGRADE_BEST_NEXT_DREAM_ENERGY_ID,
   COHERENCE_UPGRADE_DEEPER_INITIAL_DREAM_ENERGY_ID,
@@ -189,6 +190,22 @@ export function getCoherenceSoftcapThreeStrengthMultiplier(stratum: StratumState
     COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID,
   );
   return pow(N("0.9"), bought);
+}
+
+export const COHERENCE_AUTOBUYER_INTERVAL_REDUCTION_PER_LEVEL_SEC = N(0.05);
+
+export function getCoherenceAutobuyerIntervalReductionSec(stratum: StratumState): Num {
+  const bought = getCoherenceRepeatableUpgradeBought(
+    stratum,
+    COHERENCE_UPGRADE_AUTOBUYER_SPEED_ID,
+  );
+  const maxPurchases = getCoherenceUpgradeDefinition(
+    COHERENCE_UPGRADE_AUTOBUYER_SPEED_ID,
+  ).maxPurchases ?? bought;
+  return mul(
+    COHERENCE_AUTOBUYER_INTERVAL_REDUCTION_PER_LEVEL_SEC,
+    min(maxPurchases, bought),
+  );
 }
 
 function getCoherenceRecordMultiplier(record: Num): Num {

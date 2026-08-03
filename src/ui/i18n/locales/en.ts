@@ -213,6 +213,7 @@ export default {
     nextDreamCrystalMultiplierStatus: "Next-stratum Dream Crystal multiplier: ×{value}",
     softcapTwoSlowdownStatus: "Current second-stage compression multiplier: ×{value}",
     softcapThreeSlowdownStatus: "Bought {count} times | Current third softcap strength ×{value}",
+    autobuyerSpeedStatus: "Bought {count} times | Current autobuyer interval: {value}s",
     deeperInitialDreamEnergyStatus: "Bought {count} times | Next stratum starts with +{value} DE",
     pointGainMultiplierStatus: "Bought {count} times | Current Coherence Point gain ×{value}",
     bestNextDreamEnergyStatus: "Next-stratum best DE: {best} | Current and next-stratum DC ×{value}",
@@ -270,6 +271,10 @@ export default {
       "coherence-upgrade-9": {
         title: "Assimilation Release",
         description: "Multiply the third Dream Energy softcap strength by 0.9 each purchase.",
+      },
+      "coherence-upgrade-10": {
+        title: "Automation Overclock",
+        description: "Reduce the Refinery and DC Autobuyer intervals by 0.05 seconds per purchase.",
       },
     },
   },
@@ -564,7 +569,8 @@ export default {
     shielding: {
       title: "Shielding",
       threshold: "After the standard softcaps, the reality barrier activates above 2^128 ({value}) actual Dream Energy.",
-      rootDegree: "This stratum's current chaos gives Shielding a {value}th root.",
+      strength: "Shielding strength after this stratum's chaos and Tuning: {value}.",
+      rootDegree: "Current progress gives Shielding a {value}th root.",
       reduction: "The reality barrier only compresses the portion above 2^128, reducing {before} Dream Energy to {after} ({divisor}).",
     },
   },

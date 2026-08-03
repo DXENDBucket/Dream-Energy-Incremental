@@ -6,6 +6,7 @@ import { format, formatInt } from "@/engine/math/format";
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
 import {
   COHERENCE_UPGRADE_AUTOBUYER_ID,
+  COHERENCE_UPGRADE_AUTOBUYER_SPEED_ID,
   COHERENCE_UPGRADE_BEST_ENTRY_COHERENCE_ID,
   COHERENCE_UPGRADE_BEST_NEXT_DREAM_ENERGY_ID,
   COHERENCE_UPGRADE_DEEPER_INITIAL_DREAM_ENERGY_ID,
@@ -35,6 +36,7 @@ import {
   type CoherenceUpgradeId,
 } from "@/engine/strata/common/coherence/upgrades";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
+import { getDreamCrystalAutobuyerIntervalSec } from "@/engine/strata/common/dream-crystals/autobuyers";
 import UpgradeGridPage from "./UpgradeGridPage.vue";
 
 const props = defineProps<{
@@ -92,6 +94,12 @@ function getUpgradeFooter(id: CoherenceUpgradeId): string {
     return t("coherenceUpgrades.softcapThreeSlowdownStatus", {
       count: formatInt(getCoherenceRepeatableUpgradeBought(activeStratum.value, id)),
       value: format(getCoherenceSoftcapThreeStrengthMultiplier(activeStratum.value)),
+    });
+  }
+  if (id === COHERENCE_UPGRADE_AUTOBUYER_SPEED_ID) {
+    return t("coherenceUpgrades.autobuyerSpeedStatus", {
+      count: formatInt(getCoherenceRepeatableUpgradeBought(activeStratum.value, id)),
+      value: format(getDreamCrystalAutobuyerIntervalSec(activeStratum.value)),
     });
   }
   if (id === COHERENCE_UPGRADE_DEEPER_INITIAL_DREAM_ENERGY_ID) {
