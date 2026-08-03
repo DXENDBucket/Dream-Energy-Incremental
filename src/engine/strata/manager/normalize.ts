@@ -38,6 +38,7 @@ import {
   REALITY_MILESTONE_CHARACTER_PRODUCTION_ID,
   REALITY_MILESTONE_LIFT_UNLOCK_ID,
 } from "@/engine/reality/milestones";
+import { ensureCrushState, syncCrushDreamCrystalMultipliers } from "@/engine/crush";
 
 function normalizeDreamCrystalsState(stratum: StratumState): void {
   const defaults = createDreamCrystalsState();
@@ -62,6 +63,7 @@ export function normalizeGameState(state: GameState): GameState {
 
   state.strata[realityStratumId] ??= createStratumState();
   ensureRealityMilestonesState(state);
+  ensureCrushState(state);
   normalizeCharacterSystemState(state);
 
   if (state.lift.isLiftUnlocked) {
@@ -123,6 +125,7 @@ export function normalizeGameState(state: GameState): GameState {
   }
 
   syncCoherenceProgressionDreamCrystalMultipliers(state);
+  syncCrushDreamCrystalMultipliers(state);
   syncCharacterProductionPowers(state);
 
   return state;

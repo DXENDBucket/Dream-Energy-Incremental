@@ -50,6 +50,7 @@ export interface StratumState {
   coherenceProductionLoss: Num;
   coherenceDreamCrystalMultiplier: Num;
   coherenceProgressionDreamCrystalMultiplier: Num;
+  crushDreamCrystalMultiplier: Num;
   characterDreamCrystalMultiplier: Num;
   dreamCrystalMultiplierPower: Num;
   characterCoherencePointGainMultiplier: Num;
@@ -89,6 +90,7 @@ export function createStratumState(options: CreateStratumStateOptions = {}): Str
     coherenceProductionLoss: COHERENCE_DEFAULT_PRODUCTION_LOSS,
     coherenceDreamCrystalMultiplier: ONE,
     coherenceProgressionDreamCrystalMultiplier: ONE,
+    crushDreamCrystalMultiplier: ONE,
     characterDreamCrystalMultiplier: ONE,
     dreamCrystalMultiplierPower: ONE,
     characterCoherencePointGainMultiplier: ONE,

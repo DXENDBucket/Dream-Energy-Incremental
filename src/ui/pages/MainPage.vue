@@ -12,6 +12,7 @@ import CoherenceUpgradesPage from "./upgrades/CoherenceUpgradesPage.vue";
 import DreamCrystalAutobuyersPage from "./autobuyers/DreamCrystalAutobuyersPage.vue";
 import DreamEnergyMilestonesPage from "./milestones/DreamEnergyMilestones.vue";
 import RealityMilestonesPage from "./milestones/RealityMilestonesPage.vue";
+import CrushMilestonesPage from "./milestones/CrushMilestonesPage.vue";
 import CharacterProductionPage from "./characters/CharacterProductionPage.vue";
 import CharacterUnlocksPage from "./characters/CharacterUnlocksPage.vue";
 import CharacterLevelsPage from "./characters/CharacterLevelsPage.vue";
@@ -53,8 +54,20 @@ import {
   isDreamCrystalRefineAutobuyerUnlocked,
 } from "@/engine/strata/common/dream-crystals/upgrades";
 import { isCoherenceAutobuyerUnlocked } from "@/engine/strata/common/coherence/autobuyer";
-import { STRATUM_DEFINITIONS, realityStratumId } from "@/engine/strata/defs";
+import {
+  STRATUM_DEFINITIONS,
+  dreamSeaFourthStratumId,
+  realityStratumId,
+} from "@/engine/strata/defs";
 import { isCharacterProductionUnlocked } from "@/engine/reality/milestones";
+import {
+  CRUSH_MILESTONE_COUNT,
+  CRUSH_MILESTONE_DEFINITIONS,
+  canCrush,
+  crush,
+  getCrushMilestoneCount,
+  isCrushUnlocked,
+} from "@/engine/crush";
 import CurrentStratumPage from "./strata/CurrentStratumPage.vue";
 import LiftPage from "./strata/LiftPage.vue";
 import StrataOverviewPage from "./strata/StrataOverviewPage.vue";
@@ -98,10 +111,15 @@ const availablePrimaryTabs = computed(() => {
       if (tab.id === "milestones") {
         return {
           ...tab,
-          children: tab.children.filter(child =>
-            child.id !== "reality-milestones"
-            || props.game.state.activeStratumId === realityStratumId,
-          ),
+          children: tab.children.filter(child => {
+            if (child.id === "reality-milestones") {
+              return props.game.state.activeStratumId === realityStratumId;
+            }
+            if (child.id === "crush-milestones") {
+              return isCrushUnlocked(props.game.state);
+            }
+            return true;
+          }),
         };
       }
 
@@ -366,6 +384,32 @@ function onCondenseCoherence() {
   condenseCoherence(props.game.state);
 }
 
+const isFourthStratumActive = computed(() => (
+  props.game.state.activeStratumId === dreamSeaFourthStratumId
+));
+const crushMilestoneCount = computed(() => getCrushMilestoneCount(props.game.state));
+const canCrushNow = computed(() => canCrush(props.game.state));
+const isCrushMaxed = computed(() => crushMilestoneCount.value >= CRUSH_MILESTONE_COUNT);
+const isCrushDialogOpen = ref(false);
+const nextCrushDreamCrystalMultiplierText = computed(() => String(
+  2 ** Math.min(CRUSH_MILESTONE_COUNT, crushMilestoneCount.value + 1),
+));
+const nextCrushMilestone = computed(() => (
+  CRUSH_MILESTONE_DEFINITIONS[crushMilestoneCount.value]
+));
+
+function openCrushDialog(): void {
+  if (canCrushNow.value) isCrushDialogOpen.value = true;
+}
+
+function closeCrushDialog(): void {
+  isCrushDialogOpen.value = false;
+}
+
+function confirmCrush(): void {
+  if (crush(props.game.state)) closeCrushDialog();
+}
+
 const showEntropy = computed(() => {
   return (activeStratum.value.entropy?.formulaId ?? "none") !== "none";
 });
@@ -559,7 +603,28 @@ const secondaryTooltipStyle = computed(() => ({
           </div>
         </div>
 
-        <div v-if="isLiftUnlocked" class="coherence-panel">
+        <div
+          v-if="isLiftUnlocked && isFourthStratumActive"
+          class="coherence-panel crush-panel"
+        >
+          <div class="coherence-resource-line">
+            <span class="coherence-label crush-label">{{ t("resource.crushMilestones") }}</span>
+            <span class="coherence-amount crush-amount">{{ crushMilestoneCount }}</span>
+          </div>
+          <button
+            class="condense-button crush-button"
+            :disabled="!canCrushNow"
+            :title="t(isCrushMaxed ? 'crush.maxed' : canCrushNow ? 'crush.available' : 'crush.unavailable')"
+            @click="openCrushDialog"
+          >
+            {{ t("crush.action") }}
+          </button>
+          <div class="coherence-loss-line crush-progress-line">
+            {{ t("crush.globalProgress", { current: crushMilestoneCount, total: CRUSH_MILESTONE_COUNT }) }}
+          </div>
+        </div>
+
+        <div v-else-if="isLiftUnlocked" class="coherence-panel">
           <div class="coherence-resource-line">
             <span class="coherence-label">{{ t("resource.coherencePoints") }}</span>
             <span class="coherence-amount">{{ coherencePointsText }}</span>
@@ -595,6 +660,10 @@ const secondaryTooltipStyle = computed(() => ({
 
         <div v-else-if="selectedSecondary === 'reality-milestones'" class="page-card">
           <RealityMilestonesPage :game="props.game" />
+        </div>
+
+        <div v-else-if="selectedSecondary === 'crush-milestones'" class="page-card">
+          <CrushMilestonesPage :game="props.game" />
         </div>
 
         <div v-else-if="selectedSecondary === 'character-production'" class="page-card">
@@ -666,6 +735,56 @@ const secondaryTooltipStyle = computed(() => ({
         </div>
       </section>
     </main>
+
+    <Teleport to="body">
+      <transition name="crush-dialog-fade">
+        <div
+          v-if="isCrushDialogOpen"
+          class="crush-dialog-backdrop"
+          @click.self="closeCrushDialog"
+        >
+          <section class="crush-dialog" role="dialog" aria-modal="true" :aria-label="t('crush.dialog.title')">
+            <div class="crush-dialog-kicker">{{ t("crush.dialog.kicker") }}</div>
+            <h3>{{ t("crush.dialog.title") }}</h3>
+            <p class="crush-dialog-warning">{{ t("crush.dialog.warning") }}</p>
+
+            <div class="crush-dialog-section">
+              <h4>{{ t("crush.dialog.resetTitle") }}</h4>
+              <ul>
+                <li>{{ t("crush.dialog.resetStrata") }}</li>
+                <li>{{ t("crush.dialog.resetProgression") }}</li>
+                <li>{{ t("crush.dialog.resetCharacters") }}</li>
+              </ul>
+              <p class="crush-preserved">{{ t("crush.dialog.preserved") }}</p>
+            </div>
+
+            <div class="crush-dialog-section reward-section">
+              <h4>{{ t("crush.dialog.rewardTitle") }}</h4>
+              <div class="crush-dialog-gain">
+                {{ t("crush.dialog.reward", {
+                  current: crushMilestoneCount,
+                  next: crushMilestoneCount + 1,
+                  multiplier: nextCrushDreamCrystalMultiplierText,
+                }) }}
+              </div>
+              <p v-if="nextCrushMilestone" class="next-crush-effect">
+                {{ t("crush.dialog.nextEffect", { effect: t(nextCrushMilestone.effectKey) }) }}
+              </p>
+              <p class="crush-placeholder-warning">{{ t("crush.dialog.placeholderWarning") }}</p>
+            </div>
+
+            <div class="crush-dialog-actions">
+              <button class="crush-cancel-button" @click="closeCrushDialog">
+                {{ t("crush.dialog.cancel") }}
+              </button>
+              <button class="crush-confirm-button" @click="confirmCrush">
+                {{ t("crush.action") }}
+              </button>
+            </div>
+          </section>
+        </div>
+      </transition>
+    </Teleport>
   </div>
 </template>
 
@@ -877,6 +996,16 @@ const secondaryTooltipStyle = computed(() => ({
   text-align: left;
 }
 
+.crush-panel {
+  border-color: rgba(202, 35, 61, 0.7);
+  background:
+    radial-gradient(circle at 80% 8%, rgba(238, 31, 62, 0.14), transparent 38%),
+    linear-gradient(180deg, rgba(55, 5, 14, 0.96) 0%, rgba(19, 2, 7, 0.99) 100%);
+  box-shadow:
+    0 0 26px rgba(211, 20, 50, 0.2),
+    inset 0 0 22px rgba(255, 45, 76, 0.07);
+}
+
 .chaotic-ether-panel {
   grid-column: 1;
   grid-row: 1;
@@ -914,6 +1043,8 @@ const secondaryTooltipStyle = computed(() => ({
   font-weight: 700;
 }
 
+.crush-label { color: #ff9caa; }
+
 .chaotic-ether-label {
   color: #ffd19a;
   font-size: 0.78rem;
@@ -927,6 +1058,11 @@ const secondaryTooltipStyle = computed(() => ({
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   text-shadow: 0 0 14px rgba(126, 226, 255, 0.36);
+}
+
+.crush-amount {
+  color: #fff0f2;
+  text-shadow: 0 0 15px rgba(255, 35, 68, 0.5);
 }
 
 .chaotic-ether-amount {
@@ -969,6 +1105,18 @@ const secondaryTooltipStyle = computed(() => ({
   opacity: 0.48;
   filter: grayscale(0.35);
 }
+
+.crush-button {
+  border-color: rgba(255, 111, 132, 0.72);
+  background: linear-gradient(180deg, #d92c48 0%, #750b20 100%);
+  color: #fff4f5;
+  box-shadow:
+    0 0 20px rgba(226, 25, 57, 0.28),
+    inset 0 0 14px rgba(255, 255, 255, 0.12);
+  letter-spacing: 0.05em;
+}
+
+.crush-progress-line { color: #d26072; }
 
 .chaotic-ether-button {
   width: 100%;
@@ -1015,6 +1163,58 @@ const secondaryTooltipStyle = computed(() => ({
   font-size: 0.78rem;
   text-align: center;
 }
+
+.crush-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(5, 0, 2, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+.crush-dialog {
+  width: min(570px, 100%);
+  max-height: min(760px, calc(100vh - 48px));
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 25px;
+  border: 1px solid rgba(224, 49, 76, 0.78);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 85% 5%, rgba(233, 31, 63, 0.18), transparent 30%),
+    linear-gradient(155deg, #32050d 0%, #110207 55%, #080104 100%);
+  color: #ead9dc;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.62), 0 0 42px rgba(192, 17, 45, 0.22);
+  text-align: left;
+}
+
+.crush-dialog-kicker {
+  color: #e6536a;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.crush-dialog h3 { margin: 7px 0 6px; color: #fff0f2; font-size: 1.65rem; }
+.crush-dialog-warning { margin: 0 0 18px; color: #e896a3; line-height: 1.5; }
+.crush-dialog-section { margin-top: 12px; padding: 14px 15px; border: 1px solid rgba(135, 45, 59, 0.58); border-radius: 6px; background: rgba(24, 4, 9, 0.68); }
+.crush-dialog-section h4 { margin: 0 0 8px; color: #f4cbd1; }
+.crush-dialog-section ul { margin: 0; padding-left: 20px; color: #cf9ba4; line-height: 1.55; }
+.crush-preserved { margin: 9px 0 0; color: #98757c; font-size: 0.8rem; }
+.reward-section { border-color: rgba(195, 43, 67, 0.68); }
+.crush-dialog-gain { color: #fff0f2; font-family: var(--font-number); font-size: 1.05rem; font-weight: 800; }
+.next-crush-effect { margin: 9px 0 0; color: #dca2ac; line-height: 1.5; }
+.crush-placeholder-warning { margin: 9px 0 0; color: #a46f78; font-size: 0.78rem; }
+.crush-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.crush-dialog-actions button { min-width: 108px; padding: 10px 16px; border-radius: 6px; color: #f8e9ec; font: inherit; font-weight: 800; cursor: pointer; }
+.crush-cancel-button { border: 1px solid #70414a; background: #28171b; }
+.crush-confirm-button { border: 1px solid #f06c81; background: linear-gradient(180deg, #d92b47, #760a1f); box-shadow: 0 0 18px rgba(220, 25, 56, 0.22); }
+.crush-dialog-fade-enter-active, .crush-dialog-fade-leave-active { transition: opacity 0.16s ease; }
+.crush-dialog-fade-enter-from, .crush-dialog-fade-leave-to { opacity: 0; }
 
 .top-title {
   font-family: var(--font-title);

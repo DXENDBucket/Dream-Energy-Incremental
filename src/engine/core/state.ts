@@ -10,6 +10,7 @@ import {
   createRealityMilestonesState,
   type RealityMilestonesState,
 } from "../reality/milestones/state.ts";
+import { createCrushState, type CrushState } from "../crush/state.ts";
 
 export interface GameSettingsState {
   autoSaveIntervalSec: number;
@@ -24,6 +25,7 @@ export interface GameState {
   lift: LiftState;
   characters: CharacterSystemState;
   realityMilestones: RealityMilestonesState;
+  crush: CrushState;
   settings: GameSettingsState;
 }
 
@@ -40,6 +42,7 @@ export function createNewState(): GameState {
     lift: createLiftState(),
     characters: createCharacterSystemState(),
     realityMilestones: createRealityMilestonesState(),
+    crush: createCrushState(),
     settings: {
       autoSaveIntervalSec: 20,
     },

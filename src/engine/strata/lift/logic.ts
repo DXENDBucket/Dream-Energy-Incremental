@@ -38,6 +38,7 @@ import { createStratumState, type StratumState } from "@/engine/strata/state";
 import { LIFT_UNLOCK_REQUIREMENT } from "./balance";
 import { markRealityLiftMilestoneClaimed } from "@/engine/reality/milestones";
 import { returnCharactersToRosterFromStratum } from "@/engine/characters";
+import { syncCrushDreamCrystalMultipliers } from "@/engine/crush";
 
 export type StratumTravelDirection = "deeper" | "shallower";
 
@@ -213,6 +214,7 @@ export function travelToStratum(state: GameState, targetStratumId: string): bool
   state.activeStratumId = targetStratumId;
   state.lift.currentLiftPosition = targetStratumId;
   syncCoherenceProgressionDreamCrystalMultipliers(state);
+  syncCrushDreamCrystalMultipliers(state);
   return true;
 }
 

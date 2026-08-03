@@ -92,6 +92,7 @@ export const PRIMARY_TABS = [
     children: [
       { id: "de-milestones", icon: "⚐", labelKey: "navigation.secondary.dreamEnergyMilestones" },
       { id: "reality-milestones", icon: "R", labelKey: "navigation.secondary.realityMilestones" },
+      { id: "crush-milestones", icon: "✦", labelKey: "navigation.secondary.crushMilestones" },
     ],
   },
   {

@@ -26,6 +26,7 @@ export default {
       coherenceUpgrades: "Coherence Upgrades",
       dreamEnergyMilestones: "Dream Energy Milestones",
       realityMilestones: "Reality Milestones",
+      crushMilestones: "Crush Milestones",
       characterProduction: "Character Production",
       characterUnlocks: "Character Unlocks",
       characterLevels: "Character Levels",
@@ -44,11 +45,13 @@ export default {
   resource: {
     dreamEnergy: "Dream Energy",
     coherencePoints: "Coherence Points",
+    crushMilestones: "Crush Milestones",
     chaoticEther: "Chaotic Ether",
     chaoticEtherTier: {
       1: "Chaotic Ether I",
       2: "Chaotic Ether II",
       3: "Chaotic Ether III",
+      4: "Chaotic Ether IV",
     },
   },
   mainPage: {
@@ -301,6 +304,72 @@ export default {
         title: "Automation Overclock",
         description: "Reduce the Refinery and DC Autobuyer intervals by 0.05 seconds per purchase.",
       },
+    },
+  },
+  crushMilestones: {
+    kicker: "GLOBAL PRESTIGE",
+    title: "Crush Milestones",
+    description: "Crush Milestones are shared across all strata. Each Crush completed in the fourth stratum permanently adds one, and every milestone gives every Dream Crystal in every stratum an additional ×2 multiplier.",
+    placeholderNote: "The global ×2 Dream Crystal bonus is active. The individual crystal, concept, and formula effects listed below remain placeholders and do not yet affect calculations.",
+    currentDcBonus: "Current global DC bonus: ×{value}",
+    reached: "Reached",
+    next: "Next",
+    locked: "Locked",
+    items: {
+      "1": {
+        title: "Crush I",
+        effect: "CE gain is significantly increased based on the current stratum's best Dream Energy, but Dream Crystals 7 and 8 cannot produce.",
+      },
+      "2": {
+        title: "Crush II",
+        effect: "One negative concept becomes a positive effect, but Entropy penalizes production more severely.",
+      },
+      "3": {
+        title: "Crush III",
+        effect: "Concept Crystals are unlocked from the start, but Dream Crystals 5 and 6 cannot produce.",
+      },
+      "4": {
+        title: "Crush IV",
+        effect: "The second negative concept becomes positive, but Entropy grows ten times faster in every stratum.",
+      },
+      "5": {
+        title: "Crush V",
+        effect: "Concept Crystals unlock more concepts, but Dream Crystals 3 and 4 cannot produce.",
+      },
+      "6": {
+        title: "Crush VI",
+        effect: "The final negative concept is inverted into a new positive effect, but crystal refinement is disabled.",
+      },
+      "7": {
+        title: "Crush VII",
+        effect: "Unlock Reality Crystals, but Dream Crystals 1 and 2 cannot produce.",
+      },
+      "8": {
+        title: "Crush VIII",
+        effect: "All debuffs disappear, buffs remain, and later strata are unlocked.",
+      },
+    },
+  },
+  crush: {
+    action: "Crush",
+    available: "Perform a Crush.",
+    unavailable: "Reach more Dream Energy in the fourth stratum to Crush.",
+    maxed: "All eight current Crush Milestones have been reached.",
+    globalProgress: "Global progress · {current}/{total}",
+    dialog: {
+      kicker: "PRESTIGE WARNING",
+      title: "Confirm Crush?",
+      warning: "Crush is a global major prestige. All game content preceding Crush will restart after confirmation.",
+      resetTitle: "Will reset",
+      resetStrata: "Remove all entered Dream strata and return to a fresh Reality; clear DE, DC, Concept Crystals, CP, CE, and Entropy in every stratum.",
+      resetProgression: "Reset Lift, upgrades, ordinary milestones, Reality Milestones, and autobuyer progress.",
+      resetCharacters: "Reset character unlocks, levels, roster, and production assignments.",
+      preserved: "Only game settings and the accumulated Crush Milestones after this Crush are retained.",
+      rewardTitle: "Will gain",
+      reward: "+1 global Crush Milestone ({current} → {next}); the global multiplier for every DC in every stratum becomes ×{multiplier}.",
+      nextEffect: "Next milestone: {effect}",
+      placeholderWarning: "The milestone is recorded normally; effects marked on its page remain placeholders for now.",
+      cancel: "Cancel",
     },
   },
   realityMilestones: {

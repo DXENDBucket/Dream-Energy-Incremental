@@ -135,6 +135,7 @@ export function getDreamCrystalMultiplier(
     multiplier = mul(multiplier, getDreamCrystalCurrentCoherenceMultiplier(stratum))
     multiplier = mul(multiplier, stratum.coherenceDreamCrystalMultiplier ?? ONE)
     multiplier = mul(multiplier, stratum.coherenceProgressionDreamCrystalMultiplier ?? ONE)
+    multiplier = mul(multiplier, stratum.crushDreamCrystalMultiplier ?? ONE)
     multiplier = mul(multiplier, stratum.characterDreamCrystalMultiplier ?? ONE)
     return pow(multiplier, stratum.dreamCrystalMultiplierPower ?? ONE);
 }

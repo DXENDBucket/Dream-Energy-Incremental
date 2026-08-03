@@ -7,6 +7,7 @@ import { getCoherencePointGainMultiplier } from "@/engine/strata/common/coherenc
 import { getDreamEnergy, setDreamEnergy } from "@/engine/strata/common/dream-energy";
 import type { StratumState } from "@/engine/strata/state";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
+import { dreamSeaFourthStratumId } from "@/engine/strata/defs";
 import {
   COHERENCE_CONDENSE_EXPONENT_OFFSET,
   COHERENCE_CONDENSE_REQUIREMENT,
@@ -38,6 +39,7 @@ export function getCoherencePointGain(stratum: StratumState): Num {
 
 export function canCondenseCoherence(state: GameState): boolean {
   if (!state.lift.isLiftUnlocked) return false;
+  if (state.activeStratumId === dreamSeaFourthStratumId) return false;
   return gte(getCoherencePointGain(getActiveStratum(state)), 1);
 }
 

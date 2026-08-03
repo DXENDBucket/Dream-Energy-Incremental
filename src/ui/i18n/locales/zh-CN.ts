@@ -26,6 +26,7 @@ export default {
       coherenceUpgrades: "调谐升级",
       dreamEnergyMilestones: "梦能里程碑",
       realityMilestones: "Reality Milestones",
+      crushMilestones: "Crush Milestones",
       characterProduction: "角色辅助生产",
       characterUnlocks: "角色解锁",
       characterLevels: "角色等级",
@@ -44,11 +45,13 @@ export default {
   resource: {
     dreamEnergy: "梦能",
     coherencePoints: "调谐点数",
+    crushMilestones: "Crush Milestones",
     chaoticEther: "混沌以太",
     chaoticEtherTier: {
       1: "Chaotic Ether I",
       2: "Chaotic Ether II",
       3: "Chaotic Ether III",
+      4: "Chaotic Ether IV",
     },
   },
   mainPage: {
@@ -301,6 +304,72 @@ export default {
         title: "自动化超频",
         description: "每次购买使 Refinery Autobuyers 与 DC Autobuyers 的间隔减少 0.05 秒。",
       },
+    },
+  },
+  crushMilestones: {
+    kicker: "GLOBAL PRESTIGE",
+    title: "Crush Milestones",
+    description: "Crush Milestones 跨层共享，每次在第四层完成 Crush 都会永久增加 1；每项里程碑使所有层的所有梦境水晶获得额外 ×2 multiplier。",
+    placeholderNote: "全局梦境水晶 ×2 加成已经实装；以下各项单独列出的水晶、概念和公式效果暂为占位，尚未参与实际计算。",
+    currentDcBonus: "当前全局 DC 加成：×{value}",
+    reached: "已获得",
+    next: "下一项",
+    locked: "未获得",
+    items: {
+      "1": {
+        title: "Crush I",
+        effect: "CE 获取量基于当前层历史最高梦能显著增加，但第 7、8 层梦境水晶不会生产。",
+      },
+      "2": {
+        title: "Crush II",
+        effect: "一个负面概念被改为正面效果，但 Entropy 对生产的减益更加剧烈。",
+      },
+      "3": {
+        title: "Crush III",
+        effect: "概念水晶初始解锁，但第 5、6 层梦境水晶不会生产。",
+      },
+      "4": {
+        title: "Crush IV",
+        effect: "第二个负面概念变为正面效果，但所有层的 Entropy 增长速度变为十倍。",
+      },
+      "5": {
+        title: "Crush V",
+        effect: "概念水晶解锁更多概念，但第 3、4 层梦境水晶不会生产。",
+      },
+      "6": {
+        title: "Crush VI",
+        effect: "反转最后一个负面概念效果为新的正面效果，但无法进行水晶精炼。",
+      },
+      "7": {
+        title: "Crush VII",
+        effect: "解锁现实水晶，但第 1、2 层梦境水晶不会生产。",
+      },
+      "8": {
+        title: "Crush VIII",
+        effect: "所有 debuff 消失，buff 保留，并解锁后续层级。",
+      },
+    },
+  },
+  crush: {
+    action: "Crush",
+    available: "执行一次 Crush。",
+    unavailable: "需要更多第四层梦能才能 Crush。",
+    maxed: "当前八个 Crush Milestones 均已获得。",
+    globalProgress: "全局进度 · {current}/{total}",
+    dialog: {
+      kicker: "PRESTIGE WARNING",
+      title: "确认 Crush？",
+      warning: "Crush 是一项全局大 Prestige。确认后，Crush 之前的全部游戏内容都会重新开始。",
+      resetTitle: "将会重置",
+      resetStrata: "删除已进入的梦境层并返回全新的 Reality；所有层的 DE、DC、概念水晶、CP、CE 与 Entropy 清空。",
+      resetProgression: "重置 Lift、升级、普通里程碑、Reality Milestones 与自动器进度。",
+      resetCharacters: "重置角色解锁、等级、仓库与生产区配置。",
+      preserved: "仅保留游戏设置，以及本次获得后累计的 Crush Milestones。",
+      rewardTitle: "将会获得",
+      reward: "+1 全局 Crush Milestone（{current} → {next}）；所有层所有 DC 的全局 multiplier 变为 ×{multiplier}。",
+      nextEffect: "下一项里程碑：{effect}",
+      placeholderWarning: "里程碑会正常记录；其中标注于页面的机制效果目前仍为占位。",
+      cancel: "取消",
     },
   },
   realityMilestones: {
