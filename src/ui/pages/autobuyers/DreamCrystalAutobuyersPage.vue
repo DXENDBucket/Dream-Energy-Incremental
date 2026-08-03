@@ -124,6 +124,7 @@ function onToggleRefine(tier: number) {
 <style scoped>
 .autobuyers-page {
   width: min(900px, 100%);
+  margin-inline: auto;
 }
 
 .autobuyers-header {

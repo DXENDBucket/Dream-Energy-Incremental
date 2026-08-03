@@ -2,7 +2,7 @@
 import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { GameState } from "@/engine/core/state";
-import { formatInt } from "@/engine/math/format";
+import { format, formatInt } from "@/engine/math/format";
 import { N, mul } from "@/engine/math/num";
 import { getCoherencePointGain, getCoherencePoints } from "@/engine/strata/common/coherence";
 import {
@@ -43,10 +43,15 @@ const ratioRequiredGainText = computed(() => formatInt(mul(
   autobuyer.value.gainRatio,
 )));
 
-function settingValue(setting: NumericSetting): string {
+function rawSettingValue(setting: NumericSetting): string {
   if (setting === "interval") return autobuyer.value.intervalSec.toString();
   if (setting === "amount") return autobuyer.value.minimumGain.toString();
   return autobuyer.value.gainRatio.toString();
+}
+
+function displayedSettingValue(setting: NumericSetting): string {
+  if (setting === "amount") return format(autobuyer.value.minimumGain);
+  return rawSettingValue(setting);
 }
 
 watch(
@@ -58,7 +63,7 @@ watch(
   ] as const,
   () => {
     for (const setting of ["interval", "amount", "ratio"] as const) {
-      if (focusedSetting.value !== setting) drafts[setting] = settingValue(setting);
+      if (focusedSetting.value !== setting) drafts[setting] = displayedSettingValue(setting);
     }
   },
   { immediate: true },
@@ -114,7 +119,7 @@ function commitDraft(setting: NumericSetting): void {
   }
 
   focusedSetting.value = null;
-  drafts[setting] = settingValue(setting);
+  drafts[setting] = displayedSettingValue(setting);
 }
 
 function finishOnEnter(event: KeyboardEvent): void {
@@ -242,13 +247,13 @@ function finishOnEnter(event: KeyboardEvent): void {
 .toggle input, .dynamic-toggle input { width: 18px; height: 18px; accent-color: #5dd4f7; }
 
 .mode-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 16px; }
-.mode-button { min-height: 82px; padding: 10px; border: 1px solid rgba(103,166,196,.42); border-radius: 6px; background: rgba(15,38,58,.72); color: #b8d8e6; font: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 5px; }
+.mode-button { min-height: 82px; padding: 10px; border: 1px solid rgba(103,166,196,.42); border-radius: 6px; background: rgba(15,38,58,.72); color: #b8d8e6; font: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
 .mode-button strong { color: #e6f9ff; font-size: .84rem; }
 .mode-button span { font-size: .72rem; line-height: 1.35; }
 .mode-button.active { border-color: #8be3ff; background: rgba(29,83,107,.74); box-shadow: inset 0 0 18px rgba(91,213,250,.1); }
 
-.setting-row { margin-top: 14px; padding: 13px; border-radius: 6px; background: rgba(5,14,26,.5); color: #bdefff; display: grid; grid-template-columns: minmax(180px,1fr) minmax(180px,280px); align-items: center; gap: 10px 16px; }
-.setting-row > label:not(.dynamic-toggle) { font-size: .82rem; font-weight: 800; }
+.setting-row { margin-top: 14px; padding: 13px; border-radius: 6px; background: rgba(5,14,26,.5); color: #bdefff; display: grid; grid-template-columns: max-content minmax(180px,280px); justify-content: center; align-items: center; gap: 10px 16px; }
+.setting-row > label:not(.dynamic-toggle) { font-size: .82rem; font-weight: 800; text-align: right; }
 .input-wrap { display: flex; align-items: center; gap: 8px; }
 .input-wrap input { width: 100%; padding: 8px 10px; border: 1px solid #437a91; border-radius: 5px; outline: none; background: #071522; color: #e8fbff; font: inherit; font-variant-numeric: tabular-nums; }
 .input-wrap input:focus { border-color: #8be3ff; box-shadow: 0 0 0 2px rgba(91,213,250,.12); }
@@ -258,5 +263,6 @@ function finishOnEnter(event: KeyboardEvent): void {
 @media (max-width: 700px) {
   .panel-header { align-items: flex-start; }
   .mode-grid, .setting-row { grid-template-columns: 1fr; }
+  .setting-row > label:not(.dynamic-toggle) { text-align: center; }
 }
 </style>
