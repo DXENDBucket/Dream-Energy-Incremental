@@ -43,17 +43,17 @@ export interface CharacterLevelCostDefinition {
 export const CHARACTER_LEVEL_COST_DEFINITIONS: Record<string, CharacterLevelCostDefinition> = {
   [ALPHA_CHARACTER_ID]: {
     resource: "dream-energy",
-    baseCost: N(10),
+    baseCost: N("1e47"),
     costScale: N(15),
   },
   [DAWN_CHARACTER_ID]: {
     resource: "chaotic-ether-1",
-    baseCost: N(1),
+    baseCost: N("5e15"),
     costScale: N(6),
   },
   [DELTA_CHARACTER_ID]: {
     resource: "coherence-points",
-    baseCost: N(1),
+    baseCost: N("5e9"),
     costScale: N(3),
   },
 };

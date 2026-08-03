@@ -404,7 +404,7 @@ export default {
     emptySlot: "空",
     alpha: {
       name: "阿尔法",
-      effect: "DC 倍率 ×10，随后 ^1.01",
+      effect: "DC 倍率 ×2，随后 ^1.01",
     },
     dawn: { name: "Dawn" },
     delta: { name: "Delta" },

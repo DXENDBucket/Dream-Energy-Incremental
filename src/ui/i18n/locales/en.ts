@@ -404,7 +404,7 @@ export default {
     emptySlot: "Empty",
     alpha: {
       name: "Alpha",
-      effect: "DC multiplier ×10, then ^1.01",
+      effect: "DC multiplier ×2, then ^1.01",
     },
     dawn: { name: "Dawn" },
     delta: { name: "Delta" },

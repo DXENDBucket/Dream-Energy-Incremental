@@ -39,7 +39,7 @@ export const CHARACTER_AFFIX_DEFINITIONS: Record<CharacterAffixId, CharacterAffi
   [DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID]: {
     id: DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID,
     labelKey: "characters.affixes.dreamCrystalMultiplier",
-    baseValue: N(10),
+    baseValue: N(2),
     growthCurveId: "shared-dc-multiplier",
     operator: "multiply",
   },
