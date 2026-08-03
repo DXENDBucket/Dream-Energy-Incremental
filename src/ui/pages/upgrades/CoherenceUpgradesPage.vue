@@ -14,6 +14,7 @@ import {
   COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID,
   COHERENCE_UPGRADE_ROWS,
   COHERENCE_UPGRADE_SOFTCAP_TWO_SLOWDOWN_ID,
+  COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID,
   buyCoherenceUpgrade,
   canBuyCoherenceUpgrade,
   getCoherenceBestEntryCoherenceMultiplier,
@@ -25,6 +26,7 @@ import {
   getCoherencePointGainMultiplier,
   getCoherenceRepeatableUpgradeBought,
   getCoherenceSoftcapTwoStrengthMultiplier,
+  getCoherenceSoftcapThreeStrengthMultiplier,
   getCoherenceUpgradeCost,
   getCoherenceUpgradeDefinition,
   hasCoherenceUpgrade,
@@ -84,6 +86,12 @@ function getUpgradeFooter(id: CoherenceUpgradeId): string {
   if (id === COHERENCE_UPGRADE_SOFTCAP_TWO_SLOWDOWN_ID) {
     return t("coherenceUpgrades.softcapTwoSlowdownStatus", {
       value: format(getCoherenceSoftcapTwoStrengthMultiplier(activeStratum.value)),
+    });
+  }
+  if (id === COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID) {
+    return t("coherenceUpgrades.softcapThreeSlowdownStatus", {
+      count: formatInt(getCoherenceRepeatableUpgradeBought(activeStratum.value, id)),
+      value: format(getCoherenceSoftcapThreeStrengthMultiplier(activeStratum.value)),
     });
   }
   if (id === COHERENCE_UPGRADE_DEEPER_INITIAL_DREAM_ENERGY_ID) {

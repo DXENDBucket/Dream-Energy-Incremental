@@ -14,6 +14,7 @@ import {
   COHERENCE_UPGRADE_NEXT_DREAM_CRYSTAL_MULTIPLIER_ID,
   COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID,
   COHERENCE_UPGRADE_SOFTCAP_TWO_SLOWDOWN_ID,
+  COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID,
   COHERENCE_UPGRADE_ROWS,
   type CoherenceUpgradeId,
   getCoherenceUpgradeDefinition,
@@ -180,6 +181,14 @@ export function getCoherencePointGainMultiplier(stratum: StratumState): Num {
     mul(upgradeMultiplier, getConceptCrystalCoherencePointGainMultiplier(stratum)),
     stratum.characterCoherencePointGainMultiplier ?? ONE,
   );
+}
+
+export function getCoherenceSoftcapThreeStrengthMultiplier(stratum: StratumState): Num {
+  const bought = getCoherenceRepeatableUpgradeBought(
+    stratum,
+    COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID,
+  );
+  return pow(N("0.9"), bought);
 }
 
 function getCoherenceRecordMultiplier(record: Num): Num {

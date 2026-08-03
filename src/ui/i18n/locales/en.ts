@@ -211,6 +211,7 @@ export default {
     entropyTuningStatus: "Next-stratum Entropy Tuning: {value}",
     nextDreamCrystalMultiplierStatus: "Next-stratum Dream Crystal multiplier: ×{value}",
     softcapTwoSlowdownStatus: "Current second-stage compression multiplier: ×{value}",
+    softcapThreeSlowdownStatus: "Bought {count} times | Current third softcap strength ×{value}",
     deeperInitialDreamEnergyStatus: "Bought {count} times | Next stratum starts with +{value} DE",
     pointGainMultiplierStatus: "Bought {count} times | Current Coherence Point gain ×{value}",
     bestNextDreamEnergyStatus: "Next-stratum best DE: {best} | Current and next-stratum DC ×{value}",
@@ -264,6 +265,10 @@ export default {
       "coherence-upgrade-8": {
         title: "Autonomous Tuning",
         description: "Unlock the Coherence Autobuyer, configurable by time, pending CP gain, or gain relative to current CP.",
+      },
+      "coherence-upgrade-9": {
+        title: "Assimilation Release",
+        description: "Multiply the third Dream Energy softcap strength by 0.9 each purchase.",
       },
     },
   },

@@ -13,6 +13,7 @@ export const COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID = COHERENCE_UPGRADE_PLAC
 export const COHERENCE_UPGRADE_BEST_NEXT_DREAM_ENERGY_ID = "coherence-upgrade-6";
 export const COHERENCE_UPGRADE_BEST_ENTRY_COHERENCE_ID = "coherence-upgrade-7";
 export const COHERENCE_UPGRADE_AUTOBUYER_ID = "coherence-upgrade-8";
+export const COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID = "coherence-upgrade-9";
 
 export const COHERENCE_UPGRADE_ROW_ONE = [
   COHERENCE_UPGRADE_PLACEHOLDER_ONE_ID,
@@ -26,6 +27,7 @@ export const COHERENCE_UPGRADE_ROW_TWO = [
   COHERENCE_UPGRADE_BEST_NEXT_DREAM_ENERGY_ID,
   COHERENCE_UPGRADE_BEST_ENTRY_COHERENCE_ID,
   COHERENCE_UPGRADE_AUTOBUYER_ID,
+  COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID,
 ] as const;
 
 export const COHERENCE_UPGRADE_ROWS = [
@@ -87,6 +89,12 @@ export const COHERENCE_UPGRADE_DEFINITIONS = {
     id: COHERENCE_UPGRADE_AUTOBUYER_ID,
     kind: "single",
     baseCost: N(1e8),
+  },
+  [COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID]: {
+    id: COHERENCE_UPGRADE_SOFTCAP_THREE_SLOWDOWN_ID,
+    kind: "repeatable",
+    baseCost: N(1e10),
+    costScale: N(2),
   },
 } as const satisfies Record<CoherenceUpgradeId, CoherenceUpgradeDefinition>;
 
