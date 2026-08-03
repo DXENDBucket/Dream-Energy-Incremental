@@ -157,6 +157,10 @@ export default {
     },
     refineryLogBaseStatus: "Bought {count} times | Current log base {value}",
     softcapOneStatus: "Bought {count} times | Current first-stage compression strength {value}",
+    currentRefineryLogBase: "Current Refine log base: {value}",
+    totalCESoftcapTwoStatus: "Current second-softcap strength multiplier: ×{value}",
+    coherenceConversionStatus: "Current overall growth occurs every {value} orders of magnitude",
+    costGrowthSlowdownStatus: "Bought {count} times | Current post-20 softcap growth base: ×{value}",
     items: {
       "first-tier-triple": {
         title: "Primal Prism",
@@ -197,6 +201,26 @@ export default {
       "softcap-one-weaken": {
         title: "Pressure Palliation",
         description: "Halve the first-stage compression strength.",
+      },
+      "current-coherence-multiplier": {
+        title: "Coherence Mapping",
+        description: "Give every Dream Crystal an extra multiplier based on log10 of current CP.",
+      },
+      "refinery-log-base-halving": {
+        title: "Half-Base Refinement",
+        description: "Multiply the Refine log base by 0.5 after existing additive adjustments.",
+      },
+      "total-ce-softcap-two": {
+        title: "Ether Venting",
+        description: "Total CE gained in this stratum slightly weakens the second Dream Energy softcap.",
+      },
+      "coherence-conversion": {
+        title: "Condensation Optimization",
+        description: "Improve Coherence conversion so overall growth occurs every 5 orders of magnitude instead of every 9.",
+      },
+      "cost-growth-slowdown": {
+        title: "Cost Relief",
+        description: "Multiply the logarithmic growth rate of every DC's post-20 softcap curve by 0.99 per purchase.",
       },
     },
   },

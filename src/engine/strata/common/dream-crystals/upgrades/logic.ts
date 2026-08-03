@@ -11,15 +11,20 @@ import { getDreamCrystalBought } from "../selectors";
 import {
   DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID,
   DREAM_CRYSTAL_UPGRADE_AUTOBUYER_ID,
+  DREAM_CRYSTAL_UPGRADE_COHERENCE_CONVERSION_ID,
+  DREAM_CRYSTAL_UPGRADE_COST_GROWTH_SLOWDOWN_ID,
+  DREAM_CRYSTAL_UPGRADE_CURRENT_COHERENCE_MULTIPLIER_ID,
   DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID,
   DREAM_CRYSTAL_UPGRADE_FREE_PURCHASES_ID,
   DREAM_CRYSTAL_UPGRADE_REFINERY_EFFICIENCY_ID,
+  DREAM_CRYSTAL_UPGRADE_REFINERY_LOG_BASE_HALVING_ID,
   DREAM_CRYSTAL_UPGRADE_REFINERY_LOG_BASE_ID,
   DREAM_CRYSTAL_UPGRADE_REFINE_AUTOBUYER_ID,
   DREAM_CRYSTAL_UPGRADE_REFINE_KEEP_CRYSTALS_ID,
   DREAM_CRYSTAL_UPGRADE_ROWS,
   DREAM_CRYSTAL_UPGRADE_SOFTCAP_ONE_WEAKEN_ID,
   DREAM_CRYSTAL_UPGRADE_SOFTCAP_TWO_WEAKEN_ID,
+  DREAM_CRYSTAL_UPGRADE_TOTAL_CE_SOFTCAP_TWO_ID,
   type DreamCrystalUpgradeId,
   getDreamCrystalUpgradeDefinition,
 } from "./definitions";
@@ -29,6 +34,7 @@ import {
 } from "./state";
 
 const FIRST_TIER_UPGRADE_CE_SOFTCAP_START = N(10);
+const REFINERY_MINIMUM_VALID_LOG_BASE = N("1.000000001");
 
 export function ensureDreamCrystalUpgradesState(stratum: StratumState): DreamCrystalUpgradesState {
   stratum.dreamCrystalUpgrades ??= createDreamCrystalUpgradesState();
@@ -147,9 +153,20 @@ export function getDreamCrystalSoftcapOneStrengthMultiplier(stratum: StratumStat
 }
 
 export function getDreamCrystalSoftcapTwoStrengthMultiplier(stratum: StratumState): Num {
-  return hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_SOFTCAP_TWO_WEAKEN_ID)
+  const fixedMultiplier = hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_SOFTCAP_TWO_WEAKEN_ID)
     ? N(0.5)
     : ONE;
+  return mul(fixedMultiplier, getDreamCrystalTotalCESoftcapTwoStrengthMultiplier(stratum));
+}
+
+export function getDreamCrystalTotalCESoftcapTwoStrengthMultiplier(stratum: StratumState): Num {
+  if (!hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_TOTAL_CE_SOFTCAP_TWO_ID)) return ONE;
+
+  const totalChaoticEtherGained = max(getTotalChaoticEtherGained(
+    stratum,
+    getDreamCrystalUpgradeChaoticEtherTier(stratum),
+  ), ONE);
+  return pow(N(0.995), log10(totalChaoticEtherGained));
 }
 
 export function getDreamCrystalFirstTierUpgradeMultiplier(stratum: StratumState, tier: number): Num {
@@ -190,6 +207,14 @@ export function getDreamCrystalBoughtPowerMultiplier(stratum: StratumState, tier
   return pow(getDreamCrystalBoughtPowerBase(stratum), getDreamCrystalBought(stratum.dreamCrystals, tier));
 }
 
+export function getDreamCrystalCurrentCoherenceMultiplier(stratum: StratumState): Num {
+  if (!hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_CURRENT_COHERENCE_MULTIPLIER_ID)) {
+    return ONE;
+  }
+
+  return max(ONE, log10(max(stratum.coherencePoints ?? ZERO, ONE)));
+}
+
 export function getDreamCrystalRefineryEfficiencyMultiplier(stratum: StratumState): Num {
   const bought = getDreamCrystalRepeatableUpgradeBought(
     stratum,
@@ -206,5 +231,25 @@ export function getDreamCrystalRefineryLogBase(stratum: StratumState): Num {
     DREAM_CRYSTAL_UPGRADE_REFINERY_LOG_BASE_ID,
   );
 
-  return add(ONE, mul(N(4), pow(N(0.9), bought)));
+  const adjustedBase = add(ONE, mul(N(4), pow(N(0.9), bought)));
+  const finalMultiplier = hasDreamCrystalUpgrade(
+    stratum,
+    DREAM_CRYSTAL_UPGRADE_REFINERY_LOG_BASE_HALVING_ID,
+  ) ? N(0.5) : ONE;
+
+  return max(REFINERY_MINIMUM_VALID_LOG_BASE, mul(adjustedBase, finalMultiplier));
+}
+
+export function getDreamCrystalCoherenceProductionLossMultiplier(stratum: StratumState): Num {
+  return hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_COHERENCE_CONVERSION_ID)
+    ? N(5).div(9)
+    : ONE;
+}
+
+export function getDreamCrystalCostGrowthSlowdownMultiplier(stratum: StratumState): Num {
+  const bought = getDreamCrystalRepeatableUpgradeBought(
+    stratum,
+    DREAM_CRYSTAL_UPGRADE_COST_GROWTH_SLOWDOWN_ID,
+  );
+  return pow(N(0.99), bought);
 }

@@ -2,6 +2,7 @@ import type { GameState } from "@/engine/core/state";
 import { TEN, ZERO, add, div, floor, gt, gte, log10, mul, pow, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals";
+import { getDreamCrystalCoherenceProductionLossMultiplier } from "@/engine/strata/common/dream-crystals/upgrades";
 import { getCoherencePointGainMultiplier } from "@/engine/strata/common/coherence/upgrades";
 import { getDreamEnergy, setDreamEnergy } from "@/engine/strata/common/dream-energy";
 import type { StratumState } from "@/engine/strata/state";
@@ -17,7 +18,10 @@ export function getCoherencePoints(stratum: StratumState): Num {
 }
 
 export function getCoherenceProductionLoss(stratum: StratumState): Num {
-  return stratum.coherenceProductionLoss ?? COHERENCE_DEFAULT_PRODUCTION_LOSS;
+  return mul(
+    stratum.coherenceProductionLoss ?? COHERENCE_DEFAULT_PRODUCTION_LOSS,
+    getDreamCrystalCoherenceProductionLossMultiplier(stratum),
+  );
 }
 
 export function getCoherencePointGain(stratum: StratumState): Num {

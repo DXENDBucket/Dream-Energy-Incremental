@@ -6,6 +6,8 @@ import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals/sel
 import { getCurrentDreamCrystalRefinementMultiplier } from "@/engine/strata/common/dream-crystals/refinement";
 import {
     getDreamCrystalBoughtPowerMultiplier,
+    getDreamCrystalCostGrowthSlowdownMultiplier,
+    getDreamCrystalCurrentCoherenceMultiplier,
     getDreamCrystalFirstTierUpgradeMultiplier,
 } from "@/engine/strata/common/dream-crystals/upgrades";
 import { applyEntropyToProduction } from "@/engine/strata/common/entropy";
@@ -17,7 +19,12 @@ const DREAM_CRYSTAL_COST_SOFTCAP_DEFAULT_GROWTH = N(1.5);
 
 export function getDreamCrystalCostSoftcapGrowth(stratum?: StratumState): Num {
     const conceptFactor = stratum ? getConceptCrystalDreamCrystalCostGrowthFactor(stratum) : ONE;
-    return add(ONE, mul(sub(DREAM_CRYSTAL_COST_SOFTCAP_DEFAULT_GROWTH, ONE), conceptFactor));
+    const upgradeFactor = stratum ? getDreamCrystalCostGrowthSlowdownMultiplier(stratum) : ONE;
+    const baseGrowth = add(
+        ONE,
+        mul(sub(DREAM_CRYSTAL_COST_SOFTCAP_DEFAULT_GROWTH, ONE), conceptFactor),
+    );
+    return pow(baseGrowth, upgradeFactor);
 }
 
 function getDreamCrystalSoftcappedCost(base: Num, scale: Num, amountBought: Num, stratum?: StratumState): Num {
@@ -125,6 +132,7 @@ export function getDreamCrystalMultiplier(
     multiplier = mul(multiplier,getCurrentDreamCrystalRefinementMultiplier(stratum, tier))
     multiplier = mul(multiplier, getDreamCrystalFirstTierUpgradeMultiplier(stratum, tier))
     multiplier = mul(multiplier, getDreamCrystalBoughtPowerMultiplier(stratum, tier))
+    multiplier = mul(multiplier, getDreamCrystalCurrentCoherenceMultiplier(stratum))
     multiplier = mul(multiplier, stratum.coherenceDreamCrystalMultiplier ?? ONE)
     multiplier = mul(multiplier, stratum.coherenceProgressionDreamCrystalMultiplier ?? ONE)
     multiplier = mul(multiplier, stratum.characterDreamCrystalMultiplier ?? ONE)

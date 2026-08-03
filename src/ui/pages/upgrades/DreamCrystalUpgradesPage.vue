@@ -3,13 +3,18 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { format, formatInt } from "@/engine/math/format";
 import type { GameState } from "@/engine/core/state";
+import { getDreamCrystalCostSoftcapGrowth } from "@/engine/math/dream-crystals";
 import {
   getChaoticEther,
   getDreamCrystalUpgradeChaoticEtherTier,
 } from "@/engine/strata/common/chaotic-ether";
 import {
   DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID,
+  DREAM_CRYSTAL_UPGRADE_COHERENCE_CONVERSION_ID,
+  DREAM_CRYSTAL_UPGRADE_COST_GROWTH_SLOWDOWN_ID,
+  DREAM_CRYSTAL_UPGRADE_CURRENT_COHERENCE_MULTIPLIER_ID,
   DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID,
+  DREAM_CRYSTAL_UPGRADE_REFINERY_LOG_BASE_HALVING_ID,
   DREAM_CRYSTAL_UPGRADE_REFINERY_LOG_BASE_ID,
   DREAM_CRYSTAL_UPGRADE_REFINERY_EFFICIENCY_ID,
   DREAM_CRYSTAL_UPGRADE_REFINE_AUTOBUYER_ID,
@@ -17,15 +22,18 @@ import {
   DREAM_CRYSTAL_UPGRADE_ROWS,
   DREAM_CRYSTAL_UPGRADE_SOFTCAP_ONE_WEAKEN_ID,
   DREAM_CRYSTAL_UPGRADE_SOFTCAP_TWO_WEAKEN_ID,
+  DREAM_CRYSTAL_UPGRADE_TOTAL_CE_SOFTCAP_TWO_ID,
   buyDreamCrystalUpgrade,
   canBuyDreamCrystalUpgrade,
   getDreamCrystalBoughtPowerBase,
+  getDreamCrystalCurrentCoherenceMultiplier,
   getDreamCrystalFirstTierUpgradeMultiplier,
   getDreamCrystalRefineryEfficiencyMultiplier,
   getDreamCrystalRefineryLogBase,
   getDreamCrystalRepeatableUpgradeBought,
   getDreamCrystalUpgradeCost,
   getDreamCrystalUpgradeDefinition,
+  getDreamCrystalTotalCESoftcapTwoStrengthMultiplier,
   isDreamCrystalUpgradeUnlockedForPurchase,
   hasDreamCrystalUpgrade,
   type DreamCrystalUpgradeId,
@@ -34,6 +42,7 @@ import {
   getDreamEnergySoftcapOneBaseStrengthDisplay,
   getDreamEnergySoftcapTwoStrengthGrowth,
 } from "@/engine/strata/common/dream-energy";
+import { getCoherenceProductionLoss } from "@/engine/strata/common/coherence";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import UpgradeGridPage from "./UpgradeGridPage.vue";
 
@@ -137,6 +146,37 @@ function getUpgradeFooter(id: DreamCrystalUpgradeId): string {
     return t("dreamCrystalUpgrades.softcapOneStatus", {
       count: formatInt(bought),
       value: format(strength),
+    });
+  }
+
+  if (id === DREAM_CRYSTAL_UPGRADE_CURRENT_COHERENCE_MULTIPLIER_ID) {
+    return t("dreamCrystalUpgrades.currentMultiplier", {
+      value: format(getDreamCrystalCurrentCoherenceMultiplier(activeStratum.value)),
+    });
+  }
+
+  if (id === DREAM_CRYSTAL_UPGRADE_REFINERY_LOG_BASE_HALVING_ID) {
+    return t("dreamCrystalUpgrades.currentRefineryLogBase", {
+      value: format(getDreamCrystalRefineryLogBase(activeStratum.value)),
+    });
+  }
+
+  if (id === DREAM_CRYSTAL_UPGRADE_TOTAL_CE_SOFTCAP_TWO_ID) {
+    return t("dreamCrystalUpgrades.totalCESoftcapTwoStatus", {
+      value: format(getDreamCrystalTotalCESoftcapTwoStrengthMultiplier(activeStratum.value)),
+    });
+  }
+
+  if (id === DREAM_CRYSTAL_UPGRADE_COHERENCE_CONVERSION_ID) {
+    return t("dreamCrystalUpgrades.coherenceConversionStatus", {
+      value: format(getCoherenceProductionLoss(activeStratum.value)),
+    });
+  }
+
+  if (id === DREAM_CRYSTAL_UPGRADE_COST_GROWTH_SLOWDOWN_ID) {
+    return t("dreamCrystalUpgrades.costGrowthSlowdownStatus", {
+      count: formatInt(getDreamCrystalRepeatableUpgradeBought(activeStratum.value, id)),
+      value: format(getDreamCrystalCostSoftcapGrowth(activeStratum.value)),
     });
   }
 

@@ -157,6 +157,10 @@ export default {
     },
     refineryLogBaseStatus: "已购买 {count} 次｜当前 log 底数 {value}",
     softcapOneStatus: "已购买 {count} 次｜当前第一段压缩强度 {value}",
+    currentRefineryLogBase: "当前 Refine log 底数：{value}",
+    totalCESoftcapTwoStatus: "当前第二软上限强度倍率：×{value}",
+    coherenceConversionStatus: "当前每 {value} 个数量级获得一次整体增长",
+    costGrowthSlowdownStatus: "已购买 {count} 次｜当前 20 个后 softcap 增长基准：×{value}",
     items: {
       "first-tier-triple": {
         title: "原初棱镜",
@@ -197,6 +201,26 @@ export default {
       "softcap-one-weaken": {
         title: "压缩削弱",
         description: "将第一段压缩的强度减半。",
+      },
+      "current-coherence-multiplier": {
+        title: "调谐映射",
+        description: "所有梦境水晶获得基于 log10(当前 CP) 的额外 multiplier。",
+      },
+      "refinery-log-base-halving": {
+        title: "半底精炼",
+        description: "现有加减修正结算后，使 Refine 的 log 底数 ×0.5。",
+      },
+      "total-ce-softcap-two": {
+        title: "以太泄压",
+        description: "累计获得的本层 CE 会略微减弱第二个梦能软上限。",
+      },
+      "coherence-conversion": {
+        title: "凝聚优化",
+        description: "优化 Coherence 转化公式，使整体增长从每 9 个数量级一次改为每 5 个数量级一次。",
+      },
+      "cost-growth-slowdown": {
+        title: "价格缓释",
+        description: "每次购买使所有 DC 在 20 个后的 softcap 曲线对数增长率 ×0.99。",
       },
     },
   },
