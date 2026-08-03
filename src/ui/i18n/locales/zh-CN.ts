@@ -409,6 +409,9 @@ export default {
     loadLocalSave: "读取本地存档",
     exportSave: "导出存档",
     copyExport: "复制导出文本",
+    restoreLatestBackup: "恢复最近备份",
+    noBackups: "还没有滚动备份。",
+    latestBackup: "最近备份：{value}（共 {count} 份）",
     importExport: "导入 / 导出",
     importExportPlaceholder:
       "导出的存档文本会显示在这里，或把存档字符串粘贴到这里进行导入。",
@@ -434,6 +437,8 @@ export default {
       importFailed: "导入失败。存档字符串可能无效。",
       typeReset: '请输入 "BTNB" 以启用硬重置。',
       hardResetComplete: "硬重置完成。",
+      restoredBackup: "已恢复最近的滚动备份。",
+      noBackupFound: "没有可恢复的滚动备份。",
     },
   },
   theme: {

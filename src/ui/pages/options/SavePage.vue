@@ -13,8 +13,21 @@ const saveText = ref("");
 const hardResetText = ref("");
 const statusKey = ref("common.ready");
 const HARD_RESET_CONFIRM_TEXT = "BTNB";
+const backupSummaries = ref(props.game.getLocalSaveBackupSummaries());
 
 const statusText = computed(() => t(statusKey.value));
+const latestBackupText = computed(() => {
+  const latest = backupSummaries.value[0];
+  if (!latest) return t("save.noBackups");
+  return t("save.latestBackup", {
+    value: new Date(latest.createdAt).toLocaleString(),
+    count: backupSummaries.value.length,
+  });
+});
+
+function refreshBackups() {
+  backupSummaries.value = props.game.getLocalSaveBackupSummaries();
+}
 
 const autoSaveInterval = computed({
   get: () => props.game.state.settings.autoSaveIntervalSec,
@@ -32,6 +45,7 @@ const autoSaveLabel = computed(() => {
 
 function onSaveNow() {
   props.game.saveNow();
+  refreshBackups();
   statusKey.value = "save.status.savedToLocalStorage";
 }
 
@@ -40,6 +54,14 @@ function onLoadFromDisk() {
   statusKey.value = ok
     ? "save.status.loadedFromLocalStorage"
     : "save.status.noLocalSaveFound";
+}
+
+function onRestoreBackup() {
+  const ok = props.game.restoreLatestLocalBackup();
+  refreshBackups();
+  statusKey.value = ok
+    ? "save.status.restoredBackup"
+    : "save.status.noBackupFound";
 }
 
 function onExportSave() {
@@ -97,6 +119,17 @@ function onHardReset() {
         <button class="action-button" @click="onLoadFromDisk">{{ t("save.loadLocalSave") }}</button>
         <button class="action-button" @click="onExportSave">{{ t("save.exportSave") }}</button>
         <button class="action-button" @click="onCopyExport">{{ t("save.copyExport") }}</button>
+      </div>
+
+      <div class="backup-line">
+        <span>{{ latestBackupText }}</span>
+        <button
+          class="action-button"
+          :disabled="backupSummaries.length === 0"
+          @click="onRestoreBackup"
+        >
+          {{ t("save.restoreLatestBackup") }}
+        </button>
       </div>
 
       <div class="section-title section-gap">{{ t("save.importExport") }}</div>
@@ -234,6 +267,16 @@ function onHardReset() {
   opacity: 0.55;
   cursor: not-allowed;
   transform: none;
+}
+
+.backup-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  color: #9fb0de;
+  font-size: 0.92rem;
 }
 
 .save-textarea {

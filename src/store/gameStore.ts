@@ -7,7 +7,9 @@ import {
   loadGame,
   clearLocalSave,
   exportSave,
+  getLocalSaveBackupSummaries,
   importSave,
+  loadLocalSaveBackup,
 } from "@/engine/save/logic";
 import { normalizeGameState } from "@/engine/strata/manager/normalize";
 import {
@@ -188,6 +190,15 @@ export function createGameStore() {
     return true;
   }
 
+  function restoreLatestLocalBackup() {
+    const loaded = loadLocalSaveBackup(0);
+    if (!loaded) return false;
+
+    replaceState(loaded);
+    if (!offlineProgress.isActive) saveGame(state);
+    return true;
+  }
+
   function exportSaveString() {
     return exportSave(state);
   }
@@ -244,6 +255,8 @@ export function createGameStore() {
     skipOfflineProgress,
     saveNow,
     loadFromDisk,
+    getLocalSaveBackupSummaries,
+    restoreLatestLocalBackup,
     exportSaveString,
     importSaveString,
     hardReset,

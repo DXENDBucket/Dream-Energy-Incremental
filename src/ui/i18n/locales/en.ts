@@ -410,6 +410,9 @@ export default {
     loadLocalSave: "Load Local Save",
     exportSave: "Export Save",
     copyExport: "Copy Export",
+    restoreLatestBackup: "Restore Latest Backup",
+    noBackups: "No rolling backups yet.",
+    latestBackup: "Latest backup: {value} ({count} total)",
     importExport: "Import / Export",
     importExportPlaceholder:
       "Exported save text will appear here, or paste a save string here to import.",
@@ -435,6 +438,8 @@ export default {
       importFailed: "Import failed. The save string may be invalid.",
       typeReset: 'Type "BTNB" to enable hard reset.',
       hardResetComplete: "Hard reset complete.",
+      restoredBackup: "Restored the latest rolling backup.",
+      noBackupFound: "No rolling backup is available.",
     },
   },
   theme: {

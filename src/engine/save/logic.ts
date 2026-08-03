@@ -4,8 +4,11 @@ import { N, isNum, serializeNum, tryRestoreNum } from "@/engine/math/num";
 import { normalizeGameState } from "@/engine/strata/manager/normalize";
 
 const SAVE_KEY = "dream-energy-incremental-save";
+const SAVE_BACKUPS_KEY = "dream-energy-incremental-save-backups";
 const SAVE_PREFIX = "DreamEnergyIncremental";
 const SAVE_VERSION = 1;
+const SAVE_BACKUP_LIMIT = 12;
+const SAVE_BACKUP_INTERVAL_MS = 5 * 60 * 1000;
 
 type SerializedNum = {
   $type: "num";
@@ -15,6 +18,16 @@ type SerializedNum = {
 type SaveFile = {
   version: number;
   state: unknown;
+};
+
+type LocalSaveBackup = {
+  createdAt: number;
+  raw: string;
+};
+
+export type LocalSaveBackupSummary = {
+  index: number;
+  createdAt: number;
 };
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -109,23 +122,82 @@ function deepMerge<T>(target: T, source: unknown): T {
   return target;
 }
 
+function readLocalSaveBackups(): LocalSaveBackup[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(SAVE_BACKUPS_KEY) ?? "[]") as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((backup): backup is LocalSaveBackup => (
+      isPlainObject(backup)
+      && typeof backup.createdAt === "number"
+      && Number.isFinite(backup.createdAt)
+      && typeof backup.raw === "string"
+      && backup.raw.startsWith(`${SAVE_PREFIX}|`)
+    ));
+  } catch {
+    return [];
+  }
+}
+
+function archiveLocalSave(raw: string, force = false): void {
+  if (!raw.startsWith(`${SAVE_PREFIX}|`)) return;
+
+  const backups = readLocalSaveBackups();
+  const latest = backups[0];
+  if (latest?.raw === raw) return;
+
+  const now = Date.now();
+  if (!force && latest && now - latest.createdAt < SAVE_BACKUP_INTERVAL_MS) return;
+
+  backups.unshift({ createdAt: now, raw });
+  localStorage.setItem(SAVE_BACKUPS_KEY, JSON.stringify(backups.slice(0, SAVE_BACKUP_LIMIT)));
+}
+
 export function saveGame(state: GameState): void {
   const raw = exportSave(state);
+  const previous = localStorage.getItem(SAVE_KEY);
+  if (previous && previous !== raw) archiveLocalSave(previous);
   localStorage.setItem(SAVE_KEY, raw);
 }
 
 export function clearLocalSave(): void {
+  const previous = localStorage.getItem(SAVE_KEY);
+  if (previous) archiveLocalSave(previous, true);
   localStorage.removeItem(SAVE_KEY);
+}
+
+export function getLocalSaveBackupSummaries(): LocalSaveBackupSummary[] {
+  return readLocalSaveBackups().map((backup, index) => ({
+    index,
+    createdAt: backup.createdAt,
+  }));
+}
+
+export function loadLocalSaveBackup(index: number): GameState | null {
+  const backup = readLocalSaveBackups()[index];
+  if (!backup) return null;
+
+  try {
+    return importSave(backup.raw);
+  } catch (error) {
+    console.error("Failed to load local save backup:", error);
+    return null;
+  }
 }
 
 export function loadGame(): GameState | null {
   const raw = localStorage.getItem(SAVE_KEY);
-  if (!raw) return null;
+  if (!raw) {
+    return loadLocalSaveBackup(0);
+  }
 
   try {
     return importSave(raw);
   } catch (error) {
     console.error("Failed to load save:", error);
+    for (let index = 0; index < readLocalSaveBackups().length; index++) {
+      const recovered = loadLocalSaveBackup(index);
+      if (recovered) return recovered;
+    }
     return null;
   }
 }

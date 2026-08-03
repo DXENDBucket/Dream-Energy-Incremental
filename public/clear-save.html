@@ -55,42 +55,94 @@
         background: rgba(14, 116, 144, 0.18);
       }
 
-      a {
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      a,
+      button {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         min-height: 40px;
-        margin-top: 18px;
         padding: 0 16px;
         border: 1px solid rgba(147, 197, 253, 0.52);
         border-radius: 8px;
         color: #eff6ff;
         text-decoration: none;
         background: rgba(37, 99, 235, 0.26);
+        font: inherit;
+        cursor: pointer;
       }
 
-      a:hover {
+      a:hover,
+      button:hover:not(:disabled) {
         background: rgba(37, 99, 235, 0.38);
+      }
+
+      button {
+        border-color: rgba(248, 113, 113, 0.62);
+        background: rgba(185, 28, 28, 0.28);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.42;
+      }
+
+      input {
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 40px;
+        margin-top: 12px;
+        padding: 0 12px;
+        border: 1px solid rgba(147, 197, 253, 0.4);
+        border-radius: 8px;
+        color: #eff6ff;
+        background: rgba(15, 23, 42, 0.9);
+        font: inherit;
       }
     </style>
   </head>
   <body>
     <main>
-      <h1>本地存档已清理</h1>
-      <p>已删除这个浏览器来源下的 Dream Energy Incremental 本地存档。</p>
-      <p>如果主页面之前因为坏档卡住，现在可以重新进入。</p>
-      <div class="status" id="status">正在清理...</div>
-      <a href="/Dream-Energy-Incremental/">返回游戏</a>
+      <h1>清理本地存档</h1>
+      <p>此操作会永久删除当前来源下的主存档和所有滚动备份。</p>
+      <p>仅在坏档导致主页面无法打开时使用。输入 DELETE 后才能执行。</p>
+      <input id="confirmation" autocomplete="off" placeholder="DELETE" />
+      <div class="status" id="status">尚未清理任何数据。</div>
+      <div class="actions">
+        <button id="clear" type="button" disabled>永久删除存档</button>
+        <a href="/Dream-Energy-Incremental/">返回游戏</a>
+      </div>
     </main>
 
     <script>
       const saveKey = "dream-energy-incremental-save";
-      const previous = localStorage.getItem(saveKey);
-      localStorage.removeItem(saveKey);
+      const backupsKey = "dream-energy-incremental-save-backups";
+      const confirmation = document.getElementById("confirmation");
+      const clearButton = document.getElementById("clear");
+      const status = document.getElementById("status");
 
-      document.getElementById("status").textContent = previous
-        ? "已删除存档 key: " + saveKey
-        : "没有找到旧存档 key: " + saveKey;
+      confirmation.addEventListener("input", () => {
+        clearButton.disabled = confirmation.value !== "DELETE";
+      });
+
+      clearButton.addEventListener("click", () => {
+        if (confirmation.value !== "DELETE") return;
+        const hadSave = localStorage.getItem(saveKey) !== null;
+        const hadBackups = localStorage.getItem(backupsKey) !== null;
+        localStorage.removeItem(saveKey);
+        localStorage.removeItem(backupsKey);
+        clearButton.disabled = true;
+        confirmation.disabled = true;
+        status.textContent = hadSave || hadBackups
+          ? "主存档和滚动备份已永久删除。"
+          : "没有找到可删除的本地存档。";
+      });
     </script>
   </body>
 </html>
