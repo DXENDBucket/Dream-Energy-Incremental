@@ -24,6 +24,11 @@ function normalizeFinite(value: unknown, fallback: NumInput): Num {
   return normalized.isFinite() ? normalized : N(fallback);
 }
 
+function normalizeAtLeast(value: unknown, minimum: Num, fallback: NumInput): Num {
+  const normalized = normalizeFinite(value, fallback);
+  return normalized.gte(minimum) ? normalized : minimum;
+}
+
 function parseFinite(value: NumInput, fallback: Num): Num {
   const parsed = N(value);
   return parsed.isFinite() ? parsed : fallback;
@@ -33,26 +38,44 @@ export function ensureCoherenceAutobuyerState(stratum: StratumState): CoherenceA
   stratum.coherenceAutobuyer ??= createCoherenceAutobuyerState();
   const autobuyer = stratum.coherenceAutobuyer;
 
-  autobuyer.enabled = autobuyer.enabled === true;
-  autobuyer.mode = VALID_MODES.has(autobuyer.mode) ? autobuyer.mode : "interval";
-  autobuyer.elapsedSec = max(ZERO, normalizeFinite(autobuyer.elapsedSec, ZERO));
-  autobuyer.intervalSec = max(
+  if (typeof autobuyer.enabled !== "boolean") autobuyer.enabled = false;
+  if (!VALID_MODES.has(autobuyer.mode)) autobuyer.mode = "interval";
+
+  const elapsedSec = normalizeAtLeast(autobuyer.elapsedSec, ZERO, ZERO);
+  if (autobuyer.elapsedSec !== elapsedSec) autobuyer.elapsedSec = elapsedSec;
+
+  const intervalSec = normalizeAtLeast(
+    autobuyer.intervalSec,
     COHERENCE_AUTOBUYER_MIN_INTERVAL_SEC,
-    normalizeFinite(autobuyer.intervalSec, COHERENCE_AUTOBUYER_DEFAULT_INTERVAL_SEC),
+    COHERENCE_AUTOBUYER_DEFAULT_INTERVAL_SEC,
   );
-  autobuyer.minimumGain = max(
+  if (autobuyer.intervalSec !== intervalSec) autobuyer.intervalSec = intervalSec;
+
+  const minimumGain = normalizeAtLeast(
+    autobuyer.minimumGain,
     COHERENCE_AUTOBUYER_MIN_GAIN,
-    normalizeFinite(autobuyer.minimumGain, ONE),
+    ONE,
   );
-  autobuyer.dynamicAmount = autobuyer.dynamicAmount === true;
-  autobuyer.dynamicAmountLastMultiplier = max(
+  if (autobuyer.minimumGain !== minimumGain) autobuyer.minimumGain = minimumGain;
+
+  if (typeof autobuyer.dynamicAmount !== "boolean") autobuyer.dynamicAmount = false;
+
+  const dynamicAmountLastMultiplier = normalizeAtLeast(
+    autobuyer.dynamicAmountLastMultiplier,
     ZERO,
-    normalizeFinite(autobuyer.dynamicAmountLastMultiplier, ONE),
+    ONE,
   );
-  autobuyer.gainRatio = max(
+  if (autobuyer.dynamicAmountLastMultiplier !== dynamicAmountLastMultiplier) {
+    autobuyer.dynamicAmountLastMultiplier = dynamicAmountLastMultiplier;
+  }
+
+  const gainRatio = normalizeAtLeast(
+    autobuyer.gainRatio,
     COHERENCE_AUTOBUYER_MIN_RATIO,
-    normalizeFinite(autobuyer.gainRatio, 2),
+    2,
   );
+  if (autobuyer.gainRatio !== gainRatio) autobuyer.gainRatio = gainRatio;
+
   return autobuyer;
 }
 
@@ -104,8 +127,10 @@ export function setCoherenceAutobuyerDynamicAmount(
   autobuyer.dynamicAmountLastMultiplier = getCoherencePointGainMultiplier(stratum);
 }
 
-export function syncCoherenceAutobuyerDynamicAmount(stratum: StratumState): void {
-  const autobuyer = ensureCoherenceAutobuyerState(stratum);
+export function syncCoherenceAutobuyerDynamicAmount(
+  stratum: StratumState,
+  autobuyer: CoherenceAutobuyerState = ensureCoherenceAutobuyerState(stratum),
+): void {
   if (!autobuyer.dynamicAmount || autobuyer.mode !== "amount") return;
 
   const currentMultiplier = getCoherencePointGainMultiplier(stratum);

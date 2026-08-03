@@ -19,7 +19,7 @@ export function tickCoherenceAutobuyer(state: GameState, dtSec: Num): void {
   if (!isCoherenceAutobuyerUnlocked(stratum)) return;
 
   const autobuyer = ensureCoherenceAutobuyerState(stratum);
-  syncCoherenceAutobuyerDynamicAmount(stratum);
+  syncCoherenceAutobuyerDynamicAmount(stratum, autobuyer);
   if (!autobuyer.enabled) return;
 
   if (autobuyer.mode === "interval") {
@@ -29,12 +29,15 @@ export function tickCoherenceAutobuyer(state: GameState, dtSec: Num): void {
       return;
     }
 
-    autobuyer.elapsedSec = add(autobuyer.elapsedSec, dtSec);
-    if (!gte(autobuyer.elapsedSec, autobuyer.intervalSec)) return;
+    const nextElapsedSec = add(autobuyer.elapsedSec, dtSec);
+    if (!gte(nextElapsedSec, autobuyer.intervalSec)) {
+      autobuyer.elapsedSec = nextElapsedSec;
+      return;
+    }
 
-    const completedIntervals = floor(div(autobuyer.elapsedSec, autobuyer.intervalSec));
+    const completedIntervals = floor(div(nextElapsedSec, autobuyer.intervalSec));
     autobuyer.elapsedSec = sub(
-      autobuyer.elapsedSec,
+      nextElapsedSec,
       mul(autobuyer.intervalSec, completedIntervals),
     );
     condenseCoherence(state);
