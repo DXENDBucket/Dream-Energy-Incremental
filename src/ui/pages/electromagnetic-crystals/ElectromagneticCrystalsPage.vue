@@ -7,16 +7,21 @@ import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import {
   ELECTROMAGNETIC_JUDGE_LINE_X,
   ELECTROMAGNETIC_MAX_INITIAL_SPEED,
+  ELECTROMAGNETIC_MAX_ELECTRIC_FIELD_STRENGTH,
+  ELECTROMAGNETIC_MAX_MAGNETIC_FIELD_STRENGTH,
   ELECTROMAGNETIC_MIN_INITIAL_SPEED,
+  ELECTROMAGNETIC_MIN_ELECTRIC_FIELD_STRENGTH,
+  ELECTROMAGNETIC_MIN_MAGNETIC_FIELD_STRENGTH,
   ELECTROMAGNETIC_POWER_DECAY_DIVISOR_PER_SECOND,
   ELECTROMAGNETIC_POWER_PER_CROSSING,
   ensureElectromagneticCrystalsState,
   getElectromagneticPower,
   resetElectromagneticParticle,
   setElectricFieldDirection,
+  setElectricFieldStrength,
   setElectromagneticInitialDirection,
   setElectromagneticInitialSpeed,
-  setMagneticFieldDirection,
+  setMagneticFieldStrength,
 } from "@/engine/electromagnetic-crystals";
 
 const props = defineProps<{ game: { state: GameState } }>();
@@ -51,6 +56,14 @@ function onElectricDirectionInput(event: Event): void {
   setElectricFieldDirection(activeStratum.value, inputValue(event));
 }
 
+function onElectricStrengthInput(event: Event): void {
+  setElectricFieldStrength(activeStratum.value, inputValue(event));
+}
+
+function onMagneticStrengthInput(event: Event): void {
+  setMagneticFieldStrength(activeStratum.value, inputValue(event));
+}
+
 function onInitialSpeedInput(event: Event): void {
   setElectromagneticInitialSpeed(activeStratum.value, inputValue(event));
 }
@@ -80,7 +93,11 @@ function onInitialDirectionInput(event: Event): void {
               v-for="cell in fieldCells"
               :key="cell"
               class="magnetic-glyph"
-            >{{ electromagnetic.magneticFieldDirection > 0 ? "⊙" : "⊗" }}</span>
+            >{{ electromagnetic.magneticFieldStrength > 0
+              ? "⊗"
+              : electromagnetic.magneticFieldStrength < 0
+                ? "⊙"
+                : "·" }}</span>
           </div>
 
           <div
@@ -117,23 +134,40 @@ function onInitialDirectionInput(event: Event): void {
             :value="electromagnetic.electricFieldDirectionDeg"
             @input="onElectricDirectionInput"
           >
+
+          <label>
+            <span>{{ t("electromagneticCrystals.strength") }}</span>
+            <output>×{{ electromagnetic.electricFieldStrength.toFixed(2) }}</output>
+          </label>
+          <input
+            type="range"
+            :min="ELECTROMAGNETIC_MIN_ELECTRIC_FIELD_STRENGTH"
+            :max="ELECTROMAGNETIC_MAX_ELECTRIC_FIELD_STRENGTH"
+            step="0.05"
+            :value="electromagnetic.electricFieldStrength"
+            @input="onElectricStrengthInput"
+          >
         </div>
 
         <div class="control-group">
           <div class="control-heading">{{ t("electromagneticCrystals.magneticField") }}</div>
-          <div class="direction-buttons">
-            <button
-              :class="{ active: electromagnetic.magneticFieldDirection > 0 }"
-              @click="setMagneticFieldDirection(activeStratum, 1)"
-            >
-              ⊙ {{ t("electromagneticCrystals.outOfPlane") }}
-            </button>
-            <button
-              :class="{ active: electromagnetic.magneticFieldDirection < 0 }"
-              @click="setMagneticFieldDirection(activeStratum, -1)"
-            >
-              ⊗ {{ t("electromagneticCrystals.intoPlane") }}
-            </button>
+          <label>
+            <span>{{ t("electromagneticCrystals.strength") }}</span>
+            <output>{{ electromagnetic.magneticFieldStrength.toFixed(2) }}</output>
+          </label>
+          <input
+            class="magnetic-strength-slider"
+            type="range"
+            :min="ELECTROMAGNETIC_MIN_MAGNETIC_FIELD_STRENGTH"
+            :max="ELECTROMAGNETIC_MAX_MAGNETIC_FIELD_STRENGTH"
+            step="0.05"
+            :value="electromagnetic.magneticFieldStrength"
+            @input="onMagneticStrengthInput"
+          >
+          <div class="field-axis-labels">
+            <span>⊙ {{ t("electromagneticCrystals.outOfPlane") }}</span>
+            <span>0</span>
+            <span>{{ t("electromagneticCrystals.intoPlane") }} ⊗</span>
           </div>
         </div>
 
@@ -338,6 +372,19 @@ function onInitialDirectionInput(event: Event): void {
 .control-group output, .telemetry strong { color: #effcff; font-family: var(--font-number); }
 .control-group input[type="range"] { width: 100%; margin: 8px 0 12px; accent-color: #55d9f6; }
 .control-group input[type="range"]:last-child { margin-bottom: 0; }
+
+.field-axis-labels {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  margin-top: -5px;
+  color: #789fab;
+  font-size: 0.7rem;
+}
+
+.field-axis-labels span:nth-child(2) { color: #dffbff; text-align: center; }
+.field-axis-labels span:last-child { text-align: right; }
+.magnetic-strength-slider { accent-color: #a98cff !important; }
 
 .direction-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
 .direction-buttons button, .launch-button {

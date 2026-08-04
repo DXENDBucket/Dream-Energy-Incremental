@@ -449,6 +449,7 @@ export default {
     electricField: "Electric Field",
     magneticField: "Magnetic Field",
     direction: "Direction",
+    strength: "Strength",
     outOfPlane: "Out of plane",
     intoPlane: "Into plane",
     initialConditions: "Initial Conditions",

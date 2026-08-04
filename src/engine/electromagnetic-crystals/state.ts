@@ -10,7 +10,8 @@ export interface ElectromagneticParticleState {
 export interface ElectromagneticCrystalsState {
   power: Num;
   electricFieldDirectionDeg: number;
-  magneticFieldDirection: 1 | -1;
+  electricFieldStrength: number;
+  magneticFieldStrength: number;
   initialSpeed: number;
   initialDirectionDeg: number;
   particle: ElectromagneticParticleState;
@@ -23,7 +24,8 @@ export function createElectromagneticCrystalsState(): ElectromagneticCrystalsSta
   return {
     power: ZERO,
     electricFieldDirectionDeg: 90,
-    magneticFieldDirection: 1,
+    electricFieldStrength: 1,
+    magneticFieldStrength: -1,
     initialSpeed: ELECTROMAGNETIC_DEFAULT_INITIAL_SPEED,
     initialDirectionDeg: ELECTROMAGNETIC_DEFAULT_INITIAL_DIRECTION_DEG,
     particle: {

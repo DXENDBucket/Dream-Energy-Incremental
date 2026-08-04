@@ -449,6 +449,7 @@ export default {
     electricField: "电场",
     magneticField: "磁场",
     direction: "方向",
+    strength: "强度",
     outOfPlane: "垂直向外",
     intoPlane: "垂直向内",
     initialConditions: "粒子初始条件",

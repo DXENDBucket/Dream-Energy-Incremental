@@ -13,9 +13,14 @@ export const ELECTROMAGNETIC_POWER_PER_CROSSING = N(10);
 export const ELECTROMAGNETIC_POWER_DECAY_DIVISOR_PER_SECOND = N(1.05);
 export const ELECTROMAGNETIC_MIN_INITIAL_SPEED = 0.05;
 export const ELECTROMAGNETIC_MAX_INITIAL_SPEED = 0.8;
+export const ELECTROMAGNETIC_MIN_ELECTRIC_FIELD_STRENGTH = 0;
+export const ELECTROMAGNETIC_MAX_ELECTRIC_FIELD_STRENGTH = 2;
+export const ELECTROMAGNETIC_MIN_MAGNETIC_FIELD_STRENGTH = -2;
+export const ELECTROMAGNETIC_MAX_MAGNETIC_FIELD_STRENGTH = 2;
+export const ELECTROMAGNETIC_FORCE_SCALE = 0.2;
 
-const ELECTRIC_FIELD_ACCELERATION = 0.22;
-const MAGNETIC_FIELD_STRENGTH = 1.35;
+const BASE_ELECTRIC_FIELD_ACCELERATION = 0.22;
+const BASE_MAGNETIC_FIELD_STRENGTH = 1.35;
 const MAX_PARTICLE_SPEED = 2.5;
 const PHYSICS_STEP_SECONDS = 0.1;
 const MAX_PHYSICS_STEPS_PER_TICK = 240;
@@ -63,7 +68,21 @@ export function ensureElectromagneticCrystalsState(state: StratumState): Electro
     electromagnetic.electricFieldDirectionDeg,
     defaults.electricFieldDirectionDeg,
   );
-  electromagnetic.magneticFieldDirection = electromagnetic.magneticFieldDirection === -1 ? -1 : 1;
+  electromagnetic.electricFieldStrength = clamp(
+    finiteOr(electromagnetic.electricFieldStrength, defaults.electricFieldStrength),
+    ELECTROMAGNETIC_MIN_ELECTRIC_FIELD_STRENGTH,
+    ELECTROMAGNETIC_MAX_ELECTRIC_FIELD_STRENGTH,
+  );
+  const legacyElectromagnetic = electromagnetic as ElectromagneticCrystalsState & {
+    magneticFieldDirection?: 1 | -1;
+  };
+  const legacyMagneticStrength = legacyElectromagnetic.magneticFieldDirection === -1 ? 1 : -1;
+  electromagnetic.magneticFieldStrength = clamp(
+    finiteOr(electromagnetic.magneticFieldStrength, legacyMagneticStrength),
+    ELECTROMAGNETIC_MIN_MAGNETIC_FIELD_STRENGTH,
+    ELECTROMAGNETIC_MAX_MAGNETIC_FIELD_STRENGTH,
+  );
+  delete legacyElectromagnetic.magneticFieldDirection;
   electromagnetic.initialSpeed = clamp(
     finiteOr(electromagnetic.initialSpeed, ELECTROMAGNETIC_DEFAULT_INITIAL_SPEED),
     ELECTROMAGNETIC_MIN_INITIAL_SPEED,
@@ -96,8 +115,20 @@ export function setElectricFieldDirection(state: StratumState, directionDeg: num
   ensureElectromagneticCrystalsState(state).electricFieldDirectionDeg = normalizeDegrees(directionDeg, 0);
 }
 
-export function setMagneticFieldDirection(state: StratumState, direction: number): void {
-  ensureElectromagneticCrystalsState(state).magneticFieldDirection = direction < 0 ? -1 : 1;
+export function setElectricFieldStrength(state: StratumState, strength: number): void {
+  ensureElectromagneticCrystalsState(state).electricFieldStrength = clamp(
+    finiteOr(strength, 1),
+    ELECTROMAGNETIC_MIN_ELECTRIC_FIELD_STRENGTH,
+    ELECTROMAGNETIC_MAX_ELECTRIC_FIELD_STRENGTH,
+  );
+}
+
+export function setMagneticFieldStrength(state: StratumState, strength: number): void {
+  ensureElectromagneticCrystalsState(state).magneticFieldStrength = clamp(
+    finiteOr(strength, 0),
+    ELECTROMAGNETIC_MIN_MAGNETIC_FIELD_STRENGTH,
+    ELECTROMAGNETIC_MAX_MAGNETIC_FIELD_STRENGTH,
+  );
 }
 
 export function setElectromagneticInitialSpeed(state: StratumState, speed: number): void {
@@ -131,15 +162,19 @@ function decayElectromagneticPower(electromagnetic: ElectromagneticCrystalsState
 function simulateParticleStep(electromagnetic: ElectromagneticCrystalsState, dtSec: number): number {
   const particle = electromagnetic.particle;
   const electricAngle = electromagnetic.electricFieldDirectionDeg * Math.PI / 180;
-  const electricAccelerationX = Math.cos(electricAngle) * ELECTRIC_FIELD_ACCELERATION;
-  const electricAccelerationY = Math.sin(electricAngle) * ELECTRIC_FIELD_ACCELERATION;
+  const electricAcceleration = BASE_ELECTRIC_FIELD_ACCELERATION
+    * electromagnetic.electricFieldStrength
+    * ELECTROMAGNETIC_FORCE_SCALE;
+  const electricAccelerationX = Math.cos(electricAngle) * electricAcceleration;
+  const electricAccelerationY = Math.sin(electricAngle) * electricAcceleration;
 
   // Split the electric impulse around an exact magnetic rotation. This keeps a
   // magnetic-only orbit stable instead of adding numerical energy every tick.
   particle.velocityX += electricAccelerationX * dtSec * 0.5;
   particle.velocityY += electricAccelerationY * dtSec * 0.5;
-  const magneticRotation = -electromagnetic.magneticFieldDirection
-    * MAGNETIC_FIELD_STRENGTH
+  const magneticRotation = electromagnetic.magneticFieldStrength
+    * BASE_MAGNETIC_FIELD_STRENGTH
+    * ELECTROMAGNETIC_FORCE_SCALE
     * dtSec;
   const rotationCos = Math.cos(magneticRotation);
   const rotationSin = Math.sin(magneticRotation);
