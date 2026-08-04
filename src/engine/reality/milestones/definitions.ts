@@ -1,13 +1,16 @@
 import { N } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { LIFT_UNLOCK_REQUIREMENT } from "@/engine/strata/lift/balance";
+import { DREAM_ENERGY_CONCEPT_CONFLICT_START } from "@/engine/math/dream-energy/balance";
 
 export const REALITY_MILESTONE_LIFT_UNLOCK_ID = "reality-lift-unlock";
 export const REALITY_MILESTONE_CHARACTER_PRODUCTION_ID = "reality-character-production";
+export const REALITY_MILESTONE_ELECTROMAGNETIC_CRYSTALS_ID = "reality-electromagnetic-crystals";
 
 export const REALITY_MILESTONE_ORDER = [
   REALITY_MILESTONE_LIFT_UNLOCK_ID,
   REALITY_MILESTONE_CHARACTER_PRODUCTION_ID,
+  REALITY_MILESTONE_ELECTROMAGNETIC_CRYSTALS_ID,
 ] as const;
 
 export type RealityMilestoneId = (typeof REALITY_MILESTONE_ORDER)[number];
@@ -34,6 +37,13 @@ export const REALITY_MILESTONE_DEFINITIONS: Record<RealityMilestoneId, RealityMi
     titleKey: "realityMilestones.items.characterProduction.title",
     rewardKey: "realityMilestones.items.characterProduction.reward",
     descriptionKey: "realityMilestones.items.characterProduction.description",
+  },
+  [REALITY_MILESTONE_ELECTROMAGNETIC_CRYSTALS_ID]: {
+    id: REALITY_MILESTONE_ELECTROMAGNETIC_CRYSTALS_ID,
+    dreamEnergyRequirement: DREAM_ENERGY_CONCEPT_CONFLICT_START,
+    titleKey: "realityMilestones.items.electromagneticCrystals.title",
+    rewardKey: "realityMilestones.items.electromagneticCrystals.reward",
+    descriptionKey: "realityMilestones.items.electromagneticCrystals.description",
   },
 };
 

@@ -7,6 +7,7 @@ import { mul, type Num } from "@/engine/math/num";
 import { getActiveDreamEnergy, getActiveStratum } from "@/engine/strata/manager/selectors";
 import DreamCrystalsPage from "./dream-crystals/DreamCrystalsPage.vue";
 import ConceptCrystalsPage from "./concept-crystals/ConceptCrystalsPage.vue";
+import ElectromagneticCrystalsPage from "./electromagnetic-crystals/ElectromagneticCrystalsPage.vue";
 import DreamCrystalUpgradesPage from "./upgrades/DreamCrystalUpgradesPage.vue";
 import CoherenceUpgradesPage from "./upgrades/CoherenceUpgradesPage.vue";
 import DreamCrystalAutobuyersPage from "./autobuyers/DreamCrystalAutobuyersPage.vue";
@@ -59,7 +60,10 @@ import {
   dreamSeaFourthStratumId,
   realityStratumId,
 } from "@/engine/strata/defs";
-import { isCharacterProductionUnlocked } from "@/engine/reality/milestones";
+import {
+  isCharacterProductionUnlocked,
+  isElectromagneticCrystalsUnlocked,
+} from "@/engine/reality/milestones";
 import {
   CRUSH_MILESTONE_COUNT,
   CRUSH_MILESTONE_DEFINITIONS,
@@ -104,7 +108,13 @@ const availablePrimaryTabs = computed(() => {
         return {
           ...tab,
           children: tab.children.filter(child => {
-            return child.id !== "concept-crystals" || isConceptCrystalsUnlocked(activeStratum.value);
+            if (child.id === "concept-crystals") {
+              return isConceptCrystalsUnlocked(activeStratum.value);
+            }
+            if (child.id === "electromagnetic-crystals") {
+              return isElectromagneticCrystalsUnlocked(props.game.state);
+            }
+            return true;
           }),
         };
       }
@@ -705,6 +715,10 @@ const secondaryTooltipStyle = computed(() => ({
           <ConceptCrystalsPage :game="props.game" />
         </div>
 
+        <div v-else-if="selectedSecondary === 'electromagnetic-crystals'" class="electromagnetic-page-host">
+          <ElectromagneticCrystalsPage :game="props.game" />
+        </div>
+
         <div v-else-if="selectedSecondary === 'de-milestones'" class="page-card">
           <DreamEnergyMilestonesPage :game="props.game" />
         </div>
@@ -769,7 +783,7 @@ const secondaryTooltipStyle = computed(() => ({
           {{ t("mainPage.placeholders.numbers") }}
         </div>
 
-        <div v-else-if="selectedSecondary === 'multiplier-breakdown'" class="dream-crystals-page">
+        <div v-else-if="selectedSecondary === 'multiplier-breakdown'" class="multiplier-breakdown-host">
           <MultiplierBreakdownPage :game="props.game" />
         </div>
 
@@ -1509,6 +1523,18 @@ const secondaryTooltipStyle = computed(() => ({
 }
 
 .strata-overview-host {
+  width: min(1040px, 100%);
+  display: flex;
+  justify-content: center;
+}
+
+.multiplier-breakdown-host {
+  width: min(1080px, 100%);
+  min-width: 0;
+  overflow-anchor: none;
+}
+
+.electromagnetic-page-host {
   width: min(1040px, 100%);
   display: flex;
   justify-content: center;

@@ -12,6 +12,7 @@ import {
   DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID,
   DREAM_CRYSTAL_UPGRADE_AUTOBUYER_ID,
   DREAM_CRYSTAL_UPGRADE_COHERENCE_CONVERSION_ID,
+  DREAM_CRYSTAL_UPGRADE_CONCEPT_CONFLICT_WEAKEN_ID,
   DREAM_CRYSTAL_UPGRADE_COST_GROWTH_SLOWDOWN_ID,
   DREAM_CRYSTAL_UPGRADE_CURRENT_COHERENCE_MULTIPLIER_ID,
   DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID,
@@ -24,7 +25,6 @@ import {
   DREAM_CRYSTAL_UPGRADE_ROWS,
   DREAM_CRYSTAL_UPGRADE_SOFTCAP_ONE_WEAKEN_ID,
   DREAM_CRYSTAL_UPGRADE_SOFTCAP_TWO_WEAKEN_ID,
-  DREAM_CRYSTAL_UPGRADE_TOTAL_CE_SOFTCAP_TWO_ID,
   type DreamCrystalUpgradeId,
   getDreamCrystalUpgradeDefinition,
 } from "./definitions";
@@ -35,11 +35,20 @@ import {
 
 const FIRST_TIER_UPGRADE_CE_SOFTCAP_START = N(10);
 const REFINERY_MINIMUM_VALID_LOG_BASE = N("1.000000001");
+const LEGACY_TOTAL_CE_SOFTCAP_TWO_ID = "total-ce-softcap-two";
 
 export function ensureDreamCrystalUpgradesState(stratum: StratumState): DreamCrystalUpgradesState {
   stratum.dreamCrystalUpgrades ??= createDreamCrystalUpgradesState();
   stratum.dreamCrystalUpgrades.bought ??= {};
   stratum.dreamCrystalUpgrades.repeatableBought ??= {};
+
+  if (
+    stratum.dreamCrystalUpgrades.bought[LEGACY_TOTAL_CE_SOFTCAP_TWO_ID] === true
+    && stratum.dreamCrystalUpgrades.repeatableBought[DREAM_CRYSTAL_UPGRADE_CONCEPT_CONFLICT_WEAKEN_ID] === undefined
+  ) {
+    stratum.dreamCrystalUpgrades.repeatableBought[DREAM_CRYSTAL_UPGRADE_CONCEPT_CONFLICT_WEAKEN_ID] = ONE;
+  }
+  delete stratum.dreamCrystalUpgrades.bought[LEGACY_TOTAL_CE_SOFTCAP_TWO_ID];
 
   for (const [id, bought] of Object.entries(stratum.dreamCrystalUpgrades.repeatableBought)) {
     stratum.dreamCrystalUpgrades.repeatableBought[id] = normalizeNum(bought);
@@ -156,17 +165,15 @@ export function getDreamCrystalSoftcapTwoStrengthMultiplier(stratum: StratumStat
   const fixedMultiplier = hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_SOFTCAP_TWO_WEAKEN_ID)
     ? N(0.5)
     : ONE;
-  return mul(fixedMultiplier, getDreamCrystalTotalCESoftcapTwoStrengthMultiplier(stratum));
+  return fixedMultiplier;
 }
 
-export function getDreamCrystalTotalCESoftcapTwoStrengthMultiplier(stratum: StratumState): Num {
-  if (!hasDreamCrystalUpgrade(stratum, DREAM_CRYSTAL_UPGRADE_TOTAL_CE_SOFTCAP_TWO_ID)) return ONE;
-
-  const totalChaoticEtherGained = max(getTotalChaoticEtherGained(
+export function getDreamCrystalConceptConflictStrengthMultiplier(stratum: StratumState): Num {
+  const bought = getDreamCrystalRepeatableUpgradeBought(
     stratum,
-    getDreamCrystalUpgradeChaoticEtherTier(stratum),
-  ), ONE);
-  return pow(N(0.995), log10(totalChaoticEtherGained));
+    DREAM_CRYSTAL_UPGRADE_CONCEPT_CONFLICT_WEAKEN_ID,
+  );
+  return pow(N(0.96), bought);
 }
 
 export function getDreamCrystalFirstTierUpgradeMultiplier(stratum: StratumState, tier: number): Num {

@@ -11,6 +11,7 @@ import {
 import {
   DREAM_CRYSTAL_UPGRADE_BOUGHT_POWER_ID,
   DREAM_CRYSTAL_UPGRADE_COHERENCE_CONVERSION_ID,
+  DREAM_CRYSTAL_UPGRADE_CONCEPT_CONFLICT_WEAKEN_ID,
   DREAM_CRYSTAL_UPGRADE_COST_GROWTH_SLOWDOWN_ID,
   DREAM_CRYSTAL_UPGRADE_CURRENT_COHERENCE_MULTIPLIER_ID,
   DREAM_CRYSTAL_UPGRADE_FIRST_TIER_TRIPLE_ID,
@@ -22,7 +23,6 @@ import {
   DREAM_CRYSTAL_UPGRADE_ROWS,
   DREAM_CRYSTAL_UPGRADE_SOFTCAP_ONE_WEAKEN_ID,
   DREAM_CRYSTAL_UPGRADE_SOFTCAP_TWO_WEAKEN_ID,
-  DREAM_CRYSTAL_UPGRADE_TOTAL_CE_SOFTCAP_TWO_ID,
   buyDreamCrystalUpgrade,
   canBuyDreamCrystalUpgrade,
   getDreamCrystalBoughtPowerBase,
@@ -33,12 +33,12 @@ import {
   getDreamCrystalRepeatableUpgradeBought,
   getDreamCrystalUpgradeCost,
   getDreamCrystalUpgradeDefinition,
-  getDreamCrystalTotalCESoftcapTwoStrengthMultiplier,
   isDreamCrystalUpgradeUnlockedForPurchase,
   hasDreamCrystalUpgrade,
   type DreamCrystalUpgradeId,
 } from "@/engine/strata/common/dream-crystals/upgrades";
 import {
+  getDreamEnergyConceptConflictStrength,
   getDreamEnergySoftcapOneBaseStrengthDisplay,
   getDreamEnergySoftcapTwoStrengthGrowth,
 } from "@/engine/strata/common/dream-energy";
@@ -161,9 +161,10 @@ function getUpgradeFooter(id: DreamCrystalUpgradeId): string {
     });
   }
 
-  if (id === DREAM_CRYSTAL_UPGRADE_TOTAL_CE_SOFTCAP_TWO_ID) {
-    return t("dreamCrystalUpgrades.totalCESoftcapTwoStatus", {
-      value: format(getDreamCrystalTotalCESoftcapTwoStrengthMultiplier(activeStratum.value)),
+  if (id === DREAM_CRYSTAL_UPGRADE_CONCEPT_CONFLICT_WEAKEN_ID) {
+    return t("dreamCrystalUpgrades.conceptConflictWeakenStatus", {
+      count: formatInt(getDreamCrystalRepeatableUpgradeBought(activeStratum.value, id)),
+      value: format(getDreamEnergyConceptConflictStrength(activeStratum.value)),
     });
   }
 

@@ -39,6 +39,10 @@ import {
   createMilestonesState,
   type MilestonesState,
 } from "./common/milestones";
+import {
+  createElectromagneticCrystalsState,
+  type ElectromagneticCrystalsState,
+} from "../electromagnetic-crystals/state";
 
 export interface StratumState {
   stratumId: string;
@@ -60,6 +64,7 @@ export interface StratumState {
   totalChaoticEtherGained: ChaoticEtherAmounts;
   coherenceUpgrades: CoherenceUpgradesState;
   conceptCrystals: ConceptCrystalsState;
+  electromagneticCrystals: ElectromagneticCrystalsState;
   entropy: EntropyState;
   dreamCrystals: DreamCrystalsState;
   dreamCrystalUpgrades: DreamCrystalUpgradesState;
@@ -100,6 +105,7 @@ export function createStratumState(options: CreateStratumStateOptions = {}): Str
     totalChaoticEtherGained: { "1": ZERO },
     coherenceUpgrades: createCoherenceUpgradesState(),
     conceptCrystals: createConceptCrystalsState(),
+    electromagneticCrystals: createElectromagneticCrystalsState(),
     entropy: createEntropyState(options.entropyFormulaId),
     dreamCrystals: createDreamCrystalsState(),
     dreamCrystalUpgrades: createDreamCrystalUpgradesState(),

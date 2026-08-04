@@ -8,6 +8,7 @@ import {
   getDreamEnergyGainPerSecond,
   getRawDreamEnergyGainPerSecond,
   getDreamEnergyConceptConflictExcessExponent,
+  getDreamEnergyConceptConflictStrength,
   getDreamEnergyConceptConflictStrengthMultiplier,
   getDreamEnergySoftcapOneDivisor,
   getDreamEnergySoftcapOnePowerDisplay,
@@ -31,6 +32,7 @@ import {
 } from "@/engine/strata/common/dream-energy";
 import {
   DREAM_ENERGY_CONCEPT_CONFLICT_START,
+  DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
   DREAM_ENERGY_SOFTCAP_THREE_START,
   DREAM_ENERGY_SOFTCAP_TWO_START,
 } from "@/engine/math/dream-energy/balance";
@@ -119,8 +121,14 @@ const softcapThreeStrengthGrowthText = computed(() => {
 
 const conceptConflictActive = computed(() => isDreamEnergyConceptConflictActive(activeStratum.value));
 const conceptConflictThresholdText = computed(() => format(DREAM_ENERGY_CONCEPT_CONFLICT_START));
+const conceptConflictBaseStrengthText = computed(() => format(
+  DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
+));
 const conceptConflictExcessExponentText = computed(() => format(
   getDreamEnergyConceptConflictExcessExponent(activeStratum.value),
+));
+const conceptConflictStrengthText = computed(() => format(
+  getDreamEnergyConceptConflictStrength(activeStratum.value),
 ));
 const conceptConflictStrengthMultiplierText = computed(() => format(
   getDreamEnergyConceptConflictStrengthMultiplier(activeStratum.value),
@@ -259,6 +267,19 @@ const shieldingDivisorText = computed(() => format(getDreamEnergyShieldingDiviso
       <div class="detail-line concept-conflict-line">
         {{ t("currentStratum.conceptConflict.description") }}
       </div>
+
+      <i18n-t
+        keypath="currentStratum.conceptConflict.strength"
+        tag="div"
+        class="detail-line concept-conflict-line"
+      >
+        <template #base>
+          <span class="detail-number concept-conflict-number">{{ conceptConflictBaseStrengthText }}</span>
+        </template>
+        <template #value>
+          <span class="detail-number concept-conflict-number">{{ conceptConflictStrengthText }}</span>
+        </template>
+      </i18n-t>
 
       <i18n-t
         keypath="currentStratum.conceptConflict.excessExponent"

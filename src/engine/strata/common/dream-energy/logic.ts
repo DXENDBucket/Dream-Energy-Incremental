@@ -25,6 +25,7 @@ import {
     getDreamEnergyIncrement,
 } from "@/engine/math/dream-energy/computed";
 import {
+    getDreamCrystalConceptConflictStrengthMultiplier,
     getDreamCrystalSoftcapOneStrengthMultiplier,
     getDreamCrystalSoftcapTwoStrengthMultiplier,
 } from "@/engine/strata/common/dream-crystals/upgrades";
@@ -269,27 +270,44 @@ function getRawDreamEnergyFromStandardSoftcapped(
     return pow(TEN, getRawDreamEnergyLogFromActualLog(stratum, log10(targetActual)));
 }
 
-export function applyDreamEnergyConceptConflict(standardSoftcapped: Num): Num {
+export function applyDreamEnergyConceptConflict(stratum: StratumState, standardSoftcapped: Num): Num {
     if (lte(standardSoftcapped, DREAM_ENERGY_CONCEPT_CONFLICT_START)) {
         return standardSoftcapped;
     }
 
-    const inputProgress = log10(div(
-        standardSoftcapped,
-        DREAM_ENERGY_CONCEPT_CONFLICT_START,
-    ));
-    const compressedRatio = add(ONE, mul(NATURAL_LOG_TEN, inputProgress));
+    const inputRatio = div(standardSoftcapped, DREAM_ENERGY_CONCEPT_CONFLICT_START);
+    const normalizedStrength = div(
+        getDreamEnergyConceptConflictStrength(stratum),
+        DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
+    );
+    const scaledInputRatio = add(ONE, mul(normalizedStrength, sub(inputRatio, ONE)));
+    const compressedRatio = add(
+        ONE,
+        div(mul(NATURAL_LOG_TEN, log10(scaledInputRatio)), normalizedStrength),
+    );
     return mul(DREAM_ENERGY_CONCEPT_CONFLICT_START, compressedRatio);
 }
 
-export function removeDreamEnergyConceptConflict(conflicted: Num): Num {
+export function removeDreamEnergyConceptConflict(stratum: StratumState, conflicted: Num): Num {
     if (lte(conflicted, DREAM_ENERGY_CONCEPT_CONFLICT_START)) return conflicted;
 
     const outputRatio = div(conflicted, DREAM_ENERGY_CONCEPT_CONFLICT_START);
-    const inputProgress = div(sub(outputRatio, ONE), NATURAL_LOG_TEN);
+    const normalizedStrength = div(
+        getDreamEnergyConceptConflictStrength(stratum),
+        DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
+    );
+    const scaledInputRatio = pow(
+        TEN,
+        div(mul(normalizedStrength, sub(outputRatio, ONE)), NATURAL_LOG_TEN),
+    );
+    const inputRatio = add(ONE, div(sub(scaledInputRatio, ONE), normalizedStrength));
+    return mul(DREAM_ENERGY_CONCEPT_CONFLICT_START, inputRatio);
+}
+
+export function getDreamEnergyConceptConflictStrength(stratum: StratumState): Num {
     return mul(
-        DREAM_ENERGY_CONCEPT_CONFLICT_START,
-        pow(TEN, inputProgress),
+        DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
+        getDreamCrystalConceptConflictStrengthMultiplier(stratum),
     );
 }
 
@@ -381,6 +399,7 @@ export function getActualDreamEnergyFromRaw(stratum: StratumState, raw: Num): Nu
     return applyDreamEnergyShielding(
         stratum,
         applyDreamEnergyConceptConflict(
+            stratum,
             getActualDreamEnergyAfterStandardSoftcaps(stratum, raw),
         ),
     );
@@ -390,6 +409,7 @@ export function getRawDreamEnergyFromActual(stratum: StratumState, actual: Num):
     return getRawDreamEnergyFromStandardSoftcapped(
         stratum,
         removeDreamEnergyConceptConflict(
+            stratum,
             removeDreamEnergyShielding(stratum, max(actual, ZERO)),
         ),
     );
@@ -400,7 +420,7 @@ export function getDreamEnergyAfterConceptConflict(stratum: StratumState): Num {
 }
 
 export function getDreamEnergyBeforeConceptConflict(stratum: StratumState): Num {
-    return removeDreamEnergyConceptConflict(getDreamEnergyAfterConceptConflict(stratum));
+    return removeDreamEnergyConceptConflict(stratum, getDreamEnergyAfterConceptConflict(stratum));
 }
 
 export function isDreamEnergyConceptConflictActive(stratum: StratumState): boolean {
@@ -671,8 +691,8 @@ export function getDreamEnergyDirectProductionBreakdown(
     const nextStandard = getActualDreamEnergyAfterStandardSoftcaps(stratum, nextRaw);
     const standardGain = max(ZERO, sub(nextStandard, currentStandard));
 
-    const currentConflict = applyDreamEnergyConceptConflict(currentStandard);
-    const nextConflict = applyDreamEnergyConceptConflict(nextStandard);
+    const currentConflict = applyDreamEnergyConceptConflict(stratum, currentStandard);
+    const nextConflict = applyDreamEnergyConceptConflict(stratum, nextStandard);
     const conflictGain = max(ZERO, sub(nextConflict, currentConflict));
 
     const currentShielded = applyDreamEnergyShielding(stratum, currentConflict);

@@ -39,6 +39,10 @@ import {
   REALITY_MILESTONE_LIFT_UNLOCK_ID,
 } from "@/engine/reality/milestones";
 import { ensureCrushState, syncCrushDreamCrystalMultipliers } from "@/engine/crush";
+import {
+  ensureElectromagneticCrystalsState,
+  type ElectromagneticCrystalsState,
+} from "@/engine/electromagnetic-crystals";
 
 function normalizeDreamCrystalsState(stratum: StratumState): void {
   const defaults = createDreamCrystalsState();
@@ -91,6 +95,13 @@ export function normalizeGameState(state: GameState): GameState {
   }
 
   state.strata[realityStratumId] ??= createStratumState();
+  const legacyState = state as GameState & {
+    electromagneticCrystals?: ElectromagneticCrystalsState;
+  };
+  if (legacyState.electromagneticCrystals) {
+    state.strata[realityStratumId].electromagneticCrystals = legacyState.electromagneticCrystals;
+    delete legacyState.electromagneticCrystals;
+  }
   ensureRealityMilestonesState(state);
   ensureCrushState(state);
   normalizeCharacterSystemState(state);
@@ -133,6 +144,7 @@ export function normalizeGameState(state: GameState): GameState {
     ensureCoherenceAutobuyerState(stratum);
     ensureCoherenceUpgradesState(stratum);
     ensureConceptCrystalsState(stratum);
+    ensureElectromagneticCrystalsState(stratum);
     ensureDreamCrystalUpgradesState(stratum);
     ensureDreamCrystalAutobuyersState(stratum);
     stratum.rawDreamEnergy = getRawDreamEnergyFromActual(stratum, stratum.dreamEnergy);

@@ -48,7 +48,7 @@ export const CHARACTER_LEVEL_COST_DEFINITIONS: Record<string, CharacterLevelCost
   },
   [DAWN_CHARACTER_ID]: {
     resource: "chaotic-ether-1",
-    baseCost: N("5e15"),
+    baseCost: N("1e12"),
     costScale: N(6),
   },
   [DELTA_CHARACTER_ID]: {

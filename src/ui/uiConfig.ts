@@ -72,6 +72,7 @@ export const PRIMARY_TABS = [
     children: [
       { id: "dream-crystals", icon: "◇", labelKey: "navigation.secondary.dreamCrystals" },
       { id: "concept-crystals", icon: "⬡", labelKey: "navigation.secondary.conceptCrystals" },
+      { id: "electromagnetic-crystals", icon: "⊕", labelKey: "navigation.secondary.electromagneticCrystals" },
     ],
   },
   {

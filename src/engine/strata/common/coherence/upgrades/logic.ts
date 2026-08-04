@@ -169,7 +169,7 @@ export function getCoherenceSoftcapTwoRepeatableStrengthMultiplier(stratum: Stra
     stratum,
     COHERENCE_UPGRADE_SOFTCAP_TWO_REPEATABLE_SLOWDOWN_ID,
   );
-  return pow(N("0.99"), bought);
+  return pow(N("0.98"), bought);
 }
 
 export function getCoherenceDeeperInitialDreamEnergyBonus(stratum: StratumState): Num {
