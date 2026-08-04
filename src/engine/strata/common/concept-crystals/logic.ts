@@ -1,4 +1,4 @@
-import { N, ONE, TEN, ZERO, add, div, floor, gte, log10, lte, max, min, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
+import { N, ONE, TEN, ZERO, add, div, floor, gt, gte, log10, lte, max, min, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals/selectors";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals/state";
@@ -53,10 +53,10 @@ export function ensureConceptCrystalsState(stratum: StratumState): ConceptCrysta
   stratum.conceptCrystals.nodes ??= defaults;
 
   for (const nodeId of CONCEPT_CRYSTAL_NODE_IDS) {
-    stratum.conceptCrystals.nodes[nodeId] = min(
-      normalizeNum(stratum.conceptCrystals.nodes[nodeId], defaults[nodeId]),
-      CONCEPT_CRYSTAL_NODE_HARDCAP,
-    );
+    const normalized = normalizeNum(stratum.conceptCrystals.nodes[nodeId], defaults[nodeId]);
+    stratum.conceptCrystals.nodes[nodeId] = gt(normalized, CONCEPT_CRYSTAL_NODE_HARDCAP)
+      ? CONCEPT_CRYSTAL_NODE_HARDCAP
+      : normalized;
   }
 
   return stratum.conceptCrystals;

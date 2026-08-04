@@ -65,6 +65,8 @@ export function createGameStore() {
   let autoSaveElapsedSec = 0;
   let lastLoopMs = performance.now();
   let offlineRunId = 0;
+  let loopAnimationFrameId: number | null = null;
+  let isDisposed = false;
 
   function finishOfflineProgress(runId: number) {
     if (runId !== offlineRunId) return;
@@ -81,7 +83,7 @@ export function createGameStore() {
   }
 
   function runOfflineProgressBatch(runId: number) {
-    if (runId !== offlineRunId || !offlineProgress.isActive) return;
+    if (isDisposed || runId !== offlineRunId || !offlineProgress.isActive) return;
 
     const frameStartMs = performance.now();
     let processedThisFrame = 0;
@@ -112,6 +114,8 @@ export function createGameStore() {
   }
 
   function startOfflineProgress(elapsedSec: number) {
+    if (isDisposed) return;
+
     offlineRunId += 1;
     const runId = offlineRunId;
     const tickCount = getOfflineProgressTickCount(elapsedSec);
@@ -223,6 +227,8 @@ export function createGameStore() {
   }
 
   function loop() {
+    if (isDisposed) return;
+
     const now = performance.now();
     const realDtSec = Math.max(0, (now - lastLoopMs) / 1000);
     lastLoopMs = now;
@@ -242,7 +248,20 @@ export function createGameStore() {
       autoSaveElapsedSec = 0;
     }
 
-    requestAnimationFrame(loop);
+    loopAnimationFrameId = requestAnimationFrame(loop);
+  }
+
+  function dispose() {
+    if (isDisposed) return;
+
+    isDisposed = true;
+    offlineRunId += 1;
+    offlineProgress.isActive = false;
+
+    if (loopAnimationFrameId !== null) {
+      cancelAnimationFrame(loopAnimationFrameId);
+      loopAnimationFrameId = null;
+    }
   }
 
   loop();
@@ -260,5 +279,6 @@ export function createGameStore() {
     exportSaveString,
     importSaveString,
     hardReset,
+    dispose,
   };
 }
