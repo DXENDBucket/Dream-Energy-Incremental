@@ -1,5 +1,6 @@
 import type { StratumState } from "@/engine/strata/state";
 import { N, ZERO, add, div, max, mul, normalizeNum, pow, type Num } from "@/engine/math/num";
+import { isElectromagneticCrystalsUnlocked } from "@/engine/strata/common/milestones";
 import {
   ELECTROMAGNETIC_DEFAULT_INITIAL_DIRECTION_DEG,
   ELECTROMAGNETIC_DEFAULT_INITIAL_SPEED,
@@ -168,6 +169,7 @@ function simulateParticleStep(electromagnetic: ElectromagneticCrystalsState, dtS
 }
 
 export function tickElectromagneticCrystals(state: StratumState, dtSec: Num): void {
+  if (!isElectromagneticCrystalsUnlocked(state)) return;
   const electromagnetic = ensureElectromagneticCrystalsState(state);
   decayElectromagneticPower(electromagnetic, dtSec);
 

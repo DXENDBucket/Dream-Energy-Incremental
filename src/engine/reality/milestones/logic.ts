@@ -6,7 +6,6 @@ import { realityStratumId } from "@/engine/strata/defs";
 import {
   getRealityMilestoneDefinition,
   REALITY_MILESTONE_CHARACTER_PRODUCTION_ID,
-  REALITY_MILESTONE_ELECTROMAGNETIC_CRYSTALS_ID,
   REALITY_MILESTONE_LIFT_UNLOCK_ID,
   type RealityMilestoneId,
 } from "./definitions";
@@ -51,8 +50,4 @@ export function markRealityLiftMilestoneClaimed(state: GameState): void {
 
 export function isCharacterProductionUnlocked(state: GameState): boolean {
   return hasRealityMilestone(state, REALITY_MILESTONE_CHARACTER_PRODUCTION_ID);
-}
-
-export function isElectromagneticCrystalsUnlocked(state: GameState): boolean {
-  return hasRealityMilestone(state, REALITY_MILESTONE_ELECTROMAGNETIC_CRYSTALS_ID);
 }

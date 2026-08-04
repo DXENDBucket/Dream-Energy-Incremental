@@ -30,6 +30,7 @@ import {
 import {
   isCoherenceUpgradesUnlocked,
   isConceptCrystalsUnlocked,
+  isElectromagneticCrystalsUnlocked,
   isUpgradesUnlocked,
 } from "@/engine/strata/common/milestones";
 import {
@@ -60,10 +61,7 @@ import {
   dreamSeaFourthStratumId,
   realityStratumId,
 } from "@/engine/strata/defs";
-import {
-  isCharacterProductionUnlocked,
-  isElectromagneticCrystalsUnlocked,
-} from "@/engine/reality/milestones";
+import { isCharacterProductionUnlocked } from "@/engine/reality/milestones";
 import {
   CRUSH_MILESTONE_COUNT,
   CRUSH_MILESTONE_DEFINITIONS,
@@ -112,7 +110,7 @@ const availablePrimaryTabs = computed(() => {
               return isConceptCrystalsUnlocked(activeStratum.value);
             }
             if (child.id === "electromagnetic-crystals") {
-              return isElectromagneticCrystalsUnlocked(props.game.state);
+              return isElectromagneticCrystalsUnlocked(activeStratum.value);
             }
             return true;
           }),
