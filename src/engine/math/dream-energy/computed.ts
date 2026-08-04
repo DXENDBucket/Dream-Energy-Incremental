@@ -13,9 +13,15 @@ const SOFTCAP_ONE_LOG_DENOMINATOR = log10(add(DREAM_ENERGY_SOFTCAP_POWER_DISPLAY
 export function getDreamEnergyIncrement(
     stratum: StratumState,
 ) {
+    return applyEntropyToProduction(stratum, getDreamEnergyBaseIncrement(stratum));
+}
+
+export function getDreamEnergyBaseIncrement(
+    stratum: StratumState,
+) {
     const multiplier = getDreamCrystalMultiplier(stratum, 1);
     const amount = getDreamCrystalAmount(stratum.dreamCrystals, 1);
-    return applyEntropyToProduction(stratum, mul(multiplier, amount))
+    return mul(multiplier, amount);
 }
 
 export function getDreamEnergyPercentageIncrement(

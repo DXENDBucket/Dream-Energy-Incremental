@@ -73,6 +73,7 @@ import LiftPage from "./strata/LiftPage.vue";
 import StrataOverviewPage from "./strata/StrataOverviewPage.vue";
 import SavePage from "./options/SavePage.vue";
 import ThemePage from "./options/ThemePage.vue";
+import MultiplierBreakdownPage from "./stats/MultiplierBreakdownPage.vue";
 import { formatPercentagePerSecondText } from "@/ui/formatters/progression";
 
 import type { GameStore } from "@/store/gameStore";
@@ -768,8 +769,8 @@ const secondaryTooltipStyle = computed(() => ({
           {{ t("mainPage.placeholders.numbers") }}
         </div>
 
-        <div v-else-if="selectedSecondary === 'history'" class="page-card">
-          {{ t("mainPage.placeholders.history") }}
+        <div v-else-if="selectedSecondary === 'multiplier-breakdown'" class="dream-crystals-page">
+          <MultiplierBreakdownPage :game="props.game" />
         </div>
 
         <div v-else-if="selectedSecondary === 'theme'" class="page-card">

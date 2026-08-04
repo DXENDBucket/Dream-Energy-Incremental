@@ -133,7 +133,7 @@ export const PRIMARY_TABS = [
     textColor: "#d7fffb",
     children: [
       { id: "numbers", icon: "#", labelKey: "navigation.secondary.numbers" },
-      { id: "history", icon: "H", labelKey: "navigation.secondary.history" },
+      { id: "multiplier-breakdown", icon: "×", labelKey: "navigation.secondary.multiplierBreakdown" },
     ],
   },
   {

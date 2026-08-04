@@ -21,6 +21,7 @@ import {
 import {
     convertDreamEnergySoftcapOneToPower,
     convertDreamEnergySoftcapOneToRaw,
+    getDreamEnergyBaseIncrement,
     getDreamEnergyIncrement,
 } from "@/engine/math/dream-energy/computed";
 import {
@@ -639,6 +640,54 @@ export function getDreamEnergySoftcapThreeStrengthGrowth(stratum?: StratumState)
             getConceptCrystalAssimilationStrengthMultiplier(stratum),
         ),
     );
+}
+
+export interface DreamEnergyDirectProductionBreakdown {
+    baseProduction: Num;
+    entropyFactor: Num;
+    stratumSpeedFactor: Num;
+    standardSoftcapsFactor: Num;
+    conceptConflictFactor: Num;
+    shieldingFactor: Num;
+    totalProduction: Num;
+}
+
+function getProductionStageFactor(after: Num, before: Num): Num {
+    if (lte(before, ZERO)) return ONE;
+    return max(ZERO, div(after, before));
+}
+
+export function getDreamEnergyDirectProductionBreakdown(
+    stratum: StratumState,
+): DreamEnergyDirectProductionBreakdown {
+    const dreamCrystalProduction = getDreamEnergyBaseIncrement(stratum);
+    const baseProduction = dreamCrystalProduction;
+    const entropyAdjusted = getDreamEnergyIncrement(stratum);
+    const rawGain = mul(entropyAdjusted, stratum.stratumSpeed);
+    const currentRaw = getRawDreamEnergy(stratum);
+    const nextRaw = add(currentRaw, rawGain);
+
+    const currentStandard = getActualDreamEnergyAfterStandardSoftcaps(stratum, currentRaw);
+    const nextStandard = getActualDreamEnergyAfterStandardSoftcaps(stratum, nextRaw);
+    const standardGain = max(ZERO, sub(nextStandard, currentStandard));
+
+    const currentConflict = applyDreamEnergyConceptConflict(currentStandard);
+    const nextConflict = applyDreamEnergyConceptConflict(nextStandard);
+    const conflictGain = max(ZERO, sub(nextConflict, currentConflict));
+
+    const currentShielded = applyDreamEnergyShielding(stratum, currentConflict);
+    const nextShielded = applyDreamEnergyShielding(stratum, nextConflict);
+    const shieldedGain = max(ZERO, sub(nextShielded, currentShielded));
+
+    return {
+        baseProduction,
+        entropyFactor: getProductionStageFactor(entropyAdjusted, dreamCrystalProduction),
+        stratumSpeedFactor: max(ZERO, stratum.stratumSpeed),
+        standardSoftcapsFactor: getProductionStageFactor(standardGain, rawGain),
+        conceptConflictFactor: getProductionStageFactor(conflictGain, standardGain),
+        shieldingFactor: getProductionStageFactor(shieldedGain, conflictGain),
+        totalProduction: shieldedGain,
+    };
 }
 
 export function getDreamEnergySoftcapThreeStrengthMultiplier(stratum: StratumState) {
