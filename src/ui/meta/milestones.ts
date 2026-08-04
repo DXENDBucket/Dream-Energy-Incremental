@@ -5,6 +5,7 @@ import type {
 } from "@/engine/strata/common/milestones";
 import {
   MILESTONE_FOUR_PLACEHOLDER_ID,
+  UNLOCK_ELECTROMAGNETIC_CRYSTALS_MILESTONE_ID,
   UNLOCK_COHERENCE_UPGRADES_MILESTONE_ID,
   UNLOCK_REFINE_MILESTONE_ID,
   UNLOCK_UPGRADES_MILESTONE_ID,
@@ -32,6 +33,11 @@ const MILESTONE_UI_KEYS = {
     titleKey: "milestones.content.milestoneFourPlaceholder.title",
     rewardKey: "milestones.content.milestoneFourPlaceholder.reward",
     descriptionKey: "milestones.content.milestoneFourPlaceholder.description",
+  },
+  [UNLOCK_ELECTROMAGNETIC_CRYSTALS_MILESTONE_ID]: {
+    titleKey: "milestones.content.unlockElectromagneticCrystals.title",
+    rewardKey: "milestones.content.unlockElectromagneticCrystals.reward",
+    descriptionKey: "milestones.content.unlockElectromagneticCrystals.description",
   },
 } as const satisfies Record<
   MilestoneId,

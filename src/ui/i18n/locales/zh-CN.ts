@@ -527,6 +527,11 @@ export default {
         reward: "解锁概念水晶。",
         description: "梦能的压力凝成了新的形状。一个六重回路开始缓慢转动。",
       },
+      unlockElectromagneticCrystals: {
+        title: "里程碑 5",
+        reward: "解锁本层的电磁水晶。",
+        description: "在循环电磁场中控制正电粒子，并通过判定线获得 Electromagnetic Power。",
+      },
     },
   },
   autobuyers: {

@@ -7,6 +7,7 @@ import {
   UNLOCK_REFINE_MILESTONE_ID,
   UNLOCK_UPGRADES_MILESTONE_ID,
   MILESTONE_FOUR_PLACEHOLDER_ID,
+  UNLOCK_ELECTROMAGNETIC_CRYSTALS_MILESTONE_ID,
 } from "@/engine/strata/common/milestones/balance";
 import { getMilestoneRequirement } from "./definitions";
 
@@ -41,4 +42,8 @@ export function isCoherenceUpgradesUnlocked(stratum: StratumState): boolean {
 
 export function isConceptCrystalsUnlocked(stratum: StratumState): boolean {
   return hasMilestone(stratum.milestones, MILESTONE_FOUR_PLACEHOLDER_ID);
+}
+
+export function isElectromagneticCrystalsUnlocked(stratum: StratumState): boolean {
+  return hasMilestone(stratum.milestones, UNLOCK_ELECTROMAGNETIC_CRYSTALS_MILESTONE_ID);
 }

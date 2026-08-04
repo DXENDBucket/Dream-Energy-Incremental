@@ -528,6 +528,11 @@ export default {
         reward: "Unlock Concept Crystals.",
         description: "Dream Energy pressure condenses into a new shape. A sixfold circuit begins to turn.",
       },
+      unlockElectromagneticCrystals: {
+        title: "Milestone 5",
+        reward: "Unlock Electromagnetic Crystals in this stratum.",
+        description: "Guide a positive particle through a looping electromagnetic field to produce Electromagnetic Power.",
+      },
     },
   },
   autobuyers: {
