@@ -32,15 +32,53 @@ const electromagnetic = computed(() => ensureElectromagneticCrystalsState(active
 const powerText = computed(() => format(getElectromagneticPower(activeStratum.value)));
 const decayText = format(ELECTROMAGNETIC_POWER_DECAY_DIVISOR_PER_SECOND);
 const crossingGainText = format(ELECTROMAGNETIC_POWER_PER_CROSSING);
-const fieldCells = Array.from({ length: 25 }, (_, index) => index);
+const ARENA_VISUAL_SIZE = 520;
+const ELECTRIC_VISUAL_MARGIN = 170;
+const ELECTRIC_LINE_EXTENT = ARENA_VISUAL_SIZE + ELECTRIC_VISUAL_MARGIN * 2;
+const electricArrowPositions = Array.from(
+  { length: 13 },
+  (_, index) => -390 + index * 105,
+);
+
+const electricLineOffsets = computed(() => {
+  const strength = electromagnetic.value.electricFieldStrength;
+  if (strength <= 0) return [];
+  const count = Math.max(1, Math.round(
+    strength / ELECTROMAGNETIC_MAX_ELECTRIC_FIELD_STRENGTH * 18,
+  ));
+  if (count === 1) return [ARENA_VISUAL_SIZE / 2];
+  return Array.from(
+    { length: count },
+    (_, index) => -ELECTRIC_VISUAL_MARGIN + index * ELECTRIC_LINE_EXTENT / (count - 1),
+  );
+});
+
+const electricFieldTransform = computed(() => (
+  `rotate(${electromagnetic.value.electricFieldDirectionDeg} 260 260)`
+));
+
+const magneticFieldCells = computed(() => {
+  const magnitude = Math.abs(electromagnetic.value.magneticFieldStrength);
+  if (magnitude <= 0) return [];
+  const axisCount = Math.max(2, Math.round(
+    Math.sqrt(magnitude / ELECTROMAGNETIC_MAX_MAGNETIC_FIELD_STRENGTH) * 11,
+  ));
+  const padding = 24;
+  const span = ARENA_VISUAL_SIZE - padding * 2;
+  return Array.from({ length: axisCount * axisCount }, (_, index) => ({
+    id: index,
+    x: padding + (index % axisCount + 0.5) * span / axisCount,
+    y: padding + (Math.floor(index / axisCount) + 0.5) * span / axisCount,
+  }));
+});
+
+const magneticFieldSymbol = computed(() => (
+  electromagnetic.value.magneticFieldStrength > 0 ? "⊗" : "⊙"
+));
 
 const particleStyle = computed(() => ({
   left: `${electromagnetic.value.particle.x * 100}%`,
   top: `${electromagnetic.value.particle.y * 100}%`,
-}));
-
-const electricArrowStyle = computed(() => ({
-  transform: `translate(-50%, -50%) rotate(${electromagnetic.value.electricFieldDirectionDeg}deg)`,
 }));
 
 const velocityText = computed(() => {
@@ -88,17 +126,38 @@ function onInitialDirectionInput(event: Event): void {
     <div class="demo-layout">
       <div class="arena-scroll">
         <div class="arena" role="img" :aria-label="t('electromagneticCrystals.arenaLabel')">
-          <div class="field-grid" aria-hidden="true">
+          <div class="magnetic-field-layer" aria-hidden="true">
             <span
-              v-for="cell in fieldCells"
-              :key="cell"
+              v-for="cell in magneticFieldCells"
+              :key="cell.id"
               class="magnetic-glyph"
-            >{{ electromagnetic.magneticFieldStrength > 0
-              ? "⊗"
-              : electromagnetic.magneticFieldStrength < 0
-                ? "⊙"
-                : "·" }}</span>
+              :style="{ left: `${cell.x}px`, top: `${cell.y}px` }"
+            >{{ magneticFieldSymbol }}</span>
           </div>
+
+          <svg
+            class="electric-field-layer"
+            :viewBox="`0 0 ${ARENA_VISUAL_SIZE} ${ARENA_VISUAL_SIZE}`"
+            aria-hidden="true"
+          >
+            <g :transform="electricFieldTransform">
+              <g v-for="(lineY, lineIndex) in electricLineOffsets" :key="lineIndex">
+                <line
+                  class="electric-field-line"
+                  :x1="-ELECTRIC_VISUAL_MARGIN"
+                  :x2="ARENA_VISUAL_SIZE + ELECTRIC_VISUAL_MARGIN"
+                  :y1="lineY"
+                  :y2="lineY"
+                />
+                <path
+                  v-for="arrowX in electricArrowPositions"
+                  :key="arrowX"
+                  class="electric-field-arrowhead"
+                  :d="`M ${arrowX - 7} ${lineY - 4} L ${arrowX} ${lineY} L ${arrowX - 7} ${lineY + 4}`"
+                />
+              </g>
+            </g>
+          </svg>
 
           <div
             v-for="lineX in ELECTROMAGNETIC_JUDGE_LINE_X"
@@ -106,12 +165,6 @@ function onInitialDirectionInput(event: Event): void {
             class="judge-line"
             :style="{ left: `${lineX * 100}%` }"
           />
-
-          <div class="electric-arrow" :style="electricArrowStyle" aria-hidden="true">
-            <span class="arrow-shaft" />
-            <span class="arrow-head">▶</span>
-            <span class="arrow-label">E</span>
-          </div>
 
           <div class="particle" :style="particleStyle" aria-hidden="true">+</div>
           <div class="wrap-label wrap-horizontal">↔</div>
@@ -279,14 +332,46 @@ function onInitialDirectionInput(event: Event): void {
   box-shadow: inset 0 0 55px rgba(36, 191, 255, 0.1), 0 0 28px rgba(45, 190, 236, 0.12);
 }
 
-.field-grid {
+.magnetic-field-layer {
   position: absolute;
-  inset: 25px;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  place-items: center;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.magnetic-glyph {
+  position: absolute;
+  transform: translate(-50%, -50%);
   color: rgba(98, 205, 231, 0.2);
-  font-size: 1.1rem;
+  font-family: "Segoe UI Symbol", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1;
+  text-shadow: 0 0 6px rgba(84, 210, 239, 0.16);
+}
+
+.electric-field-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.electric-field-line,
+.electric-field-arrowhead {
+  fill: none;
+  stroke: rgba(119, 237, 255, 0.34);
+  stroke-width: 1.25;
+  vector-effect: non-scaling-stroke;
+}
+
+.electric-field-arrowhead {
+  stroke: rgba(150, 244, 255, 0.58);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .judge-line {
@@ -294,34 +379,11 @@ function onInitialDirectionInput(event: Event): void {
   top: 0;
   bottom: 0;
   width: 2px;
+  z-index: 2;
   transform: translateX(-1px);
   background: linear-gradient(180deg, #ffdb68, #fff5ba 45%, #ffbd3f);
   box-shadow: 0 0 9px rgba(255, 212, 80, 0.82);
 }
-
-.electric-arrow {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 130px;
-  height: 28px;
-  transform-origin: center;
-  opacity: 0.52;
-  pointer-events: none;
-}
-
-.arrow-shaft {
-  position: absolute;
-  left: 0;
-  right: 15px;
-  top: 13px;
-  height: 2px;
-  background: #78edff;
-  box-shadow: 0 0 8px #42dfff;
-}
-
-.arrow-head { position: absolute; right: 0; top: 2px; color: #8ff3ff; }
-.arrow-label { position: absolute; left: 48px; top: -10px; color: #a7f6ff; font-weight: 900; }
 
 .particle {
   position: absolute;
