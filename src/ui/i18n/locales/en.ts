@@ -63,7 +63,7 @@ export default {
     softcapTwoWarning: "The strong interaction is surfacing between Dream Energy. Raw Dream Energy past the boundary is compressed more deeply.",
     softcapThreeWarning: "Dream Energy is assimilating itself. Beyond the assimilation boundary, the strong-interaction compression curve is pulled higher.",
     conceptConflictWarning: "The concepts of dreams are becoming substantial and beginning to conflict with one another.",
-    shieldingWarning: "Shielding is consuming excess Dream Energy to maintain the reality barrier.",
+    shieldingWarning: "Shielding is continuously consuming Dream Energy to maintain the reality barrier.",
     placeholders: {
       upgrades: "Upgrades placeholder",
       numbers: "Numbers/statistics placeholder",
@@ -669,10 +669,10 @@ export default {
     },
     shielding: {
       title: "Shielding",
-      threshold: "After the standard softcaps, the reality barrier activates above 2^128 ({value}) actual Dream Energy.",
+      permanent: "Outside Reality, the reality barrier is permanently active from 0 Dream Energy and is applied after the standard softcaps.",
       strength: "Shielding strength after this stratum's chaos and Tuning: {value}.",
       rootDegree: "Current progress gives Shielding a {value}th root.",
-      reduction: "The reality barrier only compresses the portion above 2^128, reducing {before} Dream Energy to {after} ({divisor}).",
+      reduction: "The reality barrier compresses {before} Dream Energy to {after} ({divisor}).",
     },
   },
   lift: {

@@ -33,7 +33,6 @@ import {
   DREAM_ENERGY_CONCEPT_CONFLICT_START,
   DREAM_ENERGY_SOFTCAP_THREE_START,
   DREAM_ENERGY_SOFTCAP_TWO_START,
-  DREAM_ENERGY_SHIELDING_START,
 } from "@/engine/math/dream-energy/balance";
 import { getDreamEnergy } from "@/engine/strata/manager/selectors";
 
@@ -128,7 +127,6 @@ const conceptConflictStrengthMultiplierText = computed(() => format(
 ));
 
 const shieldingActive = computed(() => isDreamEnergyShieldingActive(activeStratum.value));
-const shieldingThresholdText = computed(() => format(DREAM_ENERGY_SHIELDING_START));
 const beforeShielding = computed(() => getDreamEnergyBeforeShielding(activeStratum.value));
 const shieldingStrengthText = computed(() => format(getDreamEnergyShieldingStrength(activeStratum.value)));
 const shieldingRootDegreeText = computed(() => format(
@@ -286,11 +284,9 @@ const shieldingDivisorText = computed(() => format(getDreamEnergyShieldingDiviso
     <div v-if="shieldingActive" class="detail-card shielding-card">
       <div class="detail-title shielding-title">{{ t("currentStratum.shielding.title") }}</div>
 
-      <i18n-t keypath="currentStratum.shielding.threshold" tag="div" class="detail-line shielding-line">
-        <template #value>
-          <span class="detail-number shielding-number">{{ shieldingThresholdText }}</span>
-        </template>
-      </i18n-t>
+      <div class="detail-line shielding-line">
+        {{ t("currentStratum.shielding.permanent") }}
+      </div>
 
       <i18n-t keypath="currentStratum.shielding.strength" tag="div" class="detail-line shielding-line">
         <template #value>
