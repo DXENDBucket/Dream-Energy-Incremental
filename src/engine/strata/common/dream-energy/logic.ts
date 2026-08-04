@@ -429,8 +429,7 @@ export function getDreamEnergyConceptConflictStrengthMultiplier(stratum: Stratum
 }
 
 export function isDreamEnergyShieldingActive(stratum: StratumState): boolean {
-    return isDreamEnergyShieldingEnabled(stratum)
-        && gte(getDreamEnergyBeforeShielding(stratum), DREAM_ENERGY_SHIELDING_START);
+    return isDreamEnergyShieldingEnabled(stratum);
 }
 
 export function getDreamEnergyBeforeShielding(stratum: StratumState): Num {

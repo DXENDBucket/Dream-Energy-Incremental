@@ -1,4 +1,4 @@
-import { N, ONE, TEN, ZERO, add, div, floor, gte, log10, lte, max, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
+import { N, ONE, TEN, ZERO, add, div, floor, gte, log10, lte, max, min, mul, normalizeNum, pow, sqrt, sub } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals/selectors";
 import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals/state";
@@ -11,6 +11,7 @@ import {
   CONCEPT_CRYSTAL_INTERVAL_REDUCTION,
   CONCEPT_CRYSTAL_INTERVAL_UPGRADE_REQUIREMENT,
   CONCEPT_CRYSTAL_INTERVAL_UPGRADE_REQUIREMENT_SCALE,
+  CONCEPT_CRYSTAL_NODE_HARDCAP,
 } from "./balance";
 import {
   CONCEPT_CRYSTAL_NODE_IDS,
@@ -52,9 +53,9 @@ export function ensureConceptCrystalsState(stratum: StratumState): ConceptCrysta
   stratum.conceptCrystals.nodes ??= defaults;
 
   for (const nodeId of CONCEPT_CRYSTAL_NODE_IDS) {
-    stratum.conceptCrystals.nodes[nodeId] = normalizeNum(
-      stratum.conceptCrystals.nodes[nodeId],
-      defaults[nodeId],
+    stratum.conceptCrystals.nodes[nodeId] = min(
+      normalizeNum(stratum.conceptCrystals.nodes[nodeId], defaults[nodeId]),
+      CONCEPT_CRYSTAL_NODE_HARDCAP,
     );
   }
 
@@ -246,7 +247,10 @@ export function runConceptCrystalProduction(stratum: StratumState): void {
   for (const nodeId of CONCEPT_CRYSTAL_NODE_IDS) {
     const gain = gains[nodeId];
     if (!gain || lte(gain, 0)) continue;
-    conceptCrystals.nodes[nodeId] = add(conceptCrystals.nodes[nodeId], gain);
+    conceptCrystals.nodes[nodeId] = min(
+      add(conceptCrystals.nodes[nodeId], gain),
+      CONCEPT_CRYSTAL_NODE_HARDCAP,
+    );
   }
 }
 
@@ -331,7 +335,10 @@ export function runConceptCrystalProductionCycles(stratum: StratumState, cycles:
       nextAmount = add(nextAmount, mul(matrix[row]![column]!, current[column]!));
     }
 
-    conceptCrystals.nodes[CONCEPT_CRYSTAL_NODE_IDS[row]!] = nextAmount;
+    conceptCrystals.nodes[CONCEPT_CRYSTAL_NODE_IDS[row]!] = min(
+      nextAmount,
+      CONCEPT_CRYSTAL_NODE_HARDCAP,
+    );
   }
 
   return wholeCycles;

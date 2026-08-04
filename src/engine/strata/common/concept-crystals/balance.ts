@@ -1,7 +1,8 @@
-import { N } from "@/engine/math/num";
+import { N, pow } from "@/engine/math/num";
 
 export const CONCEPT_CRYSTAL_BASE_PRODUCTION_INTERVAL_SEC = N(30);
 export const CONCEPT_CRYSTAL_INTERVAL_UPGRADE_REQUIREMENT = N("1e29");
 export const CONCEPT_CRYSTAL_INTERVAL_UPGRADE_REQUIREMENT_SCALE = N(10);
 export const CONCEPT_CRYSTAL_INTERVAL_REDUCTION = N(0.91);
 export const CONCEPT_CRYSTAL_CONDENSE_DREAM_CRYSTAL_TIER = 8;
+export const CONCEPT_CRYSTAL_NODE_HARDCAP = pow(N(2), 1024);
