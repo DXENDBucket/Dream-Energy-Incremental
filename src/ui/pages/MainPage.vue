@@ -367,9 +367,33 @@ const chaoticEtherGainText = computed(() => {
 });
 
 const canExtractCE = computed(() => canExtractChaoticEther(props.game.state));
+const condenseConfirmationEnabled = computed(() => (
+  props.game.state.settings.condenseConfirmationEnabled
+));
+const chaoticEtherConfirmationEnabled = computed(() => (
+  props.game.state.settings.chaoticEtherConfirmationEnabled
+));
+const crushConfirmationEnabled = computed(() => (
+  props.game.state.settings.crushConfirmationEnabled
+));
+const isExtractDialogOpen = ref(false);
 
 function onExtractChaoticEther() {
+  if (!canExtractCE.value) return;
+  if (chaoticEtherConfirmationEnabled.value) {
+    isExtractDialogOpen.value = true;
+    return;
+  }
   extractChaoticEther(props.game.state);
+}
+
+function closeExtractDialog(): void {
+  isExtractDialogOpen.value = false;
+}
+
+function confirmExtractChaoticEther(): void {
+  extractChaoticEther(props.game.state);
+  closeExtractDialog();
 }
 
 const coherencePointsText = computed(() => {
@@ -385,9 +409,24 @@ const coherenceProductionLossText = computed(() => {
 });
 
 const canCondense = computed(() => canCondenseCoherence(props.game.state));
+const isCondenseDialogOpen = ref(false);
 
 function onCondenseCoherence() {
+  if (!canCondense.value) return;
+  if (condenseConfirmationEnabled.value) {
+    isCondenseDialogOpen.value = true;
+    return;
+  }
   condenseCoherence(props.game.state);
+}
+
+function closeCondenseDialog(): void {
+  isCondenseDialogOpen.value = false;
+}
+
+function confirmCondenseCoherence(): void {
+  condenseCoherence(props.game.state);
+  closeCondenseDialog();
 }
 
 const isFourthStratumActive = computed(() => (
@@ -405,7 +444,12 @@ const nextCrushMilestone = computed(() => (
 ));
 
 function openCrushDialog(): void {
-  if (canCrushNow.value) isCrushDialogOpen.value = true;
+  if (!canCrushNow.value) return;
+  if (crushConfirmationEnabled.value) {
+    isCrushDialogOpen.value = true;
+    return;
+  }
+  crush(props.game.state);
 }
 
 function closeCrushDialog(): void {
@@ -729,7 +773,7 @@ const secondaryTooltipStyle = computed(() => ({
         </div>
 
         <div v-else-if="selectedSecondary === 'theme'" class="page-card">
-          <ThemePage />
+          <ThemePage :game="props.game" />
         </div>
 
         <div v-else-if="selectedSecondary === 'debug'" class="page-card">
@@ -743,6 +787,105 @@ const secondaryTooltipStyle = computed(() => ({
     </main>
 
     <Teleport to="body">
+      <transition name="crush-dialog-fade">
+        <div
+          v-if="isCondenseDialogOpen"
+          class="crush-dialog-backdrop"
+          @click.self="closeCondenseDialog"
+        >
+          <section
+            class="crush-dialog condense-prestige-dialog"
+            role="dialog"
+            aria-modal="true"
+            :aria-label="t('prestigeConfirmations.condense.title')"
+          >
+            <div class="crush-dialog-kicker condense-dialog-kicker">
+              {{ t("prestigeConfirmations.kicker") }}
+            </div>
+            <h3>{{ t("prestigeConfirmations.condense.title") }}</h3>
+            <p class="crush-dialog-warning">{{ t("prestigeConfirmations.condense.warning") }}</p>
+
+            <div class="crush-dialog-section">
+              <h4>{{ t("prestigeConfirmations.resetTitle") }}</h4>
+              <ul>
+                <li>{{ t("prestigeConfirmations.condense.resetDreamEnergy") }}</li>
+                <li>{{ t("prestigeConfirmations.condense.resetDreamCrystals") }}</li>
+              </ul>
+              <p class="crush-preserved">{{ t("prestigeConfirmations.condense.preserved") }}</p>
+            </div>
+
+            <div class="crush-dialog-section condense-reward-section">
+              <h4>{{ t("prestigeConfirmations.rewardTitle") }}</h4>
+              <div class="crush-dialog-gain">
+                {{ t("prestigeConfirmations.condense.reward", { value: coherencePointGainText }) }}
+              </div>
+            </div>
+
+            <div class="crush-dialog-actions">
+              <button class="crush-cancel-button" @click="closeCondenseDialog">
+                {{ t("prestigeConfirmations.cancel") }}
+              </button>
+              <button class="crush-confirm-button condense-confirm-button" @click="confirmCondenseCoherence">
+                {{ t("coherence.condense", { value: coherencePointGainText }) }}
+              </button>
+            </div>
+          </section>
+        </div>
+      </transition>
+
+      <transition name="crush-dialog-fade">
+        <div
+          v-if="isExtractDialogOpen"
+          class="crush-dialog-backdrop"
+          @click.self="closeExtractDialog"
+        >
+          <section
+            class="crush-dialog extract-prestige-dialog"
+            role="dialog"
+            aria-modal="true"
+            :aria-label="t('prestigeConfirmations.extract.title')"
+          >
+            <div class="crush-dialog-kicker extract-dialog-kicker">
+              {{ t("prestigeConfirmations.kicker") }}
+            </div>
+            <h3>{{ t("prestigeConfirmations.extract.title") }}</h3>
+            <p class="crush-dialog-warning">{{ t("prestigeConfirmations.extract.warning") }}</p>
+
+            <div class="crush-dialog-section">
+              <h4>{{ t("prestigeConfirmations.resetTitle") }}</h4>
+              <ul>
+                <li>{{ t("prestigeConfirmations.extract.resetDreamEnergy") }}</li>
+                <li>{{ t("prestigeConfirmations.extract.resetDreamCrystals") }}</li>
+                <li>{{ t("prestigeConfirmations.extract.entropy") }}</li>
+              </ul>
+              <p class="crush-preserved">{{ t("prestigeConfirmations.extract.preserved") }}</p>
+            </div>
+
+            <div class="crush-dialog-section extract-reward-section">
+              <h4>{{ t("prestigeConfirmations.rewardTitle") }}</h4>
+              <div class="crush-dialog-gain">
+                {{ t("prestigeConfirmations.extract.reward", {
+                  value: chaoticEtherGainText,
+                  tier: activeChaoticEtherTier,
+                }) }}
+              </div>
+            </div>
+
+            <div class="crush-dialog-actions">
+              <button class="crush-cancel-button" @click="closeExtractDialog">
+                {{ t("prestigeConfirmations.cancel") }}
+              </button>
+              <button class="crush-confirm-button extract-confirm-button" @click="confirmExtractChaoticEther">
+                {{ t("chaoticEther.extract", {
+                  value: chaoticEtherGainText,
+                  tier: activeChaoticEtherTier,
+                }) }}
+              </button>
+            </div>
+          </section>
+        </div>
+      </transition>
+
       <transition name="crush-dialog-fade">
         <div
           v-if="isCrushDialogOpen"
@@ -1221,6 +1364,32 @@ const secondaryTooltipStyle = computed(() => ({
 .crush-confirm-button { border: 1px solid #f06c81; background: linear-gradient(180deg, #d92b47, #760a1f); box-shadow: 0 0 18px rgba(220, 25, 56, 0.22); }
 .crush-dialog-fade-enter-active, .crush-dialog-fade-leave-active { transition: opacity 0.16s ease; }
 .crush-dialog-fade-enter-from, .crush-dialog-fade-leave-to { opacity: 0; }
+
+.condense-prestige-dialog {
+  border-color: rgba(95, 205, 244, 0.78);
+  background:
+    radial-gradient(circle at 85% 5%, rgba(74, 199, 243, 0.17), transparent 30%),
+    linear-gradient(155deg, #0c3042 0%, #061824 55%, #030c12 100%);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.62), 0 0 42px rgba(47, 175, 226, 0.2);
+}
+.condense-prestige-dialog .crush-dialog-section { border-color: rgba(70, 153, 188, 0.52); background: rgba(4, 24, 34, 0.72); }
+.condense-prestige-dialog .crush-dialog-warning { color: #9ad7ed; }
+.condense-dialog-kicker { color: #6fd5f5; }
+.condense-reward-section { border-color: rgba(89, 204, 240, 0.7) !important; }
+.condense-confirm-button { border-color: #83dcfa; background: linear-gradient(180deg, #329fca, #155775); box-shadow: 0 0 18px rgba(50, 174, 220, 0.22); }
+
+.extract-prestige-dialog {
+  border-color: rgba(255, 174, 79, 0.8);
+  background:
+    radial-gradient(circle at 85% 5%, rgba(255, 139, 48, 0.19), transparent 30%),
+    linear-gradient(155deg, #42210a 0%, #211006 55%, #100702 100%);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.62), 0 0 42px rgba(226, 111, 31, 0.2);
+}
+.extract-prestige-dialog .crush-dialog-section { border-color: rgba(186, 109, 48, 0.56); background: rgba(37, 17, 4, 0.72); }
+.extract-prestige-dialog .crush-dialog-warning { color: #efbd8b; }
+.extract-dialog-kicker { color: #ffad60; }
+.extract-reward-section { border-color: rgba(240, 149, 67, 0.72) !important; }
+.extract-confirm-button { border-color: #ffc27f; background: linear-gradient(180deg, #d98131, #864215); box-shadow: 0 0 18px rgba(224, 122, 39, 0.24); }
 
 .top-title {
   font-family: var(--font-title);

@@ -143,7 +143,7 @@ export const PRIMARY_TABS = [
     textColor: "#f2deff",
     children: [
       { id: "save", icon: "S", labelKey: "navigation.secondary.save" },
-      { id: "theme", icon: "T", labelKey: "navigation.secondary.theme" },
+      { id: "theme", icon: "V", labelKey: "navigation.secondary.visual" },
     ],
   },
   {

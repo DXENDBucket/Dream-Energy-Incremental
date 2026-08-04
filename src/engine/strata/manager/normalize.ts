@@ -60,6 +60,35 @@ export function normalizeGameState(state: GameState): GameState {
   state.lastTickMs = Number.isFinite(state.lastTickMs) ? state.lastTickMs : performance.now();
   state.lastWallClockMs = Number.isFinite(state.lastWallClockMs) ? state.lastWallClockMs : Date.now();
   state.simTimeSec = Number.isFinite(state.simTimeSec) ? state.simTimeSec : 0;
+  state.settings ??= {
+    autoSaveIntervalSec: 20,
+    condenseConfirmationEnabled: true,
+    chaoticEtherConfirmationEnabled: true,
+    crushConfirmationEnabled: true,
+  };
+  state.settings.autoSaveIntervalSec = Number.isFinite(state.settings.autoSaveIntervalSec)
+    ? state.settings.autoSaveIntervalSec
+    : 20;
+  if (typeof state.settings.prestigeConfirmationsEnabled === "boolean") {
+    const legacySetting = state.settings.prestigeConfirmationsEnabled;
+    state.settings.condenseConfirmationEnabled = legacySetting;
+    state.settings.chaoticEtherConfirmationEnabled = legacySetting;
+    state.settings.crushConfirmationEnabled = legacySetting;
+    delete state.settings.prestigeConfirmationsEnabled;
+  } else {
+    state.settings.condenseConfirmationEnabled =
+      typeof state.settings.condenseConfirmationEnabled === "boolean"
+        ? state.settings.condenseConfirmationEnabled
+        : true;
+    state.settings.chaoticEtherConfirmationEnabled =
+      typeof state.settings.chaoticEtherConfirmationEnabled === "boolean"
+        ? state.settings.chaoticEtherConfirmationEnabled
+        : true;
+    state.settings.crushConfirmationEnabled =
+      typeof state.settings.crushConfirmationEnabled === "boolean"
+        ? state.settings.crushConfirmationEnabled
+        : true;
+  }
 
   state.strata[realityStratumId] ??= createStratumState();
   ensureRealityMilestonesState(state);

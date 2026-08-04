@@ -14,6 +14,10 @@ import { createCrushState, type CrushState } from "../crush/state.ts";
 
 export interface GameSettingsState {
   autoSaveIntervalSec: number;
+  condenseConfirmationEnabled: boolean;
+  chaoticEtherConfirmationEnabled: boolean;
+  crushConfirmationEnabled: boolean;
+  prestigeConfirmationsEnabled?: boolean;
 }
 
 export interface GameState {
@@ -45,6 +49,9 @@ export function createNewState(): GameState {
     crush: createCrushState(),
     settings: {
       autoSaveIntervalSec: 20,
+      condenseConfirmationEnabled: true,
+      chaoticEtherConfirmationEnabled: true,
+      crushConfirmationEnabled: true,
     },
   };
 }

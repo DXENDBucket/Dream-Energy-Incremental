@@ -2,6 +2,9 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { setAppLocale, type AppLocale } from "@/ui/i18n";
+import type { GameState } from "@/engine/core/state";
+
+const props = defineProps<{ game: { state: GameState } }>();
 
 const { t, locale } = useI18n();
 
@@ -12,6 +15,27 @@ const localeOptions: { value: AppLocale; labelKey: "language.english" | "languag
 
 const currentLocale = computed<AppLocale>(() => {
   return locale.value === "zh-CN" ? "zh-CN" : "en";
+});
+
+const condenseConfirmationEnabled = computed({
+  get: () => props.game.state.settings.condenseConfirmationEnabled,
+  set: (enabled: boolean) => {
+    props.game.state.settings.condenseConfirmationEnabled = enabled;
+  },
+});
+
+const chaoticEtherConfirmationEnabled = computed({
+  get: () => props.game.state.settings.chaoticEtherConfirmationEnabled,
+  set: (enabled: boolean) => {
+    props.game.state.settings.chaoticEtherConfirmationEnabled = enabled;
+  },
+});
+
+const crushConfirmationEnabled = computed({
+  get: () => props.game.state.settings.crushConfirmationEnabled,
+  set: (enabled: boolean) => {
+    props.game.state.settings.crushConfirmationEnabled = enabled;
+  },
 });
 
 function onSelectLocale(nextLocale: AppLocale) {
@@ -45,6 +69,22 @@ function onSelectLocale(nextLocale: AppLocale) {
       <div class="current-language">
         {{ t("theme.currentLanguage") }}: {{ t(currentLocale === "zh-CN" ? "language.zhCN" : "language.english") }}
       </div>
+
+      <div class="section-title section-gap">{{ t("theme.prestigeConfirmationsSection") }}</div>
+      <div class="section-hint">{{ t("theme.prestigeConfirmationsHint") }}</div>
+
+      <label class="setting-row">
+        <span>{{ t("theme.condenseConfirmation") }}</span>
+        <input v-model="condenseConfirmationEnabled" type="checkbox" />
+      </label>
+      <label class="setting-row">
+        <span>{{ t("theme.chaoticEtherConfirmation") }}</span>
+        <input v-model="chaoticEtherConfirmationEnabled" type="checkbox" />
+      </label>
+      <label class="setting-row">
+        <span>{{ t("theme.crushConfirmation") }}</span>
+        <input v-model="crushConfirmationEnabled" type="checkbox" />
+      </label>
     </div>
   </div>
 </template>
@@ -120,5 +160,28 @@ function onSelectLocale(nextLocale: AppLocale) {
   border-color: #8aa4ff;
   background: linear-gradient(180deg, #2a3f73 0%, #1b2a4d 100%);
   box-shadow: inset 0 0 14px rgba(160, 188, 255, 0.14);
+}
+
+.setting-row {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid #324773;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #18233f 0%, #111a2f 100%);
+  color: #edf1ff;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.setting-row input {
+  width: 20px;
+  height: 20px;
+  accent-color: #8aa4ff;
+  cursor: pointer;
 }
 </style>
