@@ -3,7 +3,7 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { PRIMARY_TABS, UI_CONFIG } from "../uiConfig";
 import { format, formatInt } from "@/engine/math/format";
-import { mul } from "@/engine/math/num";
+import { mul, type Num } from "@/engine/math/num";
 import { getActiveDreamEnergy, getActiveStratum } from "@/engine/strata/manager/selectors";
 import DreamCrystalsPage from "./dream-crystals/DreamCrystalsPage.vue";
 import ConceptCrystalsPage from "./concept-crystals/ConceptCrystalsPage.vue";
@@ -291,9 +291,15 @@ const currentPageTitle = computed(() => {
   return t("common.unknown");
 });
 
-const activeDreamEnergyText = computed(() => {
-  return formatInt(getActiveDreamEnergy(props.game.state));
-});
+function formatTopDreamEnergy(value: Num): string {
+  if (!value || !value.isFinite()) return formatInt(value);
+  if (value.abs().lt(1000)) return value.toNumber().toFixed(1);
+  return formatInt(value);
+}
+
+const activeDreamEnergyText = computed(() => (
+  formatTopDreamEnergy(getActiveDreamEnergy(props.game.state))
+));
 
 const activeDreamEnergyPercentageText = computed(() => {
   return formatPercentagePerSecondText(
