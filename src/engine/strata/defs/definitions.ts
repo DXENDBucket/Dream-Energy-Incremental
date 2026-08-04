@@ -75,7 +75,7 @@ export const STRATUM_DEFINITIONS: readonly StratumDefinition[] = [
     visibilityRule: "previous-created",
     entryTransitionKind: "standard-lift",
     entropyFormulaId: "dream-sea-second",
-    entropyChaosExponent: N(3),
+    entropyChaosExponent: N(4),
     entropyBaseGrowthMultiplier: N(1),
     producedChaoticEtherTier: 2,
     dreamCrystalUpgradeChaoticEtherTier: 3,
