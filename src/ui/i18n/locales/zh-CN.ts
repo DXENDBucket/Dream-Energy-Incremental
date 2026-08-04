@@ -673,7 +673,7 @@ export default {
     },
     shielding: {
       title: "Shielding",
-      permanent: "除现实层外，现实壁垒从 0 梦能起常驻生效，并在常规软上限之后结算。",
+      permanent: "除现实层外，现实壁垒会持续生效，并在常规软上限之后结算。",
       strength: "当前层级混沌与 Tuning 结算后的 Shielding strength：{value}。",
       rootDegree: "当前推进量使 Shielding 采用 {value} 次方根。",
       reduction: "现实壁垒将 {before} 梦能压缩为 {after}（{divisor}）。",

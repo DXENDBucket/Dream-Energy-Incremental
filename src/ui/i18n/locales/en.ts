@@ -675,7 +675,7 @@ export default {
     },
     shielding: {
       title: "Shielding",
-      permanent: "Outside Reality, the reality barrier is permanently active from 0 Dream Energy and is applied after the standard softcaps.",
+      permanent: "Outside Reality, the reality barrier remains active and is applied after the standard softcaps.",
       strength: "Shielding strength after this stratum's chaos and Tuning: {value}.",
       rootDegree: "Current progress gives Shielding a {value}th root.",
       reduction: "The reality barrier compresses {before} Dream Energy to {after} ({divisor}).",

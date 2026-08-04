@@ -12,6 +12,7 @@ import {
     DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH,
     DREAM_ENERGY_CONCEPT_CONFLICT_START,
     DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
+    DREAM_ENERGY_SHIELDING_START,
     DREAM_ENERGY_SHIELDING_CHAOS_STRENGTH_SCALE,
     DREAM_ENERGY_SHIELDING_ROOT_CURVE_CALIBRATION,
     DREAM_ENERGY_SHIELDING_ROOT_GROWTH_DIVISOR,
@@ -318,9 +319,10 @@ export function getDreamEnergyShieldingRootDegree(
     stratum: StratumState,
     standardSoftcapped: Num,
 ): Num {
+    const excess = max(ZERO, sub(standardSoftcapped, DREAM_ENERGY_SHIELDING_START));
     const progress = max(
         ZERO,
-        log10(add(max(standardSoftcapped, ZERO), ONE)),
+        log10(add(excess, ONE)),
     );
     const curveScale = mul(
         getDreamEnergyShieldingRootGrowthPerDecade(stratum),
@@ -336,23 +338,25 @@ export function isDreamEnergyShieldingEnabled(stratum: StratumState): boolean {
 
 export function applyDreamEnergyShielding(stratum: StratumState, standardSoftcapped: Num): Num {
     if (!isDreamEnergyShieldingEnabled(stratum)) return standardSoftcapped;
-    if (lte(standardSoftcapped, ZERO)) return ZERO;
+    if (lte(standardSoftcapped, DREAM_ENERGY_SHIELDING_START)) return standardSoftcapped;
 
     const rootDegree = getDreamEnergyShieldingRootDegree(stratum, standardSoftcapped);
-    const inputProgress = log10(add(standardSoftcapped, ONE));
-    return sub(
-        pow(TEN, div(inputProgress, rootDegree)),
-        ONE,
+    const excess = sub(standardSoftcapped, DREAM_ENERGY_SHIELDING_START);
+    const inputProgress = log10(add(excess, ONE));
+    return add(
+        DREAM_ENERGY_SHIELDING_START,
+        sub(pow(TEN, div(inputProgress, rootDegree)), ONE),
     );
 }
 
 export function removeDreamEnergyShielding(stratum: StratumState, shielded: Num): Num {
     if (!isDreamEnergyShieldingEnabled(stratum)) return shielded;
-    if (lte(shielded, ZERO)) return ZERO;
+    if (lte(shielded, DREAM_ENERGY_SHIELDING_START)) return shielded;
 
+    const shieldedExcess = sub(shielded, DREAM_ENERGY_SHIELDING_START);
     const outputProgress = max(
         ZERO,
-        log10(add(shielded, ONE)),
+        log10(add(shieldedExcess, ONE)),
     );
     const curveScale = mul(
         getDreamEnergyShieldingRootGrowthPerDecade(stratum),
@@ -366,7 +370,10 @@ export function removeDreamEnergyShielding(stratum: StratumState, shielded: Num)
     const inputProgressRoot = div(add(scaledOutput, discriminantRoot), 2);
     const inputProgress = max(ZERO, sub(pow(inputProgressRoot, 2), ONE));
 
-    return sub(pow(TEN, inputProgress), ONE);
+    return add(
+        DREAM_ENERGY_SHIELDING_START,
+        sub(pow(TEN, inputProgress), ONE),
+    );
 }
 
 export function getActualDreamEnergyFromRaw(stratum: StratumState, raw: Num): Num {
@@ -422,7 +429,8 @@ export function getDreamEnergyConceptConflictStrengthMultiplier(stratum: Stratum
 }
 
 export function isDreamEnergyShieldingActive(stratum: StratumState): boolean {
-    return isDreamEnergyShieldingEnabled(stratum);
+    return isDreamEnergyShieldingEnabled(stratum)
+        && gte(getDreamEnergyBeforeShielding(stratum), DREAM_ENERGY_SHIELDING_START);
 }
 
 export function getDreamEnergyBeforeShielding(stratum: StratumState): Num {
