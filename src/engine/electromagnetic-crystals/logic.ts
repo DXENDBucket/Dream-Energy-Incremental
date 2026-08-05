@@ -1,5 +1,5 @@
 import type { StratumState } from "@/engine/strata/state";
-import { N, ZERO, add, div, max, mul, normalizeNum, pow, type Num } from "@/engine/math/num";
+import { N, ZERO, add, div, max, mul, normalizeNum, pow, sub, type Num } from "@/engine/math/num";
 import { isElectromagneticCrystalsUnlocked } from "@/engine/strata/common/milestones";
 import {
   ELECTROMAGNETIC_DEFAULT_INITIAL_DIRECTION_DEG,
@@ -10,6 +10,7 @@ import {
 
 export const ELECTROMAGNETIC_JUDGE_LINE_X = [1 / 3, 2 / 3] as const;
 export const ELECTROMAGNETIC_POWER_PER_CROSSING = N(10);
+export const ELECTROMAGNETIC_POWER_PER_TELEPORT_COST = N(10);
 export const ELECTROMAGNETIC_POWER_DECAY_DIVISOR_PER_SECOND = N(1.05);
 export const ELECTROMAGNETIC_MIN_INITIAL_SPEED = 0.05;
 export const ELECTROMAGNETIC_MAX_INITIAL_SPEED = 0.8;
@@ -55,6 +56,12 @@ function countPeriodicLineCrossings(start: number, end: number, offset: number):
     const lastPeriod = Math.ceil(start - offset - CROSSING_EPSILON) - 1;
     return Math.max(0, lastPeriod - firstPeriod + 1);
   }
+  return 0;
+}
+
+function countBoundaryTeleports(unwrappedEnd: number): number {
+  if (unwrappedEnd >= 1) return Math.floor(unwrappedEnd);
+  if (unwrappedEnd < 0) return Math.ceil(-unwrappedEnd);
   return 0;
 }
 
@@ -159,7 +166,15 @@ function decayElectromagneticPower(electromagnetic: ElectromagneticCrystalsState
   );
 }
 
-function simulateParticleStep(electromagnetic: ElectromagneticCrystalsState, dtSec: number): number {
+interface ElectromagneticStepEvents {
+  judgeCrossings: number;
+  teleports: number;
+}
+
+function simulateParticleStep(
+  electromagnetic: ElectromagneticCrystalsState,
+  dtSec: number,
+): ElectromagneticStepEvents {
   const particle = electromagnetic.particle;
   const electricAngle = electromagnetic.electricFieldDirectionDeg * Math.PI / 180;
   const electricAcceleration = BASE_ELECTRIC_FIELD_ACCELERATION
@@ -197,10 +212,12 @@ function simulateParticleStep(electromagnetic: ElectromagneticCrystalsState, dtS
     (total, lineX) => total + countPeriodicLineCrossings(previousX, unwrappedNextX, lineX),
     0,
   );
+  const teleports = countBoundaryTeleports(unwrappedNextX)
+    + countBoundaryTeleports(unwrappedNextY);
 
   particle.x = wrapUnit(unwrappedNextX);
   particle.y = wrapUnit(unwrappedNextY);
-  return crossings;
+  return { judgeCrossings: crossings, teleports };
 }
 
 export function tickElectromagneticCrystals(state: StratumState, dtSec: Num): void {
@@ -217,14 +234,21 @@ export function tickElectromagneticCrystals(state: StratumState, dtSec: Num): vo
   );
   const stepSeconds = elapsedSeconds / stepCount;
   let crossings = 0;
+  let teleports = 0;
   for (let step = 0; step < stepCount; step++) {
-    crossings += simulateParticleStep(electromagnetic, stepSeconds);
+    const events = simulateParticleStep(electromagnetic, stepSeconds);
+    crossings += events.judgeCrossings;
+    teleports += events.teleports;
   }
 
-  if (crossings > 0) {
-    electromagnetic.power = add(
-      electromagnetic.power,
-      mul(ELECTROMAGNETIC_POWER_PER_CROSSING, crossings),
-    );
-  }
+  electromagnetic.power = max(
+    ZERO,
+    sub(
+      add(
+        electromagnetic.power,
+        mul(ELECTROMAGNETIC_POWER_PER_CROSSING, crossings),
+      ),
+      mul(ELECTROMAGNETIC_POWER_PER_TELEPORT_COST, teleports),
+    ),
+  );
 }

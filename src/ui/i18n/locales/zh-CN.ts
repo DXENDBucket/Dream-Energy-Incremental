@@ -443,7 +443,7 @@ export default {
   },
   electromagneticCrystals: {
     resourceName: "Electromagnetic Power",
-    powerRule: "粒子每次穿过判定线获得 +{gain} EP；EP 常态下每秒 ÷{divisor}。",
+    powerRule: "穿过判定线获得 +{gain} EP；每次边界传送消耗 {cost} EP；EP 常态下每秒 ÷{divisor}。",
     arenaLabel: "具有循环边界的电磁水晶场地",
     wrapNote: "上下、左右边界相互联通；粒子会从对边无缝返回。",
     electricField: "电场",

@@ -14,6 +14,7 @@ import {
   ELECTROMAGNETIC_MIN_MAGNETIC_FIELD_STRENGTH,
   ELECTROMAGNETIC_POWER_DECAY_DIVISOR_PER_SECOND,
   ELECTROMAGNETIC_POWER_PER_CROSSING,
+  ELECTROMAGNETIC_POWER_PER_TELEPORT_COST,
   ensureElectromagneticCrystalsState,
   getElectromagneticPower,
   resetElectromagneticParticle,
@@ -32,6 +33,7 @@ const electromagnetic = computed(() => ensureElectromagneticCrystalsState(active
 const powerText = computed(() => format(getElectromagneticPower(activeStratum.value)));
 const decayText = format(ELECTROMAGNETIC_POWER_DECAY_DIVISOR_PER_SECOND);
 const crossingGainText = format(ELECTROMAGNETIC_POWER_PER_CROSSING);
+const teleportCostText = format(ELECTROMAGNETIC_POWER_PER_TELEPORT_COST);
 const ARENA_VISUAL_SIZE = 520;
 const ELECTRIC_VISUAL_MARGIN = 170;
 const ELECTRIC_LINE_EXTENT = ARENA_VISUAL_SIZE + ELECTRIC_VISUAL_MARGIN * 2;
@@ -60,16 +62,24 @@ const electricFieldTransform = computed(() => (
 const magneticFieldCells = computed(() => {
   const magnitude = Math.abs(electromagnetic.value.magneticFieldStrength);
   if (magnitude <= 0) return [];
-  const axisCount = Math.max(2, Math.round(
-    Math.sqrt(magnitude / ELECTROMAGNETIC_MAX_MAGNETIC_FIELD_STRENGTH) * 11,
-  ));
-  const padding = 24;
-  const span = ARENA_VISUAL_SIZE - padding * 2;
-  return Array.from({ length: axisCount * axisCount }, (_, index) => ({
-    id: index,
-    x: padding + (index % axisCount + 0.5) * span / axisCount,
-    y: padding + (Math.floor(index / axisCount) + 0.5) * span / axisCount,
-  }));
+  const normalizedMagnitude = Math.min(
+    1,
+    magnitude / ELECTROMAGNETIC_MAX_MAGNETIC_FIELD_STRENGTH,
+  );
+  const spacing = 120 - Math.sqrt(normalizedMagnitude) * 70;
+  const center = ARENA_VISUAL_SIZE / 2;
+  const radius = Math.ceil(center / spacing) + 1;
+  const cells: Array<{ id: string; x: number; y: number }> = [];
+  for (let yIndex = -radius; yIndex <= radius; yIndex++) {
+    for (let xIndex = -radius; xIndex <= radius; xIndex++) {
+      cells.push({
+        id: `${xIndex}:${yIndex}`,
+        x: center + xIndex * spacing,
+        y: center + yIndex * spacing,
+      });
+    }
+  }
+  return cells;
 });
 
 const magneticFieldSymbol = computed(() => (
@@ -119,7 +129,11 @@ function onInitialDirectionInput(event: Event): void {
         <div class="power-value">{{ powerText }}</div>
       </div>
       <div class="decay-note">
-        {{ t("electromagneticCrystals.powerRule", { gain: crossingGainText, divisor: decayText }) }}
+        {{ t("electromagneticCrystals.powerRule", {
+          gain: crossingGainText,
+          cost: teleportCostText,
+          divisor: decayText,
+        }) }}
       </div>
     </header>
 

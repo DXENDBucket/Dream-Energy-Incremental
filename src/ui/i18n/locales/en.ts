@@ -443,7 +443,7 @@ export default {
   },
   electromagneticCrystals: {
     resourceName: "Electromagnetic Power",
-    powerRule: "Crossing either judge line grants +{gain} EP; EP is normally divided by {divisor} each second.",
+    powerRule: "Crossing a judge line grants +{gain} EP; each boundary teleport costs {cost} EP; EP is normally divided by {divisor} each second.",
     arenaLabel: "Electromagnetic Crystal arena with wrapping boundaries",
     wrapNote: "Top connects to bottom and left connects to right; the particle returns seamlessly from the opposite edge.",
     electricField: "Electric Field",
