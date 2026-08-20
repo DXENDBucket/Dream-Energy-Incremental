@@ -26,8 +26,16 @@ export function hasCrushMilestone(state: GameState, index: number): boolean {
   return getCrushMilestoneCount(state) >= index;
 }
 
+export function getCrushDreamCrystalMultiplierForCount(milestoneCount: number): Num {
+  const normalizedCount = Math.min(
+    CRUSH_MILESTONE_COUNT,
+    Math.max(0, Math.floor(milestoneCount)),
+  );
+  return pow(N(10), normalizedCount);
+}
+
 export function getCrushDreamCrystalMultiplier(state: GameState): Num {
-  return pow(N(10), getCrushMilestoneCount(state));
+  return getCrushDreamCrystalMultiplierForCount(getCrushMilestoneCount(state));
 }
 
 export function syncCrushDreamCrystalMultipliers(state: GameState): void {

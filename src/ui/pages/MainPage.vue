@@ -68,6 +68,7 @@ import {
   CRUSH_MILESTONE_DEFINITIONS,
   canCrush,
   crush,
+  getCrushDreamCrystalMultiplierForCount,
   getCrushMilestoneCount,
   isCrushUnlocked,
 } from "@/engine/crush";
@@ -458,8 +459,8 @@ const crushMilestoneCount = computed(() => getCrushMilestoneCount(props.game.sta
 const canCrushNow = computed(() => canCrush(props.game.state));
 const isCrushMaxed = computed(() => crushMilestoneCount.value >= CRUSH_MILESTONE_COUNT);
 const isCrushDialogOpen = ref(false);
-const nextCrushDreamCrystalMultiplierText = computed(() => String(
-  2 ** Math.min(CRUSH_MILESTONE_COUNT, crushMilestoneCount.value + 1),
+const nextCrushDreamCrystalMultiplierText = computed(() => format(
+  getCrushDreamCrystalMultiplierForCount(crushMilestoneCount.value + 1),
 ));
 const nextCrushMilestone = computed(() => (
   CRUSH_MILESTONE_DEFINITIONS[crushMilestoneCount.value]
