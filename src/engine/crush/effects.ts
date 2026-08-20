@@ -1,4 +1,4 @@
-import { N, ONE, div, logn, max, pow, type Num } from "@/engine/math/num";
+import { N, ONE, ZERO, add, div, logn, max, mul, pow, sub, type Num } from "@/engine/math/num";
 import type { StratumState } from "@/engine/strata/state";
 
 export function isCrushOneActive(stratum: StratumState): boolean {
@@ -30,5 +30,10 @@ export function isDreamCrystalProductionDisabledByCrush(
 export function getCrushTwoConsensusShieldingEfficiency(stratum: StratumState): Num {
   if (!isCrushTwoActive(stratum)) return ONE;
   const consensusAmount = max(stratum.conceptCrystals?.nodes?.conquest ?? ONE, ONE);
-  return pow(consensusAmount, div(ONE, N(154)));
+  const heldConceptCrystals = max(stratum.conceptCrystals?.amount ?? ONE, ONE);
+  const heldAmountExponent = add(
+    ONE,
+    mul(N(0.065), max(ZERO, sub(heldConceptCrystals, ONE))),
+  );
+  return pow(consensusAmount, div(heldAmountExponent, N(154)));
 }

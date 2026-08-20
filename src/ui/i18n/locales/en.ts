@@ -180,7 +180,7 @@ export default {
     effect: {
       title: "Current Concept Crystal effect",
       copy: "Opposite concepts cancel when their amounts match. More Concept Crystals raise the concept pulse as an exponent.",
-      copyCrushTwo: "Consensus replaces Conquest, no longer suppresses CP gain, and provides an independent Shielding Efficiency effect. Other opposing concepts still cancel.",
+      copyCrushTwo: "Consensus replaces Conquest, no longer suppresses CP gain, and provides an independent Shielding Efficiency effect amplified by Concept Crystals held. Other opposing concepts still cancel.",
       dcCostGrowth: "Post-20 DC cost growth: ×{value}",
       cpGain: "Coherence Point gain: ×{value}",
       assimilation: "Assimilation strength: ×{value}",

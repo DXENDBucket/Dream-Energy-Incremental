@@ -180,7 +180,7 @@ export default {
     effect: {
       title: "当前概念水晶效果",
       copy: "相对的概念在数量相同时会彼此抵消。概念水晶数量会作为指数放大这些概念脉冲。",
-      copyCrushTwo: "共识取代了征服，不再压制 CP 获取，并形成独立的 Shielding Efficiency 效果。其余相对概念仍会彼此抵消。",
+      copyCrushTwo: "共识取代了征服，不再压制 CP 获取，并形成受概念水晶持有量放大的独立 Shielding Efficiency 效果。其余相对概念仍会彼此抵消。",
       dcCostGrowth: "20 个后 DC 价格增长：×{value}",
       cpGain: "调谐点数获取：×{value}",
       assimilation: "兼并强度：×{value}",
