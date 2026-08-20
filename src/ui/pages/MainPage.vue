@@ -10,6 +10,7 @@ import ConceptCrystalsPage from "./concept-crystals/ConceptCrystalsPage.vue";
 import ElectromagneticCrystalsPage from "./electromagnetic-crystals/ElectromagneticCrystalsPage.vue";
 import DreamCrystalUpgradesPage from "./upgrades/DreamCrystalUpgradesPage.vue";
 import CoherenceUpgradesPage from "./upgrades/CoherenceUpgradesPage.vue";
+import ElectromagneticUpgradesPage from "./upgrades/ElectromagneticUpgradesPage.vue";
 import DreamCrystalAutobuyersPage from "./autobuyers/DreamCrystalAutobuyersPage.vue";
 import DreamEnergyMilestonesPage from "./milestones/DreamEnergyMilestones.vue";
 import RealityMilestonesPage from "./milestones/RealityMilestonesPage.vue";
@@ -90,7 +91,10 @@ const activeStratum = computed(() => getActiveStratum(props.game.state));
 const availablePrimaryTabs = computed(() => {
   return PRIMARY_TABS
     .filter(tab => {
-      if (tab.id === "upgrades") return isUpgradesUnlocked(activeStratum.value);
+      if (tab.id === "upgrades") {
+        return isUpgradesUnlocked(activeStratum.value)
+          || isElectromagneticCrystalsUnlocked(activeStratum.value);
+      }
       if (tab.id === "characters") return isCharacterProductionUnlocked(props.game.state);
       if (tab.id === "autobuyers") {
         return (
@@ -137,7 +141,16 @@ const availablePrimaryTabs = computed(() => {
       return {
         ...tab,
         children: tab.children.filter(child => {
-          return child.id !== "coherence-upgrades" || isCoherenceUpgradesUnlocked(activeStratum.value);
+          if (child.id === "dc-upgrades") {
+            return isUpgradesUnlocked(activeStratum.value);
+          }
+          if (child.id === "coherence-upgrades") {
+            return isCoherenceUpgradesUnlocked(activeStratum.value);
+          }
+          if (child.id === "electromagnetic-upgrades") {
+            return isElectromagneticCrystalsUnlocked(activeStratum.value);
+          }
+          return true;
         }),
       };
     });
@@ -771,6 +784,10 @@ const secondaryTooltipStyle = computed(() => ({
 
         <div v-else-if="selectedSecondary === 'coherence-upgrades'" class="dream-crystals-page">
           <CoherenceUpgradesPage :game="props.game" />
+        </div>
+
+        <div v-else-if="selectedSecondary === 'electromagnetic-upgrades'" class="dream-crystals-page">
+          <ElectromagneticUpgradesPage :game="props.game" />
         </div>
 
         <div v-else-if="selectedSecondary === 'dc-autobuyers'" class="dream-crystals-page">

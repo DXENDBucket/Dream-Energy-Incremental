@@ -10,10 +10,14 @@ import {
   COHERENCE_UPGRADE_AUTOBUYER_SPEED_ID,
   COHERENCE_UPGRADE_BEST_ENTRY_COHERENCE_ID,
   COHERENCE_UPGRADE_BEST_NEXT_DREAM_ENERGY_ID,
+  COHERENCE_UPGRADE_CONCEPT_CONFLICT_SLOWDOWN_ID,
+  COHERENCE_UPGRADE_ELECTROMAGNETIC_POWER_GAIN_ID,
   COHERENCE_UPGRADE_DEEPER_INITIAL_DREAM_ENERGY_ID,
   COHERENCE_UPGRADE_ENTROPY_TUNING_ID,
+  COHERENCE_UPGRADE_ENTROPY_TUNING_CUBE_ID,
   COHERENCE_UPGRADE_NEXT_DREAM_CRYSTAL_MULTIPLIER_ID,
   COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID,
+  COHERENCE_UPGRADE_SOFTCAP_THREE_REPEATABLE_SLOWDOWN_ID,
   COHERENCE_UPGRADE_SOFTCAP_TWO_REPEATABLE_SLOWDOWN_ID,
   COHERENCE_UPGRADE_SOFTCAP_TWO_SLOWDOWN_ID,
   COHERENCE_UPGRADE_ROWS,
@@ -142,10 +146,17 @@ export function getCoherenceEntropyTuningExponent(
     return ENTROPY_DEFAULT_TUNING_EXPONENT;
   }
 
+  const tuningMultiplier = add(ONE, div(sqrt(max(spentCoherencePoints, ZERO)), N(3)));
   return mul(
     ENTROPY_DEFAULT_TUNING_EXPONENT,
-    add(ONE, div(sqrt(max(spentCoherencePoints, ZERO)), N(3))),
+    pow(tuningMultiplier, getCoherenceEntropyTuningEffectPower(stratum)),
   );
+}
+
+export function getCoherenceEntropyTuningEffectPower(stratum: StratumState): Num {
+  return hasCoherenceUpgrade(stratum, COHERENCE_UPGRADE_ENTROPY_TUNING_CUBE_ID)
+    ? N(3)
+    : ONE;
 }
 
 export function getCoherenceNextDreamCrystalMultiplierBonus(stratum: StratumState): Num {
@@ -170,6 +181,31 @@ export function getCoherenceSoftcapTwoRepeatableStrengthMultiplier(stratum: Stra
     COHERENCE_UPGRADE_SOFTCAP_TWO_REPEATABLE_SLOWDOWN_ID,
   );
   return pow(N("0.98"), bought);
+}
+
+export function getCoherenceSoftcapThreeRepeatableStrengthMultiplier(stratum: StratumState): Num {
+  const bought = getCoherenceRepeatableUpgradeBought(
+    stratum,
+    COHERENCE_UPGRADE_SOFTCAP_THREE_REPEATABLE_SLOWDOWN_ID,
+  );
+  return pow(N("0.98"), bought);
+}
+
+export function getCoherenceElectromagneticPowerGainMultiplier(stratum: StratumState): Num {
+  const bought = stratum.coherenceUpgrades?.repeatableBought?.[
+    COHERENCE_UPGRADE_ELECTROMAGNETIC_POWER_GAIN_ID
+  ] ?? ZERO;
+  return pow(N("2.5"), bought);
+}
+
+export const COHERENCE_CONCEPT_CONFLICT_LOG_DIVISOR = N(45);
+
+export function getCoherenceConceptConflictStrengthMultiplier(stratum: StratumState): Num {
+  if (stratum.coherenceUpgrades?.bought?.[COHERENCE_UPGRADE_CONCEPT_CONFLICT_SLOWDOWN_ID] !== true) {
+    return ONE;
+  }
+  const coherenceOrders = max(ZERO, log10(max(getOwnedCoherencePoints(stratum), ONE)));
+  return div(ONE, add(ONE, div(coherenceOrders, COHERENCE_CONCEPT_CONFLICT_LOG_DIVISOR)));
 }
 
 export function getCoherenceDeeperInitialDreamEnergyBonus(stratum: StratumState): Num {

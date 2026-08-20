@@ -83,6 +83,7 @@ export const PRIMARY_TABS = [
     children: [
       { id: "dc-upgrades", icon: "↑", labelKey: "navigation.secondary.dreamCrystalUpgrades" },
       { id: "coherence-upgrades", icon: "U", labelKey: "navigation.secondary.coherenceUpgrades" },
+      { id: "electromagnetic-upgrades", icon: "⚡", labelKey: "navigation.secondary.electromagneticUpgrades" },
     ],
   },
   {

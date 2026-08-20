@@ -5,7 +5,7 @@ import type { GameState } from "@/engine/core/state";
 import { format, formatInt } from "@/engine/math/format";
 import {
   CHARACTER_MIN_LEVEL,
-  CHARACTER_UNLOCK_COSTS,
+  CHARACTER_UNLOCK_DEFINITIONS,
   CHARACTER_UNLOCK_ORDER,
   canUnlockCharacter,
   getCharacterAffixDefinition,
@@ -25,12 +25,17 @@ const { t } = useI18n();
 const realityCoherencePoints = computed(() =>
   getCoherencePoints(props.game.state.strata[realityStratumId]!),
 );
+const realityBestDreamEnergy = computed(() =>
+  props.game.state.strata[realityStratumId]!.bestDreamEnergy,
+);
 const unlockRows = computed(() => CHARACTER_UNLOCK_ORDER.map(characterId => {
   const character = getCharacterDefinition(characterId)!;
+  const unlockDefinition = CHARACTER_UNLOCK_DEFINITIONS[characterId];
   return {
     characterId,
     character,
-    costText: formatInt(CHARACTER_UNLOCK_COSTS[characterId]),
+    unlockKind: unlockDefinition.kind,
+    requirementText: format(unlockDefinition.requirement),
     owned: isCharacterOwned(props.game.state, characterId),
     available: isCharacterUnlockAvailable(props.game.state, characterId),
     canUnlock: canUnlockCharacter(props.game.state, characterId),
@@ -56,7 +61,10 @@ function onUnlock(characterId: UnlockableCharacterId): void {
 <template>
   <section class="unlocks-page">
     <div class="resource-line">
-      {{ t("characterUnlocks.realityCP", { value: formatInt(realityCoherencePoints) }) }}
+      {{ t("characterUnlocks.realityResources", {
+        cp: formatInt(realityCoherencePoints),
+        de: format(realityBestDreamEnergy),
+      }) }}
     </div>
 
     <div class="unlock-grid">
@@ -85,7 +93,10 @@ function onUnlock(characterId: UnlockableCharacterId): void {
         >
           <template v-if="row.owned">{{ t("characterUnlocks.unlocked") }}</template>
           <template v-else-if="!row.available">{{ t("characterUnlocks.previousRequired") }}</template>
-          <template v-else>{{ t("characterUnlocks.unlockFor", { cost: row.costText }) }}</template>
+          <template v-else-if="row.unlockKind === 'best-dream-energy'">
+            {{ t("characterUnlocks.unlockAtDE", { requirement: row.requirementText }) }}
+          </template>
+          <template v-else>{{ t("characterUnlocks.unlockForCP", { cost: row.requirementText }) }}</template>
         </button>
       </article>
     </div>
@@ -132,6 +143,12 @@ function onUnlock(characterId: UnlockableCharacterId): void {
   --theme-border: #ffe28a;
   --theme-background: linear-gradient(150deg, #50380d, #1d1304 68%);
   --theme-glow: rgba(255,208,76,0.13);
+}
+
+.theme-orange {
+  --theme-border: #ffad5c;
+  --theme-background: linear-gradient(150deg, #543015, #211006 68%);
+  --theme-glow: rgba(255,139,48,0.16);
 }
 
 .unlock-card.locked { filter: grayscale(0.75); opacity: 0.68; }

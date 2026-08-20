@@ -13,7 +13,7 @@ interface UpgradeGridItem {
 withDefaults(defineProps<{
   resourceText: string;
   rows: UpgradeGridItem[][];
-  theme?: "dream" | "coherence";
+  theme?: "dream" | "coherence" | "electromagnetic";
 }>(), {
   theme: "dream",
 });
@@ -82,6 +82,20 @@ const emit = defineEmits<{
   --upgrade-footer: #bdefff;
   --upgrade-cost: #9eeaff;
   --upgrade-state: #bdefff;
+}
+
+.upgrades-page.theme-electromagnetic {
+  --upgrade-resource-color: #bdf7ff;
+  --upgrade-resource-shadow: rgba(78, 220, 255, 0.3);
+  --upgrade-border: rgba(65, 190, 221, 0.72);
+  --upgrade-bg-top: rgba(12, 48, 63, 0.97);
+  --upgrade-bg-bottom: rgba(6, 21, 35, 0.99);
+  --upgrade-inset: rgba(90, 224, 255, 0.09);
+  --upgrade-hover-border: rgba(255, 185, 90, 0.9);
+  --upgrade-description: #b9e2eb;
+  --upgrade-footer: #9deeff;
+  --upgrade-cost: #ffc174;
+  --upgrade-state: #d8faff;
 }
 
 .upgrades-resource {

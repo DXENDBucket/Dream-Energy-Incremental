@@ -12,6 +12,7 @@ import {
   logn,
   lte,
   max,
+  min,
   mul,
   pow,
   sub,
@@ -20,11 +21,14 @@ import {
 import { getChaoticEther, setChaoticEther } from "@/engine/strata/common/chaotic-ether";
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
 import { getDreamEnergy, spendDreamEnergy } from "@/engine/strata/common/dream-energy";
+import { getElectromagneticPower, spendElectromagneticPower } from "@/engine/electromagnetic-crystals";
 import { realityStratumId } from "@/engine/strata/defs";
 import {
   ALPHA_CHARACTER_ID,
+  CHARACTER_MAX_LEVEL,
   DAWN_CHARACTER_ID,
   DELTA_CHARACTER_ID,
+  MECHANIST_CHARACTER_ID,
 } from "./definitions";
 import {
   ensureCharacterSystemState,
@@ -32,7 +36,11 @@ import {
   syncCharacterProductionPowers,
 } from "./logic";
 
-export type CharacterLevelResource = "dream-energy" | "chaotic-ether-1" | "coherence-points";
+export type CharacterLevelResource =
+  | "dream-energy"
+  | "chaotic-ether-1"
+  | "coherence-points"
+  | "electromagnetic-power";
 
 export interface CharacterLevelCostDefinition {
   resource: CharacterLevelResource;
@@ -55,6 +63,11 @@ export const CHARACTER_LEVEL_COST_DEFINITIONS: Record<string, CharacterLevelCost
     resource: "coherence-points",
     baseCost: N("5e9"),
     costScale: N(3),
+  },
+  [MECHANIST_CHARACTER_ID]: {
+    resource: "electromagnetic-power",
+    baseCost: N(50),
+    costScale: N(1.5),
   },
 };
 
@@ -81,6 +94,7 @@ export function getCharacterLevelResourceAmount(
   if (!reality) return ZERO;
   if (resource === "dream-energy") return getDreamEnergy(reality);
   if (resource === "chaotic-ether-1") return getChaoticEther(reality, 1);
+  if (resource === "electromagnetic-power") return getElectromagneticPower(reality);
   return getCoherencePoints(reality);
 }
 
@@ -97,6 +111,7 @@ export function canUpgradeCharacterLevel(state: GameState, characterId: string):
   if (
     !definition
     || !ensureCharacterSystemState(state).ownedCharacterIds.includes(characterId)
+    || gte(getCharacterLevel(state, characterId), CHARACTER_MAX_LEVEL)
   ) return false;
   return gte(
     getSpendableCharacterLevelResourceAmount(state, definition.resource),
@@ -111,9 +126,14 @@ export function getCharacterLevelBulkCost(
 ): Num {
   const definition = getCharacterLevelCostDefinition(characterId);
   if (!definition || lte(levelCount, ZERO)) return ZERO;
+  const count = min(
+    floor(levelCount),
+    max(ZERO, sub(CHARACTER_MAX_LEVEL, getCharacterLevel(state, characterId))),
+  );
+  if (lte(count, ZERO)) return ZERO;
   const firstCost = getCharacterLevelCost(state, characterId);
   return div(
-    mul(firstCost, sub(pow(definition.costScale, floor(levelCount)), ONE)),
+    mul(firstCost, sub(pow(definition.costScale, count), ONE)),
     sub(definition.costScale, ONE),
   );
 }
@@ -124,6 +144,12 @@ export function getMaxAffordableCharacterLevels(state: GameState, characterId: s
     return ZERO;
   }
 
+  const remainingLevels = max(
+    ZERO,
+    sub(CHARACTER_MAX_LEVEL, getCharacterLevel(state, characterId)),
+  );
+  if (lte(remainingLevels, ZERO)) return ZERO;
+
   const available = getSpendableCharacterLevelResourceAmount(state, definition.resource);
   const firstCost = getCharacterLevelCost(state, characterId);
   if (!gte(available, firstCost)) return ZERO;
@@ -132,11 +158,17 @@ export function getMaxAffordableCharacterLevels(state: GameState, characterId: s
     ONE,
     div(mul(available, sub(definition.costScale, ONE)), firstCost),
   );
-  let count = max(ZERO, floor(logn(geometricTarget, definition.costScale)));
+  let count = min(
+    remainingLevels,
+    max(ZERO, floor(logn(geometricTarget, definition.costScale))),
+  );
 
   if (gt(getCharacterLevelBulkCost(state, characterId, count), available)) {
     count = max(ZERO, sub(count, ONE));
-  } else if (lte(getCharacterLevelBulkCost(state, characterId, add(count, ONE)), available)) {
+  } else if (
+    lte(add(count, ONE), remainingLevels)
+    && lte(getCharacterLevelBulkCost(state, characterId, add(count, ONE)), available)
+  ) {
     count = add(count, ONE);
   }
   return floor(count);
@@ -152,6 +184,8 @@ function spendCharacterLevelResource(
     spendDreamEnergy(reality, cost);
   } else if (resource === "chaotic-ether-1") {
     setChaoticEther(reality, 1, sub(getChaoticEther(reality, 1), cost));
+  } else if (resource === "electromagnetic-power") {
+    spendElectromagneticPower(reality, cost);
   } else {
     reality.coherencePoints = sub(getCoherencePoints(reality), cost);
   }

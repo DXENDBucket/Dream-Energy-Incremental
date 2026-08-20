@@ -1,4 +1,8 @@
 import { ZERO, type Num } from "@/engine/math/num";
+import {
+  createElectromagneticUpgradesState,
+  type ElectromagneticUpgradesState,
+} from "./upgrades/state";
 
 export interface ElectromagneticParticleState {
   x: number;
@@ -15,9 +19,10 @@ export interface ElectromagneticCrystalsState {
   initialSpeed: number;
   initialDirectionDeg: number;
   particle: ElectromagneticParticleState;
+  upgrades: ElectromagneticUpgradesState;
 }
 
-export const ELECTROMAGNETIC_DEFAULT_INITIAL_SPEED = 0.32;
+export const ELECTROMAGNETIC_DEFAULT_INITIAL_SPEED = 0.06;
 export const ELECTROMAGNETIC_DEFAULT_INITIAL_DIRECTION_DEG = 0;
 
 export function createElectromagneticCrystalsState(): ElectromagneticCrystalsState {
@@ -34,5 +39,6 @@ export function createElectromagneticCrystalsState(): ElectromagneticCrystalsSta
       velocityX: ELECTROMAGNETIC_DEFAULT_INITIAL_SPEED,
       velocityY: 0,
     },
+    upgrades: createElectromagneticUpgradesState(),
   };
 }

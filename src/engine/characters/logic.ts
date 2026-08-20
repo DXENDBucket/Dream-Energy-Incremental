@@ -11,6 +11,7 @@ import {
   COHERENCE_POINT_GAIN_MULTIPLIER_AFFIX_ID,
   DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID,
   DREAM_CRYSTAL_MULTIPLIER_POWER_AFFIX_ID,
+  ELECTROMAGNETIC_POWER_GAIN_MULTIPLIER_AFFIX_ID,
   clampCharacterLevel,
   getCharacterAffixValue,
   getCharacterDefinition,
@@ -341,6 +342,17 @@ export function getCharacterChaoticEtherGainMultiplier(
   );
 }
 
+export function getCharacterElectromagneticPowerGainMultiplier(
+  state: GameState,
+  stratumId: string,
+): Num {
+  return getMultiplicativeCharacterAffix(
+    state,
+    stratumId,
+    ELECTROMAGNETIC_POWER_GAIN_MULTIPLIER_AFFIX_ID,
+  );
+}
+
 export function syncCharacterProductionPowers(state: GameState): void {
   ensureCharacterSystemState(state);
   for (const [stratumId, stratum] of Object.entries(state.strata)) {
@@ -354,5 +366,7 @@ export function syncCharacterProductionPowers(state: GameState): void {
       state,
       stratumId,
     );
+    stratum.characterElectromagneticPowerGainMultiplier =
+      getCharacterElectromagneticPowerGainMultiplier(state, stratumId);
   }
 }

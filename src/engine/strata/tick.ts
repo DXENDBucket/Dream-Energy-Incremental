@@ -9,6 +9,7 @@ import { tickDreamEnergy } from "./common/dream-energy";
 import { tickEntropy } from "./common/entropy";
 import { tickConceptCrystals } from "./common/concept-crystals";
 import { tickCoherenceAutobuyer } from "./common/coherence/autobuyer";
+import { tickPassiveCoherencePointGain } from "./common/coherence";
 import { syncCoherenceProgressionDreamCrystalMultipliers } from "./common/coherence/upgrades";
 import { tickElectromagneticCrystals } from "@/engine/electromagnetic-crystals";
 
@@ -27,6 +28,7 @@ export function tickActiveStratum(state: GameState, dtSec: Num): void {
   let computedDtSec = dtSec;
   computedDtSec = mul(computedDtSec,stratum.stratumSpeed);
   tickStratum(stratum, computedDtSec);
+  tickPassiveCoherencePointGain(stratum, computedDtSec);
   tickCoherenceAutobuyer(state, computedDtSec);
   syncCoherenceProgressionDreamCrystalMultipliers(state);
 }

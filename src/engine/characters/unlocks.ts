@@ -2,15 +2,25 @@ import type { GameState } from "@/engine/core/state";
 import { N, gte, sub, type Num } from "@/engine/math/num";
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
 import { realityStratumId } from "@/engine/strata/defs";
-import { DAWN_CHARACTER_ID, DELTA_CHARACTER_ID } from "./definitions";
+import { DAWN_CHARACTER_ID, DELTA_CHARACTER_ID, MECHANIST_CHARACTER_ID } from "./definitions";
 import { ensureCharacterSystemState, grantCharacter } from "./logic";
 
-export const CHARACTER_UNLOCK_ORDER = [DAWN_CHARACTER_ID, DELTA_CHARACTER_ID] as const;
+export const CHARACTER_UNLOCK_ORDER = [
+  DAWN_CHARACTER_ID,
+  DELTA_CHARACTER_ID,
+  MECHANIST_CHARACTER_ID,
+] as const;
 export type UnlockableCharacterId = (typeof CHARACTER_UNLOCK_ORDER)[number];
 
-export const CHARACTER_UNLOCK_COSTS: Record<UnlockableCharacterId, Num> = {
-  [DAWN_CHARACTER_ID]: N(5e9),
-  [DELTA_CHARACTER_ID]: N(2e11),
+export interface CharacterUnlockDefinition {
+  requirement: Num;
+  kind: "coherence-points-cost" | "best-dream-energy";
+}
+
+export const CHARACTER_UNLOCK_DEFINITIONS: Record<UnlockableCharacterId, CharacterUnlockDefinition> = {
+  [DAWN_CHARACTER_ID]: { requirement: N(5e9), kind: "coherence-points-cost" },
+  [DELTA_CHARACTER_ID]: { requirement: N(2e11), kind: "coherence-points-cost" },
+  [MECHANIST_CHARACTER_ID]: { requirement: N(1e79), kind: "best-dream-energy" },
 };
 
 export function isCharacterOwned(state: GameState, characterId: string): boolean {
@@ -31,8 +41,11 @@ export function canUnlockCharacter(
   if (isCharacterOwned(state, characterId)) return false;
   if (!isCharacterUnlockAvailable(state, characterId)) return false;
   const reality = state.strata[realityStratumId];
-  return reality !== undefined
-    && gte(getCoherencePoints(reality), CHARACTER_UNLOCK_COSTS[characterId]);
+  if (!reality) return false;
+  const definition = CHARACTER_UNLOCK_DEFINITIONS[characterId];
+  return definition.kind === "best-dream-energy"
+    ? gte(reality.bestDreamEnergy, definition.requirement)
+    : gte(getCoherencePoints(reality), definition.requirement);
 }
 
 export function unlockCharacter(
@@ -41,10 +54,10 @@ export function unlockCharacter(
 ): boolean {
   if (!canUnlockCharacter(state, characterId)) return false;
   const reality = state.strata[realityStratumId]!;
-  reality.coherencePoints = sub(
-    getCoherencePoints(reality),
-    CHARACTER_UNLOCK_COSTS[characterId],
-  );
+  const definition = CHARACTER_UNLOCK_DEFINITIONS[characterId];
+  if (definition.kind === "coherence-points-cost") {
+    reality.coherencePoints = sub(getCoherencePoints(reality), definition.requirement);
+  }
   grantCharacter(state, characterId);
   return true;
 }

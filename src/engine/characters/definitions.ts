@@ -1,22 +1,26 @@
-import { N, ONE, add, floor, log10, max, mul, pow, sub, type Num } from "@/engine/math/num";
+import { N, ONE, add, floor, log10, max, min, mul, pow, sub, type Num } from "@/engine/math/num";
 
 export const ALPHA_CHARACTER_ID = "alpha";
 export const DAWN_CHARACTER_ID = "dawn";
 export const DELTA_CHARACTER_ID = "delta";
+export const MECHANIST_CHARACTER_ID = "mechanist";
 export const CHARACTER_PRODUCTION_SLOT_COUNT = 2;
 export const CHARACTER_ROSTER_SLOT_COUNT = 40;
 export const CHARACTER_MIN_LEVEL = N(1);
+export const CHARACTER_MAX_LEVEL = N(100);
 
 export const DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID = "dream-crystal-multiplier";
 export const DREAM_CRYSTAL_MULTIPLIER_POWER_AFFIX_ID = "dream-crystal-multiplier-power";
 export const COHERENCE_POINT_GAIN_MULTIPLIER_AFFIX_ID = "coherence-point-gain-multiplier";
 export const CHAOTIC_ETHER_GAIN_MULTIPLIER_AFFIX_ID = "chaotic-ether-gain-multiplier";
+export const ELECTROMAGNETIC_POWER_GAIN_MULTIPLIER_AFFIX_ID = "electromagnetic-power-gain-multiplier";
 
 export type CharacterAffixId =
   | typeof DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID
   | typeof DREAM_CRYSTAL_MULTIPLIER_POWER_AFFIX_ID
   | typeof COHERENCE_POINT_GAIN_MULTIPLIER_AFFIX_ID
-  | typeof CHAOTIC_ETHER_GAIN_MULTIPLIER_AFFIX_ID;
+  | typeof CHAOTIC_ETHER_GAIN_MULTIPLIER_AFFIX_ID
+  | typeof ELECTROMAGNETIC_POWER_GAIN_MULTIPLIER_AFFIX_ID;
 
 export type CharacterAffixGrowthCurveId =
   | "shared-dc-multiplier"
@@ -32,14 +36,14 @@ export interface CharacterAffixDefinition {
 }
 
 /**
- * Alpha, Dawn and Delta reference this same affix definition. Its level curve
+ * Alpha, Dawn, Delta and Mechanist reference this same affix definition. Its level curve
  * can therefore be filled in once when character leveling becomes functional.
  */
 export const CHARACTER_AFFIX_DEFINITIONS: Record<CharacterAffixId, CharacterAffixDefinition> = {
   [DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID]: {
     id: DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID,
     labelKey: "characters.affixes.dreamCrystalMultiplier",
-    baseValue: N(2),
+    baseValue: N(10),
     growthCurveId: "shared-dc-multiplier",
     operator: "multiply",
   },
@@ -64,13 +68,20 @@ export const CHARACTER_AFFIX_DEFINITIONS: Record<CharacterAffixId, CharacterAffi
     growthCurveId: "support-multiplier",
     operator: "multiply",
   },
+  [ELECTROMAGNETIC_POWER_GAIN_MULTIPLIER_AFFIX_ID]: {
+    id: ELECTROMAGNETIC_POWER_GAIN_MULTIPLIER_AFFIX_ID,
+    labelKey: "characters.affixes.electromagneticPowerGainMultiplier",
+    baseValue: N(3),
+    growthCurveId: "support-multiplier",
+    operator: "multiply",
+  },
 };
 
 export interface CharacterDefinition {
   id: string;
   symbol: string;
   nameKey: string;
-  theme: "monochrome" | "cyan" | "gold";
+  theme: "monochrome" | "cyan" | "gold" | "orange";
   affixIds: readonly CharacterAffixId[];
 }
 
@@ -96,6 +107,13 @@ export const CHARACTER_DEFINITIONS: readonly CharacterDefinition[] = [
     theme: "gold",
     affixIds: [DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID, CHAOTIC_ETHER_GAIN_MULTIPLIER_AFFIX_ID],
   },
+  {
+    id: MECHANIST_CHARACTER_ID,
+    symbol: "⚡",
+    nameKey: "characters.mechanist.name",
+    theme: "orange",
+    affixIds: [DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID, ELECTROMAGNETIC_POWER_GAIN_MULTIPLIER_AFFIX_ID],
+  },
 ];
 
 export function getCharacterDefinition(id: string): CharacterDefinition | undefined {
@@ -107,7 +125,7 @@ export function getCharacterAffixDefinition(id: CharacterAffixId): CharacterAffi
 }
 
 export function clampCharacterLevel(level: Num): Num {
-  return max(CHARACTER_MIN_LEVEL, floor(level));
+  return min(CHARACTER_MAX_LEVEL, max(CHARACTER_MIN_LEVEL, floor(level)));
 }
 
 export function getCharacterAffixValue(id: CharacterAffixId, level: Num): Num {

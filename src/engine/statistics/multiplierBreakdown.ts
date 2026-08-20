@@ -56,6 +56,7 @@ import {
   getConceptCrystalProductionInterval,
   type ConceptCrystalNodeId,
 } from "@/engine/strata/common/concept-crystals";
+import { getElectromagneticDreamCrystalMultiplier } from "@/engine/electromagnetic-crystals";
 
 export type MultiplierBreakdownCategoryId =
   | "dream-energy"
@@ -130,6 +131,7 @@ export function getDreamCrystalMultiplierBreakdown(
   const coherenceRecordsFactor = stratum.coherenceProgressionDreamCrystalMultiplier ?? ONE;
   const crushFactor = stratum.crushDreamCrystalMultiplier ?? ONE;
   const characterFactor = stratum.characterDreamCrystalMultiplier ?? ONE;
+  const electromagneticFactor = getElectromagneticDreamCrystalMultiplier(stratum);
   const speedFactor = max(ZERO, stratum.stratumSpeed);
 
   const refinementGroup = createDreamCrystalTierGroup(
@@ -172,6 +174,11 @@ export function getDreamCrystalMultiplierBreakdown(
     activeTiers,
     () => characterFactor,
   );
+  const electromagneticGroup = createDreamCrystalTierGroup(
+    "electromagnetic-power",
+    activeTiers,
+    () => electromagneticFactor,
+  );
 
   const beforePowerByTier = new Map<number, Num>();
   const finalMultiplierByTier = new Map<number, Num>();
@@ -186,7 +193,10 @@ export function getDreamCrystalMultiplierBreakdown(
       ),
       mul(
         mul(currentCoherenceFactor, entryCoherenceFactor),
-        mul(mul(coherenceRecordsFactor, crushFactor), characterFactor),
+        mul(
+          mul(coherenceRecordsFactor, crushFactor),
+          mul(characterFactor, electromagneticFactor),
+        ),
       ),
     );
     beforePowerByTier.set(tier, beforePower);
@@ -280,6 +290,7 @@ export function getDreamCrystalMultiplierBreakdown(
       coherenceRecordsGroup,
       crushGroup,
       charactersGroup,
+      electromagneticGroup,
       multiplierPowerGroup,
       { id: "entropy", factor: entropyFactor },
       stratumSpeedGroup,

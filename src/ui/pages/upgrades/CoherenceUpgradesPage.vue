@@ -3,31 +3,43 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type { GameState } from "@/engine/core/state";
 import { format, formatInt } from "@/engine/math/format";
-import { getCoherencePoints } from "@/engine/strata/common/coherence";
+import {
+  getCoherencePoints,
+  getPassiveCoherencePointGainPerSecond,
+} from "@/engine/strata/common/coherence";
 import {
   COHERENCE_UPGRADE_AUTOBUYER_ID,
   COHERENCE_UPGRADE_AUTOBUYER_SPEED_ID,
   COHERENCE_UPGRADE_BEST_ENTRY_COHERENCE_ID,
   COHERENCE_UPGRADE_BEST_NEXT_DREAM_ENERGY_ID,
+  COHERENCE_UPGRADE_CONCEPT_CONFLICT_SLOWDOWN_ID,
+  COHERENCE_UPGRADE_ELECTROMAGNETIC_POWER_GAIN_ID,
   COHERENCE_UPGRADE_DEEPER_INITIAL_DREAM_ENERGY_ID,
   COHERENCE_UPGRADE_ENTROPY_TUNING_ID,
+  COHERENCE_UPGRADE_ENTROPY_TUNING_CUBE_ID,
   COHERENCE_UPGRADE_NEXT_DREAM_CRYSTAL_MULTIPLIER_ID,
   COHERENCE_UPGRADE_POINT_GAIN_MULTIPLIER_ID,
+  COHERENCE_UPGRADE_PASSIVE_POINT_GAIN_ID,
   COHERENCE_UPGRADE_ROWS,
   COHERENCE_UPGRADE_SOFTCAP_TWO_REPEATABLE_SLOWDOWN_ID,
   COHERENCE_UPGRADE_SOFTCAP_TWO_SLOWDOWN_ID,
+  COHERENCE_UPGRADE_SOFTCAP_THREE_REPEATABLE_SLOWDOWN_ID,
   buyCoherenceUpgrade,
   canBuyCoherenceUpgrade,
   getCoherenceBestEntryCoherenceMultiplier,
   getCoherenceBestNextDreamEnergy,
   getCoherenceBestNextDreamEnergyMultiplier,
+  getCoherenceConceptConflictStrengthMultiplier,
+  getCoherenceElectromagneticPowerGainMultiplier,
   getCoherenceDeeperInitialDreamEnergyBonus,
   getCoherenceEntropyTuningExponent,
+  getCoherenceEntropyTuningEffectPower,
   getCoherenceNextDreamCrystalMultiplierBonus,
   getCoherencePointGainMultiplier,
   getCoherenceRepeatableUpgradeBought,
   getCoherenceSoftcapTwoRepeatableStrengthMultiplier,
   getCoherenceSoftcapTwoStrengthMultiplier,
+  getCoherenceSoftcapThreeRepeatableStrengthMultiplier,
   getCoherenceUpgradeCost,
   getCoherenceUpgradeDefinition,
   hasCoherenceUpgrade,
@@ -94,6 +106,33 @@ function getUpgradeFooter(id: CoherenceUpgradeId): string {
     return t("coherenceUpgrades.softcapTwoRepeatableSlowdownStatus", {
       count: formatInt(getCoherenceRepeatableUpgradeBought(activeStratum.value, id)),
       value: format(getCoherenceSoftcapTwoRepeatableStrengthMultiplier(activeStratum.value)),
+    });
+  }
+  if (id === COHERENCE_UPGRADE_CONCEPT_CONFLICT_SLOWDOWN_ID) {
+    return t("coherenceUpgrades.conceptConflictSlowdownStatus", {
+      value: format(getCoherenceConceptConflictStrengthMultiplier(activeStratum.value)),
+    });
+  }
+  if (id === COHERENCE_UPGRADE_ENTROPY_TUNING_CUBE_ID) {
+    return t("coherenceUpgrades.entropyTuningCubeStatus", {
+      value: format(getCoherenceEntropyTuningEffectPower(activeStratum.value)),
+    });
+  }
+  if (id === COHERENCE_UPGRADE_PASSIVE_POINT_GAIN_ID) {
+    return t("coherenceUpgrades.passivePointGainStatus", {
+      value: format(getPassiveCoherencePointGainPerSecond(activeStratum.value)),
+    });
+  }
+  if (id === COHERENCE_UPGRADE_SOFTCAP_THREE_REPEATABLE_SLOWDOWN_ID) {
+    return t("coherenceUpgrades.softcapThreeRepeatableSlowdownStatus", {
+      count: formatInt(getCoherenceRepeatableUpgradeBought(activeStratum.value, id)),
+      value: format(getCoherenceSoftcapThreeRepeatableStrengthMultiplier(activeStratum.value)),
+    });
+  }
+  if (id === COHERENCE_UPGRADE_ELECTROMAGNETIC_POWER_GAIN_ID) {
+    return t("coherenceUpgrades.electromagneticPowerGainStatus", {
+      count: formatInt(getCoherenceRepeatableUpgradeBought(activeStratum.value, id)),
+      value: format(getCoherenceElectromagneticPowerGainMultiplier(activeStratum.value)),
     });
   }
   if (id === COHERENCE_UPGRADE_AUTOBUYER_SPEED_ID) {

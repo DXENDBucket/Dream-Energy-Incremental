@@ -13,6 +13,7 @@ import {
   getCharacterDefinition,
   getCharacterDreamCrystalMultiplier,
   getCharacterDreamCrystalMultiplierPower,
+  getCharacterElectromagneticPowerGainMultiplier,
   getCharacterLevel,
   getCharacterProductionSlots,
   getCharacterRosterSlots,
@@ -55,6 +56,9 @@ const bonusCoherencePointText = computed(() =>
 );
 const bonusChaoticEtherText = computed(() =>
   format(getCharacterChaoticEtherGainMultiplier(props.game.state, activeStratumId.value)),
+);
+const bonusElectromagneticPowerText = computed(() =>
+  format(getCharacterElectromagneticPowerGainMultiplier(props.game.state, activeStratumId.value)),
 );
 const hoveredCharacter = computed(() =>
   hoveredCharacterId.value ? getCharacterDefinition(hoveredCharacterId.value) : undefined,
@@ -221,6 +225,10 @@ function dropOnRoster(slotIndex: number): void {
         <div class="bonus-row">
           <span>{{ t("characters.chaoticEtherGainMultiplier") }}</span>
           <strong>×{{ bonusChaoticEtherText }}</strong>
+        </div>
+        <div class="bonus-row">
+          <span>{{ t("characters.electromagneticPowerGainMultiplier") }}</span>
+          <strong>×{{ bonusElectromagneticPowerText }}</strong>
         </div>
       </aside>
     </div>
@@ -417,6 +425,15 @@ h2 { margin: 4px 0 0; }
     repeating-linear-gradient(135deg, rgba(255,224,120,0.13) 0 2px, transparent 2px 7px),
     radial-gradient(circle at 50% 35%, #a47720 0%, #4a3109 46%, #1d1303 100%);
   box-shadow: inset 0 0 12px rgba(255,225,125,0.32), 0 0 9px rgba(255,207,75,0.22);
+}
+
+.theme-orange {
+  border: 2px solid #ffb363;
+  color: #fff0dc;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,157,70,0.14) 0 2px, transparent 2px 7px),
+    radial-gradient(circle at 50% 35%, #b75b1f 0%, #592609 46%, #211003 100%);
+  box-shadow: inset 0 0 12px rgba(255,173,92,0.34), 0 0 9px rgba(255,117,39,0.24);
 }
 
 .character-symbol {

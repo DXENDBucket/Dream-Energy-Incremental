@@ -11,6 +11,7 @@ import {
     DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_BASE,
     DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH,
     DREAM_ENERGY_CONCEPT_CONFLICT_START,
+    DREAM_ENERGY_CONCEPT_CONFLICT_EFFECT_SCALE,
     DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
     DREAM_ENERGY_SHIELDING_START,
     DREAM_ENERGY_SHIELDING_CHAOS_STRENGTH_SCALE,
@@ -31,6 +32,8 @@ import {
 } from "@/engine/strata/common/dream-crystals/upgrades";
 import {
     getCoherenceSoftcapTwoStrengthMultiplier,
+    getCoherenceConceptConflictStrengthMultiplier,
+    getCoherenceSoftcapThreeRepeatableStrengthMultiplier,
 } from "@/engine/strata/common/coherence/upgrades";
 import { getConceptCrystalAssimilationStrengthMultiplier } from "@/engine/strata/common/concept-crystals";
 import {
@@ -276,10 +279,7 @@ export function applyDreamEnergyConceptConflict(stratum: StratumState, standardS
     }
 
     const inputRatio = div(standardSoftcapped, DREAM_ENERGY_CONCEPT_CONFLICT_START);
-    const normalizedStrength = div(
-        getDreamEnergyConceptConflictStrength(stratum),
-        DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
-    );
+    const normalizedStrength = getDreamEnergyConceptConflictEffectiveStrength(stratum);
     const scaledInputRatio = add(ONE, mul(normalizedStrength, sub(inputRatio, ONE)));
     const compressedRatio = add(
         ONE,
@@ -292,10 +292,7 @@ export function removeDreamEnergyConceptConflict(stratum: StratumState, conflict
     if (lte(conflicted, DREAM_ENERGY_CONCEPT_CONFLICT_START)) return conflicted;
 
     const outputRatio = div(conflicted, DREAM_ENERGY_CONCEPT_CONFLICT_START);
-    const normalizedStrength = div(
-        getDreamEnergyConceptConflictStrength(stratum),
-        DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
-    );
+    const normalizedStrength = getDreamEnergyConceptConflictEffectiveStrength(stratum);
     const scaledInputRatio = pow(
         TEN,
         div(mul(normalizedStrength, sub(outputRatio, ONE)), NATURAL_LOG_TEN),
@@ -306,8 +303,21 @@ export function removeDreamEnergyConceptConflict(stratum: StratumState, conflict
 
 export function getDreamEnergyConceptConflictStrength(stratum: StratumState): Num {
     return mul(
-        DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
-        getDreamCrystalConceptConflictStrengthMultiplier(stratum),
+        mul(
+            DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
+            getDreamCrystalConceptConflictStrengthMultiplier(stratum),
+        ),
+        getCoherenceConceptConflictStrengthMultiplier(stratum),
+    );
+}
+
+function getDreamEnergyConceptConflictEffectiveStrength(stratum: StratumState): Num {
+    return mul(
+        div(
+            getDreamEnergyConceptConflictStrength(stratum),
+            DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
+        ),
+        DREAM_ENERGY_CONCEPT_CONFLICT_EFFECT_SCALE,
     );
 }
 
@@ -657,7 +667,10 @@ export function getDreamEnergySoftcapThreeStrengthGrowth(stratum?: StratumState)
         ONE,
         applySoftcapStrengthMultiplier(
             DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH,
-            getConceptCrystalAssimilationStrengthMultiplier(stratum),
+            mul(
+                getConceptCrystalAssimilationStrengthMultiplier(stratum),
+                getCoherenceSoftcapThreeRepeatableStrengthMultiplier(stratum),
+            ),
         ),
     );
 }

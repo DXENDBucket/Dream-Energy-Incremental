@@ -59,6 +59,7 @@ export interface StratumState {
   dreamCrystalMultiplierPower: Num;
   characterCoherencePointGainMultiplier: Num;
   characterChaoticEtherGainMultiplier: Num;
+  characterElectromagneticPowerGainMultiplier: Num;
   coherenceAutobuyer: CoherenceAutobuyerState;
   chaoticEther: ChaoticEtherAmounts;
   totalChaoticEtherGained: ChaoticEtherAmounts;
@@ -100,6 +101,7 @@ export function createStratumState(options: CreateStratumStateOptions = {}): Str
     dreamCrystalMultiplierPower: ONE,
     characterCoherencePointGainMultiplier: ONE,
     characterChaoticEtherGainMultiplier: ONE,
+    characterElectromagneticPowerGainMultiplier: ONE,
     coherenceAutobuyer: createCoherenceAutobuyerState(),
     chaoticEther: { "1": ZERO },
     totalChaoticEtherGained: { "1": ZERO },

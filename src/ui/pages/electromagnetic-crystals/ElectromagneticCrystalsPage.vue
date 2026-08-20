@@ -5,18 +5,19 @@ import type { GameState } from "@/engine/core/state";
 import { format } from "@/engine/math/format";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import {
-  ELECTROMAGNETIC_JUDGE_LINE_X,
   ELECTROMAGNETIC_MAX_INITIAL_SPEED,
-  ELECTROMAGNETIC_MAX_ELECTRIC_FIELD_STRENGTH,
-  ELECTROMAGNETIC_MAX_MAGNETIC_FIELD_STRENGTH,
   ELECTROMAGNETIC_MIN_INITIAL_SPEED,
   ELECTROMAGNETIC_MIN_ELECTRIC_FIELD_STRENGTH,
-  ELECTROMAGNETIC_MIN_MAGNETIC_FIELD_STRENGTH,
-  ELECTROMAGNETIC_POWER_DECAY_DIVISOR_PER_SECOND,
-  ELECTROMAGNETIC_POWER_PER_CROSSING,
-  ELECTROMAGNETIC_POWER_PER_TELEPORT_COST,
-  ensureElectromagneticCrystalsState,
+  getElectromagneticDreamCrystalExponent,
+  getElectromagneticDreamCrystalMultiplier,
+  getElectromagneticHorizontalJudgeLines,
   getElectromagneticPower,
+  getElectromagneticPowerDecayDivisorPerSecond,
+  getElectromagneticPowerPerCrossing,
+  getElectromagneticVerticalJudgeLines,
+  getElectromagneticMaxElectricFieldStrength,
+  getElectromagneticMaxMagneticFieldStrength,
+  getElectromagneticMinMagneticFieldStrength,
   resetElectromagneticParticle,
   setElectricFieldDirection,
   setElectricFieldStrength,
@@ -29,11 +30,35 @@ const props = defineProps<{ game: { state: GameState } }>();
 const { t } = useI18n();
 
 const activeStratum = computed(() => getActiveStratum(props.game.state));
-const electromagnetic = computed(() => ensureElectromagneticCrystalsState(activeStratum.value));
+const electromagnetic = computed(() => activeStratum.value.electromagneticCrystals);
 const powerText = computed(() => format(getElectromagneticPower(activeStratum.value)));
-const decayText = format(ELECTROMAGNETIC_POWER_DECAY_DIVISOR_PER_SECOND);
-const crossingGainText = format(ELECTROMAGNETIC_POWER_PER_CROSSING);
-const teleportCostText = format(ELECTROMAGNETIC_POWER_PER_TELEPORT_COST);
+const dreamCrystalMultiplierText = computed(() => format(
+  getElectromagneticDreamCrystalMultiplier(activeStratum.value),
+));
+const dreamCrystalExponentText = computed(() => (
+  getElectromagneticDreamCrystalExponent(activeStratum.value).toFixed(2)
+));
+const decayText = computed(() => format(
+  getElectromagneticPowerDecayDivisorPerSecond(activeStratum.value),
+));
+const crossingGainText = computed(() => format(
+  getElectromagneticPowerPerCrossing(activeStratum.value),
+));
+const horizontalJudgeLines = computed(() => (
+  getElectromagneticHorizontalJudgeLines(activeStratum.value)
+));
+const verticalJudgeLines = computed(() => (
+  getElectromagneticVerticalJudgeLines(activeStratum.value)
+));
+const maxElectricFieldStrength = computed(() => (
+  getElectromagneticMaxElectricFieldStrength(activeStratum.value)
+));
+const minMagneticFieldStrength = computed(() => (
+  getElectromagneticMinMagneticFieldStrength(activeStratum.value)
+));
+const maxMagneticFieldStrength = computed(() => (
+  getElectromagneticMaxMagneticFieldStrength(activeStratum.value)
+));
 const ARENA_VISUAL_SIZE = 520;
 const ELECTRIC_VISUAL_MARGIN = 170;
 const ELECTRIC_LINE_EXTENT = ARENA_VISUAL_SIZE + ELECTRIC_VISUAL_MARGIN * 2;
@@ -46,7 +71,7 @@ const electricLineOffsets = computed(() => {
   const strength = electromagnetic.value.electricFieldStrength;
   if (strength <= 0) return [];
   const count = Math.max(1, Math.round(
-    strength / ELECTROMAGNETIC_MAX_ELECTRIC_FIELD_STRENGTH * 18,
+    strength / maxElectricFieldStrength.value * 18,
   ));
   if (count === 1) return [ARENA_VISUAL_SIZE / 2];
   return Array.from(
@@ -64,7 +89,7 @@ const magneticFieldCells = computed(() => {
   if (magnitude <= 0) return [];
   const normalizedMagnitude = Math.min(
     1,
-    magnitude / ELECTROMAGNETIC_MAX_MAGNETIC_FIELD_STRENGTH,
+    magnitude / maxMagneticFieldStrength.value,
   );
   const spacing = 120 - Math.sqrt(normalizedMagnitude) * 70;
   const center = ARENA_VISUAL_SIZE / 2;
@@ -131,11 +156,27 @@ function onInitialDirectionInput(event: Event): void {
       <div class="decay-note">
         {{ t("electromagneticCrystals.powerRule", {
           gain: crossingGainText,
-          cost: teleportCostText,
           divisor: decayText,
         }) }}
       </div>
     </header>
+
+    <section class="resonance-card">
+      <div class="resonance-copy">
+        <div class="resonance-title">{{ t("electromagneticCrystals.resonanceTitle") }}</div>
+        <p>{{ t("electromagneticCrystals.resonanceDescription", {
+          exponent: dreamCrystalExponentText,
+        }) }}</p>
+      </div>
+      <div class="resonance-result">
+        <span>{{ t("electromagneticCrystals.resonanceCurrent", {
+          power: powerText,
+          exponent: dreamCrystalExponentText,
+        }) }}</span>
+        <strong>×{{ dreamCrystalMultiplierText }}</strong>
+        <small>{{ t("electromagneticCrystals.resonanceTarget") }}</small>
+      </div>
+    </section>
 
     <div class="demo-layout">
       <div class="arena-scroll">
@@ -174,10 +215,16 @@ function onInitialDirectionInput(event: Event): void {
           </svg>
 
           <div
-            v-for="lineX in ELECTROMAGNETIC_JUDGE_LINE_X"
-            :key="lineX"
-            class="judge-line"
+            v-for="lineX in verticalJudgeLines"
+            :key="`vertical-${lineX}`"
+            class="judge-line judge-line-vertical"
             :style="{ left: `${lineX * 100}%` }"
+          />
+          <div
+            v-for="lineY in horizontalJudgeLines"
+            :key="`horizontal-${lineY}`"
+            class="judge-line judge-line-horizontal"
+            :style="{ top: `${lineY * 100}%` }"
           />
 
           <div class="particle" :style="particleStyle" aria-hidden="true">+</div>
@@ -209,7 +256,7 @@ function onInitialDirectionInput(event: Event): void {
           <input
             type="range"
             :min="ELECTROMAGNETIC_MIN_ELECTRIC_FIELD_STRENGTH"
-            :max="ELECTROMAGNETIC_MAX_ELECTRIC_FIELD_STRENGTH"
+            :max="maxElectricFieldStrength"
             step="0.05"
             :value="electromagnetic.electricFieldStrength"
             @input="onElectricStrengthInput"
@@ -225,8 +272,8 @@ function onInitialDirectionInput(event: Event): void {
           <input
             class="magnetic-strength-slider"
             type="range"
-            :min="ELECTROMAGNETIC_MIN_MAGNETIC_FIELD_STRENGTH"
-            :max="ELECTROMAGNETIC_MAX_MAGNETIC_FIELD_STRENGTH"
+            :min="minMagneticFieldStrength"
+            :max="maxMagneticFieldStrength"
             step="0.05"
             :value="electromagnetic.magneticFieldStrength"
             @input="onMagneticStrengthInput"
@@ -322,6 +369,25 @@ function onInitialDirectionInput(event: Event): void {
 
 .decay-note { color: #8fb9c5; font-size: 0.82rem; }
 
+.resonance-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
+  border: 1px solid rgba(91, 203, 226, 0.38);
+  border-radius: 8px;
+  background: linear-gradient(120deg, rgba(13, 45, 61, 0.9), rgba(8, 23, 39, 0.96));
+  text-align: left;
+}
+
+.resonance-title { color: #b7f4ff; font-weight: 850; }
+.resonance-copy p { max-width: 600px; margin: 5px 0 0; color: #8fb9c5; font-size: 0.82rem; line-height: 1.5; }
+.resonance-result { display: grid; flex: 0 0 auto; justify-items: end; gap: 1px; }
+.resonance-result span, .resonance-result small { color: #78aab6; font-size: 0.72rem; }
+.resonance-result strong { color: #f0fdff; font-family: var(--font-number); font-size: 1.35rem; }
+
 .demo-layout {
   display: grid;
   grid-template-columns: 540px minmax(280px, 1fr);
@@ -390,13 +456,24 @@ function onInitialDirectionInput(event: Event): void {
 
 .judge-line {
   position: absolute;
+  z-index: 2;
+  box-shadow: 0 0 9px rgba(255, 212, 80, 0.82);
+}
+
+.judge-line-vertical {
   top: 0;
   bottom: 0;
   width: 2px;
-  z-index: 2;
   transform: translateX(-1px);
   background: linear-gradient(180deg, #ffdb68, #fff5ba 45%, #ffbd3f);
-  box-shadow: 0 0 9px rgba(255, 212, 80, 0.82);
+}
+
+.judge-line-horizontal {
+  left: 0;
+  right: 0;
+  height: 2px;
+  transform: translateY(-1px);
+  background: linear-gradient(90deg, #ffdb68, #fff5ba 45%, #ffbd3f);
 }
 
 .particle {
@@ -484,6 +561,8 @@ function onInitialDirectionInput(event: Event): void {
 .hint { margin: 0; color: #688e99; font-size: 0.78rem; line-height: 1.5; }
 
 @media (max-width: 900px) {
+  .resonance-card { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .resonance-result { justify-items: start; }
   .demo-layout { grid-template-columns: 1fr; }
   .arena-scroll { width: 100%; box-sizing: border-box; }
 }
