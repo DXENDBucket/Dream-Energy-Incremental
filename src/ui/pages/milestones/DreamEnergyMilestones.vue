@@ -5,12 +5,15 @@ import type { GameState } from "@/engine/core/state";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import {
   MILESTONE_ORDER,
+  MILESTONE_FOUR_PLACEHOLDER_ID,
+  UNLOCK_ELECTROMAGNETIC_CRYSTALS_MILESTONE_ID,
   getMilestoneRequirement,
   hasMilestone,
   canClaimMilestone,
   claimMilestone,
   type MilestoneId,
 } from "@/engine/strata/common/milestones";
+import { isCrushThreeActive } from "@/engine/crush/effects";
 import {
   getMilestoneRequirementLabel,
   getMilestoneUiText,
@@ -28,26 +31,36 @@ const claimEffectId = ref<string | null>(null);
 let claimEffectTimer: number | null = null;
 
 const milestoneRows = computed(() => {
-  return MILESTONE_ORDER.map((id) => {
-    const uiText = getMilestoneUiText(t, id as MilestoneId);
-    const claimed = hasMilestone(activeStratum.value.milestones, id);
-    const canClaim = canClaimMilestone(activeStratum.value, id);
+  const crushThreeActive = isCrushThreeActive(activeStratum.value);
+  return MILESTONE_ORDER
+    .filter(id => !crushThreeActive || id !== UNLOCK_ELECTROMAGNETIC_CRYSTALS_MILESTONE_ID)
+    .map((id) => {
+      const defaultUiText = getMilestoneUiText(t, id as MilestoneId);
+      const uiText = crushThreeActive && id === MILESTONE_FOUR_PLACEHOLDER_ID
+        ? {
+            title: t("milestones.content.crushThreeElectromagneticUnlock.title"),
+            rewardText: t("milestones.content.crushThreeElectromagneticUnlock.reward"),
+            description: t("milestones.content.crushThreeElectromagneticUnlock.description"),
+          }
+        : defaultUiText;
+      const claimed = hasMilestone(activeStratum.value.milestones, id);
+      const canClaim = canClaimMilestone(activeStratum.value, id);
 
-    return {
-      id,
-      title: uiText.title,
-      description: uiText.description,
-      rewardText: uiText.rewardText,
-      requirementText: getMilestoneRequirementLabel(t, getMilestoneRequirement(id)),
-      claimed,
-      canClaim,
-      statusText: claimed
-        ? t("milestones.claimed")
-        : canClaim
-          ? t("milestones.reachable")
-          : t("milestones.unreached"),
-    };
-  });
+      return {
+        id,
+        title: uiText.title,
+        description: uiText.description,
+        rewardText: uiText.rewardText,
+        requirementText: getMilestoneRequirementLabel(t, getMilestoneRequirement(id)),
+        claimed,
+        canClaim,
+        statusText: claimed
+          ? t("milestones.claimed")
+          : canClaim
+            ? t("milestones.reachable")
+            : t("milestones.unreached"),
+      };
+    });
 });
 
 function onClaimMilestone(id: string) {

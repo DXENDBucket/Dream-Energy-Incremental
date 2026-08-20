@@ -391,7 +391,7 @@ export default {
     kicker: "GLOBAL PRESTIGE",
     title: "Crush Milestones",
     description: "Crush Milestones are shared across all strata. Each Crush completed in the fourth stratum permanently adds one, and every milestone gives every Dream Crystal in every stratum an additional ×10 multiplier.",
-    placeholderNote: "The global ×10 Dream Crystal bonus, Crush I, and Crush II are active. Later milestone effects remain placeholders.",
+    placeholderNote: "The global ×10 Dream Crystal bonus and the effects of Crush I through Crush III are active. Later milestone effects remain placeholders.",
     currentDcBonus: "Current global DC bonus: ×{value}",
     reached: "Reached",
     next: "Next",
@@ -407,7 +407,7 @@ export default {
       },
       "3": {
         title: "Crush III",
-        effect: "Concept Crystals are unlocked from the start, but Dream Crystals 5 and 6 cannot produce.",
+        effect: "Concept Crystals start unlocked, the first circuit-speed upgrade costs only 10 DE, and the former Concept milestone unlocks Electromagnetic Crystals; Dream Crystals 5 and 6 cannot produce.",
       },
       "4": {
         title: "Crush IV",
@@ -449,7 +449,7 @@ export default {
       rewardTitle: "Will gain",
       reward: "+1 global Crush Milestone ({current} → {next}); this Crush gives every DC in every stratum ×10, bringing the cumulative global multiplier to ×{multiplier}.",
       nextEffect: "Next milestone: {effect}",
-      placeholderWarning: "Milestones are recorded normally. Crush I and Crush II are active; the individual effects of later milestones remain placeholders.",
+      placeholderWarning: "Milestones are recorded normally. Crush I through Crush III are active; the individual effects of later milestones remain placeholders.",
       cancel: "Cancel",
     },
   },
@@ -641,6 +641,11 @@ export default {
         title: "Milestone 4",
         reward: "Unlock Concept Crystals.",
         description: "Dream Energy pressure condenses into a new shape. A sixfold circuit begins to turn.",
+      },
+      crushThreeElectromagneticUnlock: {
+        title: "Milestone 4",
+        reward: "Unlock Electromagnetic Crystals in this stratum.",
+        description: "Concept Crystals are already unlocked at the start of this stratum; their former milestone now opens the looping electromagnetic field.",
       },
       unlockElectromagneticCrystals: {
         title: "Milestone 5",

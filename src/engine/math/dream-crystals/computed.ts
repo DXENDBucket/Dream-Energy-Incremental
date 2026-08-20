@@ -13,7 +13,7 @@ import {
 import { applyEntropyToProduction } from "@/engine/strata/common/entropy";
 import { getConceptCrystalDreamCrystalCostGrowthFactor } from "@/engine/strata/common/concept-crystals";
 import { getElectromagneticDreamCrystalMultiplier } from "@/engine/electromagnetic-crystals";
-import { isDreamCrystalProductionDisabledByCrushOne } from "@/engine/crush/effects";
+import { isDreamCrystalProductionDisabledByCrush } from "@/engine/crush/effects";
 
 const DREAM_CRYSTAL_COST_SOFTCAP_START = 20;
 const DREAM_CRYSTAL_COST_SOFTCAP_EXACT_STEPS = 128;
@@ -149,7 +149,7 @@ export function getDreamCrystalIncrement(
 ) {
     if (tier == 8) { return ZERO }
     const sourceTier = tier + 1;
-    if (isDreamCrystalProductionDisabledByCrushOne(stratum, sourceTier)) return ZERO;
+    if (isDreamCrystalProductionDisabledByCrush(stratum, sourceTier)) return ZERO;
     const multiplier = getDreamCrystalMultiplier(stratum, sourceTier);
     const amount = getDreamCrystalAmount(stratum.dreamCrystals, sourceTier);
     return applyEntropyToProduction(stratum, mul(multiplier, amount))

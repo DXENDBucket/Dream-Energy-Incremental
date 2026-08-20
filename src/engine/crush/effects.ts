@@ -9,16 +9,21 @@ export function isCrushTwoActive(stratum: StratumState): boolean {
   return (stratum.crushMilestoneCount ?? 0) >= 2;
 }
 
+export function isCrushThreeActive(stratum: StratumState): boolean {
+  return (stratum.crushMilestoneCount ?? 0) >= 3;
+}
+
 export function getCrushOneChaoticEtherGainMultiplier(stratum: StratumState): Num {
   if (!isCrushOneActive(stratum)) return ONE;
   const bestDreamEnergyLog2 = logn(max(stratum.bestDreamEnergy, ONE), N(2));
   return max(ONE, pow(bestDreamEnergyLog2, N(4)));
 }
 
-export function isDreamCrystalProductionDisabledByCrushOne(
+export function isDreamCrystalProductionDisabledByCrush(
   stratum: StratumState,
   sourceTier: number,
 ): boolean {
+  if (isCrushThreeActive(stratum) && sourceTier >= 5) return true;
   return isCrushOneActive(stratum) && sourceTier >= 7;
 }
 

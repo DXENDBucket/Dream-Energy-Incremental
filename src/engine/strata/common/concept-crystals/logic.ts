@@ -5,7 +5,7 @@ import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals/
 import { getDreamEnergy, setDreamEnergy, spendDreamEnergy } from "@/engine/strata/common/dream-energy";
 import type { StratumState } from "@/engine/strata/state";
 import { isConceptCrystalsUnlocked } from "@/engine/strata/common/milestones";
-import { isCrushTwoActive } from "@/engine/crush/effects";
+import { isCrushThreeActive, isCrushTwoActive } from "@/engine/crush/effects";
 import {
   CONCEPT_CRYSTAL_CONDENSE_DREAM_CRYSTAL_TIER,
   CONCEPT_CRYSTAL_BASE_PRODUCTION_INTERVAL_SEC,
@@ -73,8 +73,11 @@ export function getConceptCrystalProductionInterval(stratum: StratumState): Num 
 
 export function getConceptCrystalIntervalUpgradeRequirement(stratum: StratumState): Num {
   const conceptCrystals = ensureConceptCrystalsState(stratum);
+  const baseRequirement = isCrushThreeActive(stratum)
+    ? TEN
+    : CONCEPT_CRYSTAL_INTERVAL_UPGRADE_REQUIREMENT;
   return mul(
-    CONCEPT_CRYSTAL_INTERVAL_UPGRADE_REQUIREMENT,
+    baseRequirement,
     pow(CONCEPT_CRYSTAL_INTERVAL_UPGRADE_REQUIREMENT_SCALE, conceptCrystals.intervalUpgrades),
   );
 }
@@ -91,6 +94,9 @@ export function upgradeConceptCrystalInterval(stratum: StratumState): void {
   const requirement = getConceptCrystalIntervalUpgradeRequirement(stratum);
 
   spendDreamEnergy(stratum, requirement);
+  if (isCrushThreeActive(stratum) && getDreamEnergy(stratum).lt(TEN)) {
+    setDreamEnergy(stratum, TEN);
+  }
   conceptCrystals.intervalUpgrades = add(conceptCrystals.intervalUpgrades, 1);
 }
 

@@ -391,7 +391,7 @@ export default {
     kicker: "GLOBAL PRESTIGE",
     title: "Crush Milestones",
     description: "Crush Milestones 跨层共享，每次在第四层完成 Crush 都会永久增加 1；每项里程碑使所有层的所有梦境水晶获得额外 ×10 multiplier。",
-    placeholderNote: "全局梦境水晶 ×10、Crush I 与 Crush II 效果已经实装；后续里程碑效果暂为占位。",
+    placeholderNote: "全局梦境水晶 ×10，以及 Crush I 至 Crush III 的效果已经实装；后续里程碑效果暂为占位。",
     currentDcBonus: "当前全局 DC 加成：×{value}",
     reached: "已获得",
     next: "下一项",
@@ -407,7 +407,7 @@ export default {
       },
       "3": {
         title: "Crush III",
-        effect: "概念水晶初始解锁，但第 5、6 层梦境水晶不会生产。",
+        effect: "概念水晶初始解锁，第一次回路速率升级仅需 10 DE，原概念里程碑改为解锁电磁水晶；第 5、6 阶梦境水晶无法生产。",
       },
       "4": {
         title: "Crush IV",
@@ -449,7 +449,7 @@ export default {
       rewardTitle: "将会获得",
       reward: "+1 全局 Crush Milestone（{current} → {next}）；本次使所有层所有 DC ×10，累计全局 multiplier 变为 ×{multiplier}。",
       nextEffect: "下一项里程碑：{effect}",
-      placeholderWarning: "里程碑会正常记录；Crush I 与 Crush II 效果已经实装，后续里程碑的独立效果暂为占位。",
+      placeholderWarning: "里程碑会正常记录；Crush I 至 Crush III 效果已经实装，后续里程碑的独立效果暂为占位。",
       cancel: "取消",
     },
   },
@@ -640,6 +640,11 @@ export default {
         title: "里程碑 4",
         reward: "解锁概念水晶。",
         description: "梦能的压力凝成了新的形状。一个六重回路开始缓慢转动。",
+      },
+      crushThreeElectromagneticUnlock: {
+        title: "里程碑 4",
+        reward: "解锁本层的电磁水晶。",
+        description: "概念水晶已经在本层初始解锁；原有的概念里程碑现在用于开启循环电磁场。",
       },
       unlockElectromagneticCrystals: {
         title: "里程碑 5",

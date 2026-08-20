@@ -10,6 +10,7 @@ import {
   UNLOCK_ELECTROMAGNETIC_CRYSTALS_MILESTONE_ID,
 } from "@/engine/strata/common/milestones/balance";
 import { getMilestoneRequirement } from "./definitions";
+import { isCrushThreeActive } from "@/engine/crush/effects";
 
 export function canClaimMilestone(stratum: StratumState, id: string): boolean {
   if (hasMilestone(stratum.milestones, id)) return false;
@@ -41,9 +42,14 @@ export function isCoherenceUpgradesUnlocked(stratum: StratumState): boolean {
 }
 
 export function isConceptCrystalsUnlocked(stratum: StratumState): boolean {
-  return hasMilestone(stratum.milestones, MILESTONE_FOUR_PLACEHOLDER_ID);
+  return isCrushThreeActive(stratum)
+    || hasMilestone(stratum.milestones, MILESTONE_FOUR_PLACEHOLDER_ID);
 }
 
 export function isElectromagneticCrystalsUnlocked(stratum: StratumState): boolean {
-  return hasMilestone(stratum.milestones, UNLOCK_ELECTROMAGNETIC_CRYSTALS_MILESTONE_ID);
+  return hasMilestone(stratum.milestones, UNLOCK_ELECTROMAGNETIC_CRYSTALS_MILESTONE_ID)
+    || (
+      isCrushThreeActive(stratum)
+      && hasMilestone(stratum.milestones, MILESTONE_FOUR_PLACEHOLDER_ID)
+    );
 }
