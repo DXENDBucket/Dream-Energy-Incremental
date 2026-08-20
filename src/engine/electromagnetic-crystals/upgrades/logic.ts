@@ -6,6 +6,7 @@ import {
   add,
   floor,
   gte,
+  log10,
   max,
   mul,
   normalizeNum,
@@ -20,6 +21,8 @@ import {
   setChaoticEther,
 } from "@/engine/strata/common/chaotic-ether";
 import {
+  ELECTROMAGNETIC_UPGRADE_ADVANCED_POWER_GAIN_ID,
+  ELECTROMAGNETIC_UPGRADE_COHERENCE_POINT_GAIN_ID,
   ELECTROMAGNETIC_UPGRADE_CONVERSION_EXPONENT_ID,
   ELECTROMAGNETIC_UPGRADE_ELECTRIC_FIELD_RANGE_ID,
   ELECTROMAGNETIC_UPGRADE_HORIZONTAL_JUDGE_LINES_ID,
@@ -72,10 +75,20 @@ export function getElectromagneticUpgradeCost(
   const definition = getElectromagneticUpgradeDefinition(id);
   if (!definition.baseCost) return ZERO;
   if (definition.kind !== "repeatable") return definition.baseCost;
+  if (isElectromagneticRepeatableUpgradeMaxed(stratum, id)) return ZERO;
   return mul(
     definition.baseCost,
     pow(definition.costScale ?? ONE, getElectromagneticRepeatableUpgradeBought(stratum, id)),
   );
+}
+
+export function isElectromagneticRepeatableUpgradeMaxed(
+  stratum: StratumState,
+  id: ElectromagneticUpgradeId,
+): boolean {
+  const definition = getElectromagneticUpgradeDefinition(id);
+  if (definition.kind !== "repeatable" || !definition.maxPurchases) return false;
+  return gte(getElectromagneticRepeatableUpgradeBought(stratum, id), definition.maxPurchases);
 }
 
 export function getElectromagneticUpgradeRowIndex(id: ElectromagneticUpgradeId): number {
@@ -128,6 +141,7 @@ export function canBuyElectromagneticUpgrade(
   const definition = getElectromagneticUpgradeDefinition(id);
   if (definition.kind === "placeholder") return false;
   if (definition.kind === "single" && hasElectromagneticUpgrade(stratum, id)) return false;
+  if (isElectromagneticRepeatableUpgradeMaxed(stratum, id)) return false;
   return gte(
     getElectromagneticUpgradeResourceAmount(stratum, id),
     getElectromagneticUpgradeCost(stratum, id),
@@ -190,6 +204,28 @@ export function getElectromagneticUpgradePowerGainMultiplier(stratum: StratumSta
   return pow(
     N(2),
     getElectromagneticRepeatableUpgradeBought(stratum, ELECTROMAGNETIC_UPGRADE_POWER_GAIN_ID),
+  );
+}
+
+export function getElectromagneticUpgradeAdvancedPowerGainMultiplier(stratum: StratumState): Num {
+  return pow(
+    N(2),
+    getElectromagneticRepeatableUpgradeBought(
+      stratum,
+      ELECTROMAGNETIC_UPGRADE_ADVANCED_POWER_GAIN_ID,
+    ),
+  );
+}
+
+export function getElectromagneticUpgradeCoherencePointGainMultiplier(
+  stratum: StratumState,
+): Num {
+  if (!hasElectromagneticUpgrade(stratum, ELECTROMAGNETIC_UPGRADE_COHERENCE_POINT_GAIN_ID)) {
+    return ONE;
+  }
+  return max(
+    ONE,
+    pow(log10(max(stratum.electromagneticCrystals.power, N(10))), N(2)),
   );
 }
 

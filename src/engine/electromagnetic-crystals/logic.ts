@@ -10,6 +10,7 @@ import {
 } from "./state";
 import {
   ensureElectromagneticUpgradesState,
+  getElectromagneticUpgradeAdvancedPowerGainMultiplier,
   getElectromagneticUpgradeDecayRateMultiplier,
   getElectromagneticUpgradeConversionExponentBonus,
   getElectromagneticUpgradePowerGainMultiplier,
@@ -152,10 +153,13 @@ export function getElectromagneticPowerPerCrossing(state: StratumState): Num {
   return mul(
     mul(
       mul(
-        ELECTROMAGNETIC_POWER_PER_CROSSING,
-        state.characterElectromagneticPowerGainMultiplier ?? ONE,
+        mul(
+          ELECTROMAGNETIC_POWER_PER_CROSSING,
+          state.characterElectromagneticPowerGainMultiplier ?? ONE,
+        ),
+        getElectromagneticUpgradePowerGainMultiplier(state),
       ),
-      getElectromagneticUpgradePowerGainMultiplier(state),
+      getElectromagneticUpgradeAdvancedPowerGainMultiplier(state),
     ),
     getCoherenceElectromagneticPowerGainMultiplier(state),
   );

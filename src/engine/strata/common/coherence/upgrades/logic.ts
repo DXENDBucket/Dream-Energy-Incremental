@@ -29,6 +29,7 @@ import {
   type CoherenceUpgradesState,
 } from "./state";
 import { getConceptCrystalCoherencePointGainMultiplier } from "@/engine/strata/common/concept-crystals";
+import { getElectromagneticUpgradeCoherencePointGainMultiplier } from "@/engine/electromagnetic-crystals/upgrades";
 import {
   getNextStratumDefinition,
   STRATUM_DEFINITIONS,
@@ -226,8 +227,11 @@ export function getCoherencePointGainMultiplier(stratum: StratumState): Num {
 
   const upgradeMultiplier = bought.lte(ZERO) ? ONE : pow(N(2), bought);
   return mul(
-    mul(upgradeMultiplier, getConceptCrystalCoherencePointGainMultiplier(stratum)),
-    stratum.characterCoherencePointGainMultiplier ?? ONE,
+    mul(
+      mul(upgradeMultiplier, getConceptCrystalCoherencePointGainMultiplier(stratum)),
+      stratum.characterCoherencePointGainMultiplier ?? ONE,
+    ),
+    getElectromagneticUpgradeCoherencePointGainMultiplier(stratum),
   );
 }
 

@@ -94,6 +94,7 @@ export default {
       "entry-coherence": "入层 CP 加成",
       "coherence-records": "跨层最高纪录",
       "crush-milestones": "Crush Milestones",
+      "crush-one": "Crush I",
       characters: "角色加成",
       "electromagnetic-power": "电磁共振",
       "multiplier-power": "DC Multiplier Power",
@@ -385,8 +386,8 @@ export default {
   crushMilestones: {
     kicker: "GLOBAL PRESTIGE",
     title: "Crush Milestones",
-    description: "Crush Milestones 跨层共享，每次在第四层完成 Crush 都会永久增加 1；每项里程碑使所有层的所有梦境水晶获得额外 ×2 multiplier。",
-    placeholderNote: "全局梦境水晶 ×2 加成已经实装；以下各项单独列出的水晶、概念和公式效果暂为占位，尚未参与实际计算。",
+    description: "Crush Milestones 跨层共享，每次在第四层完成 Crush 都会永久增加 1；每项里程碑使所有层的所有梦境水晶获得额外 ×10 multiplier。",
+    placeholderNote: "全局梦境水晶 ×10 加成与 Crush I 效果已经实装；后续里程碑单独列出的效果暂为占位。",
     currentDcBonus: "当前全局 DC 加成：×{value}",
     reached: "已获得",
     next: "下一项",
@@ -394,7 +395,7 @@ export default {
     items: {
       "1": {
         title: "Crush I",
-        effect: "CE 获取量基于当前层历史最高梦能显著增加，但第 7、8 层梦境水晶不会生产。",
+        effect: "CE 获取量乘以 log2(当前层历史最高 DE)^4，但第 7、8 阶梦境水晶无法生产。",
       },
       "2": {
         title: "Crush II",
@@ -444,7 +445,7 @@ export default {
       rewardTitle: "将会获得",
       reward: "+1 全局 Crush Milestone（{current} → {next}）；所有层所有 DC 的全局 multiplier 变为 ×{multiplier}。",
       nextEffect: "下一项里程碑：{effect}",
-      placeholderWarning: "里程碑会正常记录；其中标注于页面的机制效果目前仍为占位。",
+      placeholderWarning: "里程碑会正常记录；Crush I 效果已经实装，后续里程碑的独立效果暂为占位。",
       cancel: "取消",
     },
   },
@@ -494,6 +495,7 @@ export default {
     buy: "购买",
     buyRepeatable: "再次购买",
     purchased: "已购买",
+    maxed: "已满级",
     pending: "价格待定｜有待测试",
     rowLocked: "需要先购买上一行的一次性升级",
     testingStatus: "目标效果已预留，暂不可购买",
@@ -505,6 +507,8 @@ export default {
     powerGainStatus: "已购买 {count} 次｜升级提供 EP 获取 ×{value}",
     exponentStatus: "已购买 {count} 次｜当前 EP 转化指数 ^{value}",
     decayRateStatus: "已购买 {count} 次｜当前 EP 衰减速度 ×{value}",
+    advancedPowerGainStatus: "已购买 {count} 次｜升级提供碰线 EP ×{value}",
+    coherencePointGainStatus: "当前升级提供 CP 获取 ×{value}",
     cost: {
       "electromagnetic-power": "消耗：{value} EP",
       "dream-energy": "消耗：{value} DE",
@@ -539,17 +543,17 @@ export default {
         title: "横向校准",
         description: "将横向判定线改为三条，分别位于场地高度的 1/4、1/2 与 3/4。",
       },
-      "row-two-placeholder-three": {
-        title: "有待设计",
-        description: "效果与价格暂时待定。",
+      "coherence-point-gain": {
+        title: "电磁调谐",
+        description: "CP 获取乘以当前 EP 的 log10 的平方。",
       },
       "power-decay": {
         title: "衰减抑制",
         description: "可重复购买；每次使最终 EP 衰减速度乘以 0.75。",
       },
-      "row-two-placeholder-five": {
-        title: "有待设计",
-        description: "效果与价格暂时待定。",
+      "advanced-power-gain": {
+        title: "感应增幅",
+        description: "可重复购买；每次使碰触判定线获得的 EP 乘以 2。",
       },
     },
   },
@@ -561,6 +565,7 @@ export default {
     coherencePointGainMultiplier: "CP 获取",
     chaoticEtherGainMultiplier: "CE 获取",
     electromagneticPowerGainMultiplier: "EP 获取",
+    shieldingEfficiency: "Shielding efficiency",
     productionZone: "生产区",
     sharedRoster: "共享角色栏",
     emptySlot: "空",
@@ -571,18 +576,21 @@ export default {
     dawn: { name: "Dawn" },
     delta: { name: "Delta" },
     mechanist: { name: "Mechanist" },
+    ace: { name: "Ace" },
     affixes: {
       dreamCrystalMultiplier: "DC 倍率",
       dreamCrystalMultiplierPower: "DC 倍率乘方",
       coherencePointGainMultiplier: "CP 获取",
       chaoticEtherGainMultiplier: "CE 获取",
       electromagneticPowerGainMultiplier: "EP 获取",
+      shieldingEfficiency: "Shielding efficiency",
     },
   },
   characterUnlocks: {
-    realityResources: "现实层 CP：{cp}｜现实层最高 DE：{de}",
+    realityResources: "现实层 CP：{cp}｜最高 DE：{de}｜CE I：{ce}｜EP：{ep}",
     unlockForCP: "解锁 — {cost} CP",
     unlockAtDE: "解锁（需要达到 {requirement} DE）",
+    unlockForCEAndEP: "解锁 — {ce} CE I + {ep} EP",
     unlocked: "已解锁",
     previousRequired: "需要先解锁前一个角色",
   },
@@ -596,6 +604,7 @@ export default {
       "chaotic-ether-1": "现实层 CE I",
       "coherence-points": "现实层 CP",
       "electromagnetic-power": "现实层 EP",
+      "first-stratum-dream-energy": "第一层 DE",
     },
   },
   milestones: {

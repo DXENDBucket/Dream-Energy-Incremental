@@ -17,6 +17,8 @@ import {
   type UnlockableCharacterId,
 } from "@/engine/characters";
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
+import { getChaoticEther } from "@/engine/strata/common/chaotic-ether";
+import { getElectromagneticPower } from "@/engine/electromagnetic-crystals";
 import { realityStratumId } from "@/engine/strata/defs";
 
 const props = defineProps<{ game: { state: GameState } }>();
@@ -28,6 +30,12 @@ const realityCoherencePoints = computed(() =>
 const realityBestDreamEnergy = computed(() =>
   props.game.state.strata[realityStratumId]!.bestDreamEnergy,
 );
+const realityChaoticEther = computed(() =>
+  getChaoticEther(props.game.state.strata[realityStratumId]!, 1),
+);
+const realityElectromagneticPower = computed(() =>
+  getElectromagneticPower(props.game.state.strata[realityStratumId]!),
+);
 const unlockRows = computed(() => CHARACTER_UNLOCK_ORDER.map(characterId => {
   const character = getCharacterDefinition(characterId)!;
   const unlockDefinition = CHARACTER_UNLOCK_DEFINITIONS[characterId];
@@ -36,6 +44,9 @@ const unlockRows = computed(() => CHARACTER_UNLOCK_ORDER.map(characterId => {
     character,
     unlockKind: unlockDefinition.kind,
     requirementText: format(unlockDefinition.requirement),
+    secondaryRequirementText: unlockDefinition.secondaryRequirement
+      ? format(unlockDefinition.secondaryRequirement)
+      : "",
     owned: isCharacterOwned(props.game.state, characterId),
     available: isCharacterUnlockAvailable(props.game.state, characterId),
     canUnlock: canUnlockCharacter(props.game.state, characterId),
@@ -64,6 +75,8 @@ function onUnlock(characterId: UnlockableCharacterId): void {
       {{ t("characterUnlocks.realityResources", {
         cp: formatInt(realityCoherencePoints),
         de: format(realityBestDreamEnergy),
+        ce: format(realityChaoticEther),
+        ep: format(realityElectromagneticPower),
       }) }}
     </div>
 
@@ -95,6 +108,12 @@ function onUnlock(characterId: UnlockableCharacterId): void {
           <template v-else-if="!row.available">{{ t("characterUnlocks.previousRequired") }}</template>
           <template v-else-if="row.unlockKind === 'best-dream-energy'">
             {{ t("characterUnlocks.unlockAtDE", { requirement: row.requirementText }) }}
+          </template>
+          <template v-else-if="row.unlockKind === 'chaotic-ether-and-power-cost'">
+            {{ t("characterUnlocks.unlockForCEAndEP", {
+              ce: row.requirementText,
+              ep: row.secondaryRequirementText,
+            }) }}
           </template>
           <template v-else>{{ t("characterUnlocks.unlockForCP", { cost: row.requirementText }) }}</template>
         </button>
@@ -149,6 +168,12 @@ function onUnlock(characterId: UnlockableCharacterId): void {
   --theme-border: #ffad5c;
   --theme-background: linear-gradient(150deg, #543015, #211006 68%);
   --theme-glow: rgba(255,139,48,0.16);
+}
+
+.theme-shielding {
+  --theme-border: #9eeaff;
+  --theme-background: linear-gradient(150deg, #285d70, #0a2132 68%);
+  --theme-glow: rgba(104,207,255,0.16);
 }
 
 .unlock-card.locked { filter: grayscale(0.75); opacity: 0.68; }

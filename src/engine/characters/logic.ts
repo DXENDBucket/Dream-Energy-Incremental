@@ -3,6 +3,7 @@ import { add, mul, normalizeNum, ONE, sub, type Num } from "@/engine/math/num";
 import { STRATUM_DEFINITIONS } from "@/engine/strata/defs";
 import {
   ALPHA_CHARACTER_ID,
+  ACE_DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID,
   CHAOTIC_ETHER_GAIN_MULTIPLIER_AFFIX_ID,
   CHARACTER_DEFINITIONS,
   CHARACTER_MIN_LEVEL,
@@ -12,6 +13,7 @@ import {
   DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID,
   DREAM_CRYSTAL_MULTIPLIER_POWER_AFFIX_ID,
   ELECTROMAGNETIC_POWER_GAIN_MULTIPLIER_AFFIX_ID,
+  SHIELDING_EFFICIENCY_AFFIX_ID,
   clampCharacterLevel,
   getCharacterAffixValue,
   getCharacterDefinition,
@@ -317,7 +319,10 @@ export function getCharacterDreamCrystalMultiplier(
   state: GameState,
   stratumId: string,
 ): Num {
-  return getMultiplicativeCharacterAffix(state, stratumId, DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID);
+  return mul(
+    getMultiplicativeCharacterAffix(state, stratumId, DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID),
+    getMultiplicativeCharacterAffix(state, stratumId, ACE_DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID),
+  );
 }
 
 export function getCharacterCoherencePointGainMultiplier(
@@ -353,6 +358,13 @@ export function getCharacterElectromagneticPowerGainMultiplier(
   );
 }
 
+export function getCharacterShieldingEfficiency(
+  state: GameState,
+  stratumId: string,
+): Num {
+  return getMultiplicativeCharacterAffix(state, stratumId, SHIELDING_EFFICIENCY_AFFIX_ID);
+}
+
 export function syncCharacterProductionPowers(state: GameState): void {
   ensureCharacterSystemState(state);
   for (const [stratumId, stratum] of Object.entries(state.strata)) {
@@ -368,5 +380,6 @@ export function syncCharacterProductionPowers(state: GameState): void {
     );
     stratum.characterElectromagneticPowerGainMultiplier =
       getCharacterElectromagneticPowerGainMultiplier(state, stratumId);
+    stratum.characterShieldingEfficiency = getCharacterShieldingEfficiency(state, stratumId);
   }
 }

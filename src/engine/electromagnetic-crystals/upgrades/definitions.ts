@@ -7,9 +7,9 @@ export const ELECTROMAGNETIC_UPGRADE_POWER_GAIN_ID = "power-gain";
 export const ELECTROMAGNETIC_UPGRADE_CONVERSION_EXPONENT_ID = "conversion-exponent";
 export const ELECTROMAGNETIC_UPGRADE_VERTICAL_JUDGE_LINES_ID = "vertical-judge-lines";
 export const ELECTROMAGNETIC_UPGRADE_HORIZONTAL_JUDGE_LINES_THREE_ID = "horizontal-judge-lines-three";
-export const ELECTROMAGNETIC_UPGRADE_ROW_TWO_PLACEHOLDER_THREE_ID = "row-two-placeholder-three";
+export const ELECTROMAGNETIC_UPGRADE_COHERENCE_POINT_GAIN_ID = "coherence-point-gain";
 export const ELECTROMAGNETIC_UPGRADE_POWER_DECAY_ID = "power-decay";
-export const ELECTROMAGNETIC_UPGRADE_ROW_TWO_PLACEHOLDER_FIVE_ID = "row-two-placeholder-five";
+export const ELECTROMAGNETIC_UPGRADE_ADVANCED_POWER_GAIN_ID = "advanced-power-gain";
 
 export const ELECTROMAGNETIC_UPGRADE_ROW_ONE = [
   ELECTROMAGNETIC_UPGRADE_HORIZONTAL_JUDGE_LINES_ID,
@@ -22,9 +22,9 @@ export const ELECTROMAGNETIC_UPGRADE_ROW_ONE = [
 export const ELECTROMAGNETIC_UPGRADE_ROW_TWO = [
   ELECTROMAGNETIC_UPGRADE_VERTICAL_JUDGE_LINES_ID,
   ELECTROMAGNETIC_UPGRADE_HORIZONTAL_JUDGE_LINES_THREE_ID,
-  ELECTROMAGNETIC_UPGRADE_ROW_TWO_PLACEHOLDER_THREE_ID,
+  ELECTROMAGNETIC_UPGRADE_COHERENCE_POINT_GAIN_ID,
   ELECTROMAGNETIC_UPGRADE_POWER_DECAY_ID,
-  ELECTROMAGNETIC_UPGRADE_ROW_TWO_PLACEHOLDER_FIVE_ID,
+  ELECTROMAGNETIC_UPGRADE_ADVANCED_POWER_GAIN_ID,
 ] as const;
 
 export const ELECTROMAGNETIC_UPGRADE_ROWS = [
@@ -41,6 +41,7 @@ export interface ElectromagneticUpgradeDefinition {
   resource?: ElectromagneticUpgradeResource;
   baseCost?: Num;
   costScale?: Num;
+  maxPurchases?: Num;
 }
 
 export const ELECTROMAGNETIC_UPGRADE_DEFINITIONS: Record<
@@ -89,11 +90,13 @@ export const ELECTROMAGNETIC_UPGRADE_DEFINITIONS: Record<
     id: ELECTROMAGNETIC_UPGRADE_HORIZONTAL_JUDGE_LINES_THREE_ID,
     kind: "single",
     resource: "electromagnetic-power",
-    baseCost: N(9.6e3),
+    baseCost: N(5e4),
   },
-  [ELECTROMAGNETIC_UPGRADE_ROW_TWO_PLACEHOLDER_THREE_ID]: {
-    id: ELECTROMAGNETIC_UPGRADE_ROW_TWO_PLACEHOLDER_THREE_ID,
-    kind: "placeholder",
+  [ELECTROMAGNETIC_UPGRADE_COHERENCE_POINT_GAIN_ID]: {
+    id: ELECTROMAGNETIC_UPGRADE_COHERENCE_POINT_GAIN_ID,
+    kind: "single",
+    resource: "electromagnetic-power",
+    baseCost: N(3e12),
   },
   [ELECTROMAGNETIC_UPGRADE_POWER_DECAY_ID]: {
     id: ELECTROMAGNETIC_UPGRADE_POWER_DECAY_ID,
@@ -101,10 +104,14 @@ export const ELECTROMAGNETIC_UPGRADE_DEFINITIONS: Record<
     resource: "electromagnetic-power",
     baseCost: N(3e3),
     costScale: N(2),
+    maxPurchases: N(40),
   },
-  [ELECTROMAGNETIC_UPGRADE_ROW_TWO_PLACEHOLDER_FIVE_ID]: {
-    id: ELECTROMAGNETIC_UPGRADE_ROW_TWO_PLACEHOLDER_FIVE_ID,
-    kind: "placeholder",
+  [ELECTROMAGNETIC_UPGRADE_ADVANCED_POWER_GAIN_ID]: {
+    id: ELECTROMAGNETIC_UPGRADE_ADVANCED_POWER_GAIN_ID,
+    kind: "repeatable",
+    resource: "electromagnetic-power",
+    baseCost: N(1e4),
+    costScale: N(3),
   },
 };
 

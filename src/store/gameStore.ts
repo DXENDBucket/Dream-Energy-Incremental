@@ -210,8 +210,10 @@ export function createGameStore() {
   function importSaveString(raw: string) {
     try {
       const loaded = importSave(raw);
-      replaceState(loaded);
-      if (!offlineProgress.isActive) saveGame(state);
+      // Manual imports are exact snapshot restores. Applying wall-clock time here
+      // can launch a long offline simulation and make the import appear to do nothing.
+      replaceState(loaded, false);
+      saveGame(state);
       return true;
     } catch (error) {
       console.error("Failed to import save:", error);

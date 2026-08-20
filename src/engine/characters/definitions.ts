@@ -4,6 +4,7 @@ export const ALPHA_CHARACTER_ID = "alpha";
 export const DAWN_CHARACTER_ID = "dawn";
 export const DELTA_CHARACTER_ID = "delta";
 export const MECHANIST_CHARACTER_ID = "mechanist";
+export const ACE_CHARACTER_ID = "ace";
 export const CHARACTER_PRODUCTION_SLOT_COUNT = 2;
 export const CHARACTER_ROSTER_SLOT_COUNT = 40;
 export const CHARACTER_MIN_LEVEL = N(1);
@@ -14,18 +15,24 @@ export const DREAM_CRYSTAL_MULTIPLIER_POWER_AFFIX_ID = "dream-crystal-multiplier
 export const COHERENCE_POINT_GAIN_MULTIPLIER_AFFIX_ID = "coherence-point-gain-multiplier";
 export const CHAOTIC_ETHER_GAIN_MULTIPLIER_AFFIX_ID = "chaotic-ether-gain-multiplier";
 export const ELECTROMAGNETIC_POWER_GAIN_MULTIPLIER_AFFIX_ID = "electromagnetic-power-gain-multiplier";
+export const ACE_DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID = "ace-dream-crystal-multiplier";
+export const SHIELDING_EFFICIENCY_AFFIX_ID = "shielding-efficiency";
 
 export type CharacterAffixId =
   | typeof DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID
   | typeof DREAM_CRYSTAL_MULTIPLIER_POWER_AFFIX_ID
   | typeof COHERENCE_POINT_GAIN_MULTIPLIER_AFFIX_ID
   | typeof CHAOTIC_ETHER_GAIN_MULTIPLIER_AFFIX_ID
-  | typeof ELECTROMAGNETIC_POWER_GAIN_MULTIPLIER_AFFIX_ID;
+  | typeof ELECTROMAGNETIC_POWER_GAIN_MULTIPLIER_AFFIX_ID
+  | typeof ACE_DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID
+  | typeof SHIELDING_EFFICIENCY_AFFIX_ID;
 
 export type CharacterAffixGrowthCurveId =
   | "shared-dc-multiplier"
+  | "squared-shared-dc-multiplier"
   | "alpha-power"
-  | "support-multiplier";
+  | "support-multiplier"
+  | "shielding-efficiency";
 
 export interface CharacterAffixDefinition {
   id: CharacterAffixId;
@@ -75,13 +82,27 @@ export const CHARACTER_AFFIX_DEFINITIONS: Record<CharacterAffixId, CharacterAffi
     growthCurveId: "support-multiplier",
     operator: "multiply",
   },
+  [ACE_DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID]: {
+    id: ACE_DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID,
+    labelKey: "characters.affixes.dreamCrystalMultiplier",
+    baseValue: N(100),
+    growthCurveId: "squared-shared-dc-multiplier",
+    operator: "multiply",
+  },
+  [SHIELDING_EFFICIENCY_AFFIX_ID]: {
+    id: SHIELDING_EFFICIENCY_AFFIX_ID,
+    labelKey: "characters.affixes.shieldingEfficiency",
+    baseValue: N("1.05"),
+    growthCurveId: "shielding-efficiency",
+    operator: "multiply",
+  },
 };
 
 export interface CharacterDefinition {
   id: string;
   symbol: string;
   nameKey: string;
-  theme: "monochrome" | "cyan" | "gold" | "orange";
+  theme: "monochrome" | "cyan" | "gold" | "orange" | "shielding";
   affixIds: readonly CharacterAffixId[];
 }
 
@@ -114,6 +135,13 @@ export const CHARACTER_DEFINITIONS: readonly CharacterDefinition[] = [
     theme: "orange",
     affixIds: [DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID, ELECTROMAGNETIC_POWER_GAIN_MULTIPLIER_AFFIX_ID],
   },
+  {
+    id: ACE_CHARACTER_ID,
+    symbol: "🛡",
+    nameKey: "characters.ace.name",
+    theme: "shielding",
+    affixIds: [ACE_DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID, SHIELDING_EFFICIENCY_AFFIX_ID],
+  },
 ];
 
 export function getCharacterDefinition(id: string): CharacterDefinition | undefined {
@@ -136,8 +164,14 @@ export function getCharacterAffixValue(id: CharacterAffixId, level: Num): Num {
   if (affix.growthCurveId === "shared-dc-multiplier") {
     return mul(affix.baseValue, pow(N("1.1"), levelsAboveOne));
   }
+  if (affix.growthCurveId === "squared-shared-dc-multiplier") {
+    return pow(mul(N(10), pow(N("1.1"), levelsAboveOne)), N(2));
+  }
   if (affix.growthCurveId === "support-multiplier") {
     return mul(affix.baseValue, pow(N("1.06"), levelsAboveOne));
+  }
+  if (affix.growthCurveId === "shielding-efficiency") {
+    return pow(N("1.05"), clampedLevel);
   }
 
   return add(affix.baseValue, mul(N("0.01"), log10(clampedLevel)));

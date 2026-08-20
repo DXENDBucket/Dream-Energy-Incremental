@@ -27,13 +27,14 @@ export function hasCrushMilestone(state: GameState, index: number): boolean {
 }
 
 export function getCrushDreamCrystalMultiplier(state: GameState): Num {
-  return pow(N(2), getCrushMilestoneCount(state));
+  return pow(N(10), getCrushMilestoneCount(state));
 }
 
 export function syncCrushDreamCrystalMultipliers(state: GameState): void {
   const multiplier = getCrushDreamCrystalMultiplier(state);
   for (const stratum of Object.values(state.strata)) {
     stratum.crushDreamCrystalMultiplier = multiplier;
+    stratum.crushMilestoneCount = getCrushMilestoneCount(state);
   }
 }
 

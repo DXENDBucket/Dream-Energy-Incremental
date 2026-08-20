@@ -155,6 +155,12 @@ function onUpgradeMax(characterId: string): void {
   --theme-glow: rgba(255,139,48,0.14);
 }
 
+.theme-shielding {
+  --theme-border: #9eeaff;
+  --theme-background: linear-gradient(145deg, #285d70, #0a2132 70%);
+  --theme-glow: rgba(104,207,255,0.16);
+}
+
 .identity { display: flex; align-items: center; gap: 15px; }
 .symbol { font: 3.2rem/1 Georgia, serif; text-shadow: 0 0 12px currentColor; }
 h3 { margin: 0 0 4px; }

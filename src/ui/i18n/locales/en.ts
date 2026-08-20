@@ -94,6 +94,7 @@ export default {
       "entry-coherence": "Entry CP Bonus",
       "coherence-records": "Cross-stratum Records",
       "crush-milestones": "Crush Milestones",
+      "crush-one": "Crush I",
       characters: "Characters",
       "electromagnetic-power": "Electromagnetic Resonance",
       "multiplier-power": "DC Multiplier Power",
@@ -385,8 +386,8 @@ export default {
   crushMilestones: {
     kicker: "GLOBAL PRESTIGE",
     title: "Crush Milestones",
-    description: "Crush Milestones are shared across all strata. Each Crush completed in the fourth stratum permanently adds one, and every milestone gives every Dream Crystal in every stratum an additional ×2 multiplier.",
-    placeholderNote: "The global ×2 Dream Crystal bonus is active. The individual crystal, concept, and formula effects listed below remain placeholders and do not yet affect calculations.",
+    description: "Crush Milestones are shared across all strata. Each Crush completed in the fourth stratum permanently adds one, and every milestone gives every Dream Crystal in every stratum an additional ×10 multiplier.",
+    placeholderNote: "The global ×10 Dream Crystal bonus and Crush I are active. Individual effects from later milestones remain placeholders.",
     currentDcBonus: "Current global DC bonus: ×{value}",
     reached: "Reached",
     next: "Next",
@@ -394,7 +395,7 @@ export default {
     items: {
       "1": {
         title: "Crush I",
-        effect: "CE gain is significantly increased based on the current stratum's best Dream Energy, but Dream Crystals 7 and 8 cannot produce.",
+        effect: "CE gain is multiplied by log2(the current stratum's best DE)^4, but Dream Crystals 7 and 8 cannot produce.",
       },
       "2": {
         title: "Crush II",
@@ -444,7 +445,7 @@ export default {
       rewardTitle: "Will gain",
       reward: "+1 global Crush Milestone ({current} → {next}); the global multiplier for every DC in every stratum becomes ×{multiplier}.",
       nextEffect: "Next milestone: {effect}",
-      placeholderWarning: "The milestone is recorded normally; effects marked on its page remain placeholders for now.",
+      placeholderWarning: "Milestones are recorded normally. Crush I is active; the individual effects of later milestones remain placeholders.",
       cancel: "Cancel",
     },
   },
@@ -494,6 +495,7 @@ export default {
     buy: "Buy",
     buyRepeatable: "Buy again",
     purchased: "Purchased",
+    maxed: "Maxed",
     pending: "Price pending | Awaiting testing",
     rowLocked: "Requires the previous row's one-time upgrades",
     testingStatus: "Target effect reserved; not yet purchasable",
@@ -505,6 +507,8 @@ export default {
     powerGainStatus: "Bought {count} times | Upgrade EP gain ×{value}",
     exponentStatus: "Bought {count} times | Current EP conversion exponent ^{value}",
     decayRateStatus: "Bought {count} times | Current EP decay rate ×{value}",
+    advancedPowerGainStatus: "Bought {count} times | Upgrade line-crossing EP ×{value}",
+    coherencePointGainStatus: "Upgrade currently provides CP gain ×{value}",
     cost: {
       "electromagnetic-power": "Cost: {value} EP",
       "dream-energy": "Cost: {value} DE",
@@ -539,17 +543,17 @@ export default {
         title: "Horizontal Calibration",
         description: "Replace the horizontal judge lines with three lines at one-quarter, one-half, and three-quarters of the arena height.",
       },
-      "row-two-placeholder-three": {
-        title: "Awaiting Design",
-        description: "Effect and price are not yet designed.",
+      "coherence-point-gain": {
+        title: "Electromagnetic Tuning",
+        description: "Multiply CP gain by the square of log10 of current EP.",
       },
       "power-decay": {
         title: "Decay Suppression",
         description: "Repeatable; multiply the final EP decay rate by 0.75 each purchase.",
       },
-      "row-two-placeholder-five": {
-        title: "Awaiting Design",
-        description: "Effect and price are not yet designed.",
+      "advanced-power-gain": {
+        title: "Induction Amplification",
+        description: "Repeatable; double EP gained from crossing judge lines each purchase.",
       },
     },
   },
@@ -561,6 +565,7 @@ export default {
     coherencePointGainMultiplier: "CP gain",
     chaoticEtherGainMultiplier: "CE gain",
     electromagneticPowerGainMultiplier: "EP gain",
+    shieldingEfficiency: "Shielding efficiency",
     productionZone: "Production Zone",
     sharedRoster: "Shared Character Roster",
     emptySlot: "Empty",
@@ -571,18 +576,21 @@ export default {
     dawn: { name: "Dawn" },
     delta: { name: "Delta" },
     mechanist: { name: "Mechanist" },
+    ace: { name: "Ace" },
     affixes: {
       dreamCrystalMultiplier: "DC multiplier",
       dreamCrystalMultiplierPower: "DC multiplier power",
       coherencePointGainMultiplier: "CP gain",
       chaoticEtherGainMultiplier: "CE gain",
       electromagneticPowerGainMultiplier: "EP gain",
+      shieldingEfficiency: "Shielding efficiency",
     },
   },
   characterUnlocks: {
-    realityResources: "Reality CP: {cp} | Highest Reality DE: {de}",
+    realityResources: "Reality CP: {cp} | Highest DE: {de} | CE I: {ce} | EP: {ep}",
     unlockForCP: "Unlock — {cost} CP",
     unlockAtDE: "Unlock (requires {requirement} DE reached)",
+    unlockForCEAndEP: "Unlock — {ce} CE I + {ep} EP",
     unlocked: "Unlocked",
     previousRequired: "Unlock the previous character first",
   },
@@ -596,6 +604,7 @@ export default {
       "chaotic-ether-1": "Reality CE I",
       "coherence-points": "Reality CP",
       "electromagnetic-power": "Reality EP",
+      "first-stratum-dream-energy": "First-stratum DE",
     },
   },
   milestones: {

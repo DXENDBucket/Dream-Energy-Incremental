@@ -10,6 +10,8 @@ import {
   getDreamCrystalUpgradeChaoticEtherTier,
 } from "@/engine/strata/common/chaotic-ether";
 import {
+  ELECTROMAGNETIC_UPGRADE_ADVANCED_POWER_GAIN_ID,
+  ELECTROMAGNETIC_UPGRADE_COHERENCE_POINT_GAIN_ID,
   ELECTROMAGNETIC_UPGRADE_CONVERSION_EXPONENT_ID,
   ELECTROMAGNETIC_UPGRADE_ELECTRIC_FIELD_RANGE_ID,
   ELECTROMAGNETIC_UPGRADE_HORIZONTAL_JUDGE_LINES_ID,
@@ -26,12 +28,15 @@ import {
   getElectromagneticPower,
   getElectromagneticRepeatableUpgradeBought,
   getElectromagneticUpgradeDecayRateMultiplier,
+  getElectromagneticUpgradeAdvancedPowerGainMultiplier,
+  getElectromagneticUpgradeCoherencePointGainMultiplier,
   getElectromagneticUpgradeCost,
   getElectromagneticUpgradeDefinition,
   getElectromagneticUpgradePowerGainMultiplier,
   getElectromagneticVerticalJudgeLines,
   hasElectromagneticUpgrade,
   isElectromagneticUpgradeUnlockedForPurchase,
+  isElectromagneticRepeatableUpgradeMaxed,
   type ElectromagneticUpgradeId,
 } from "@/engine/electromagnetic-crystals";
 import UpgradeGridPage from "./UpgradeGridPage.vue";
@@ -95,12 +100,27 @@ function getUpgradeFooter(id: ElectromagneticUpgradeId): string {
       value: format(getElectromagneticUpgradeDecayRateMultiplier(activeStratum.value)),
     });
   }
+  if (id === ELECTROMAGNETIC_UPGRADE_ADVANCED_POWER_GAIN_ID) {
+    return t("electromagneticUpgrades.advancedPowerGainStatus", {
+      count: formatInt(getElectromagneticRepeatableUpgradeBought(activeStratum.value, id)),
+      value: format(getElectromagneticUpgradeAdvancedPowerGainMultiplier(activeStratum.value)),
+    });
+  }
+  if (id === ELECTROMAGNETIC_UPGRADE_COHERENCE_POINT_GAIN_ID) {
+    return t("electromagneticUpgrades.coherencePointGainStatus", {
+      value: format(getElectromagneticUpgradeCoherencePointGainMultiplier(activeStratum.value)),
+    });
+  }
   return t("electromagneticUpgrades.testingStatus");
 }
 
 function getUpgradeCostText(id: ElectromagneticUpgradeId): string {
   const definition = getElectromagneticUpgradeDefinition(id);
-  if (definition.kind === "placeholder" || !definition.resource) return "";
+  if (
+    definition.kind === "placeholder"
+    || !definition.resource
+    || isElectromagneticRepeatableUpgradeMaxed(activeStratum.value, id)
+  ) return "";
   return t(`electromagneticUpgrades.cost.${definition.resource}`, {
     value: format(getElectromagneticUpgradeCost(activeStratum.value, id)),
     tier: chaoticEtherTier.value,
@@ -118,6 +138,9 @@ function getUpgradeStateText(id: ElectromagneticUpgradeId): string {
       ? t("electromagneticUpgrades.purchased")
       : t("electromagneticUpgrades.buy");
   }
+  if (isElectromagneticRepeatableUpgradeMaxed(activeStratum.value, id)) {
+    return t("electromagneticUpgrades.maxed");
+  }
   return getElectromagneticRepeatableUpgradeBought(activeStratum.value, id).gt(0)
     ? t("electromagneticUpgrades.buyRepeatable")
     : t("electromagneticUpgrades.buy");
@@ -125,6 +148,7 @@ function getUpgradeStateText(id: ElectromagneticUpgradeId): string {
 
 const upgradeRows = computed(() => ELECTROMAGNETIC_UPGRADE_ROWS.map(row => row.map(id => {
   const definition = getElectromagneticUpgradeDefinition(id);
+  const isMaxed = isElectromagneticRepeatableUpgradeMaxed(activeStratum.value, id);
   return {
     id,
     title: t(`electromagneticUpgrades.items.${id}.title`),
@@ -133,7 +157,8 @@ const upgradeRows = computed(() => ELECTROMAGNETIC_UPGRADE_ROWS.map(row => row.m
     costText: getUpgradeCostText(id),
     stateText: getUpgradeStateText(id),
     canBuy: canBuyElectromagneticUpgrade(activeStratum.value, id),
-    isBought: definition.kind === "single" && hasElectromagneticUpgrade(activeStratum.value, id),
+    isBought: (definition.kind === "single" && hasElectromagneticUpgrade(activeStratum.value, id))
+      || isMaxed,
   };
 })));
 

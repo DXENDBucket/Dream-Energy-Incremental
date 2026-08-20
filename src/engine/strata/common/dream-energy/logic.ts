@@ -334,7 +334,10 @@ export function getDreamEnergyShieldingStrength(stratum: StratumState): Num {
         ONE,
         mul(log10(tuningRatio), DREAM_ENERGY_SHIELDING_TUNING_REDUCTION_SCALE),
     );
-    return div(baseStrength, tuningReduction);
+    return div(
+        baseStrength,
+        mul(tuningReduction, stratum.characterShieldingEfficiency ?? ONE),
+    );
 }
 
 function getDreamEnergyShieldingRootGrowthPerDecade(stratum: StratumState): Num {

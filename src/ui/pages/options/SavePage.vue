@@ -16,6 +16,11 @@ const HARD_RESET_CONFIRM_TEXT = "BTNB";
 const backupSummaries = ref(props.game.getLocalSaveBackupSummaries());
 
 const statusText = computed(() => t(statusKey.value));
+const importStatusVisible = computed(() => [
+  "save.status.pasteFirst",
+  "save.status.importSuccess",
+  "save.status.importFailed",
+].includes(statusKey.value));
 const latestBackupText = computed(() => {
   const latest = backupSummaries.value[0];
   if (!latest) return t("save.noBackups");
@@ -143,6 +148,10 @@ function onHardReset() {
 
       <div class="button-row">
         <button class="action-button" @click="onImportSave">{{ t("save.importSave") }}</button>
+      </div>
+
+      <div v-if="importStatusVisible" class="status-line import-status-line">
+        {{ statusText }}
       </div>
 
       <div class="section-title section-gap">{{ t("save.autoSave") }}</div>

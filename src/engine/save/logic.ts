@@ -219,8 +219,34 @@ function decodeBase64Utf8(base64: string): string {
   return new TextDecoder().decode(bytes);
 }
 
+function normalizeImportedSaveText(raw: string): string {
+  let normalized = raw.trim();
+
+  if (normalized.startsWith("```") && normalized.endsWith("```")) {
+    normalized = normalized
+      .replace(/^```[^\r\n]*[\r\n]+/, "")
+      .replace(/[\r\n]+```$/, "")
+      .trim();
+  }
+
+  if (
+    (normalized.startsWith('"') && normalized.endsWith('"'))
+    || (normalized.startsWith("'") && normalized.endsWith("'"))
+  ) {
+    try {
+      const unquoted = JSON.parse(normalized);
+      if (typeof unquoted === "string") normalized = unquoted.trim();
+    } catch {
+      normalized = normalized.slice(1, -1).trim();
+    }
+  }
+
+  return normalized;
+}
+
 export function importSave(raw: string): GameState {
-  const parts = raw.split("|");
+  const normalizedRaw = normalizeImportedSaveText(raw);
+  const parts = normalizedRaw.split("|");
 
   if (parts.length < 3) {
     throw new Error("Invalid save format.");
@@ -228,7 +254,7 @@ export function importSave(raw: string): GameState {
 
   const prefix = parts[0];
   const versionText = parts[1];
-  const payload = parts.slice(2).join("|");
+  const payload = parts.slice(2).join("|").replace(/\s+/g, "");
 
   if (prefix !== SAVE_PREFIX) {
     throw new Error("This is not a Dream Energy Incremental save.");
@@ -241,6 +267,10 @@ export function importSave(raw: string): GameState {
 
   const json = decodeBase64Utf8(payload);
   const parsed = JSON.parse(json) as SaveFile;
+
+  if (!isPlainObject(parsed) || !("state" in parsed)) {
+    throw new Error("Save payload does not contain a game state.");
+  }
 
   if (parsed.version !== version) {
     console.warn("Save header version and file version do not match.");

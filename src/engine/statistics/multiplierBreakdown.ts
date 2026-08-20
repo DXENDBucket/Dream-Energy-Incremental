@@ -17,6 +17,7 @@ import {
   sub,
 } from "@/engine/math/num";
 import type { StratumState } from "@/engine/strata/state";
+import { getCrushOneChaoticEtherGainMultiplier } from "@/engine/crush/effects";
 import { DREAM_CRYSTAL_TIERS } from "@/engine/math/dream-crystals";
 import {
   getDreamEnergy,
@@ -378,12 +379,14 @@ export function getChaoticEtherMultiplierBreakdown(
 ): MultiplierBreakdownData {
   const gain = getChaoticEtherGainStages(stratum);
   const characterFactor = stratum.characterChaoticEtherGainMultiplier ?? ONE;
+  const crushOneFactor = getCrushOneChaoticEtherGainMultiplier(stratum);
   return {
     baseValue: gain.base,
-    totalValue: floor(mul(gain.accelerated, characterFactor)),
+    totalValue: floor(mul(mul(gain.accelerated, characterFactor), crushOneFactor)),
     entries: [
       { id: "extraction-acceleration", factor: stageFactor(gain.accelerated, gain.base) },
       { id: "characters", factor: characterFactor },
+      { id: "crush-one", factor: crushOneFactor },
     ],
   };
 }

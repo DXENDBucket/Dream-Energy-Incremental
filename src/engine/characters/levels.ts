@@ -22,8 +22,9 @@ import { getChaoticEther, setChaoticEther } from "@/engine/strata/common/chaotic
 import { getCoherencePoints } from "@/engine/strata/common/coherence";
 import { getDreamEnergy, spendDreamEnergy } from "@/engine/strata/common/dream-energy";
 import { getElectromagneticPower, spendElectromagneticPower } from "@/engine/electromagnetic-crystals";
-import { realityStratumId } from "@/engine/strata/defs";
+import { dreamSeaFirstStratumId, realityStratumId } from "@/engine/strata/defs";
 import {
+  ACE_CHARACTER_ID,
   ALPHA_CHARACTER_ID,
   CHARACTER_MAX_LEVEL,
   DAWN_CHARACTER_ID,
@@ -38,6 +39,7 @@ import {
 
 export type CharacterLevelResource =
   | "dream-energy"
+  | "first-stratum-dream-energy"
   | "chaotic-ether-1"
   | "coherence-points"
   | "electromagnetic-power";
@@ -69,6 +71,11 @@ export const CHARACTER_LEVEL_COST_DEFINITIONS: Record<string, CharacterLevelCost
     baseCost: N(50),
     costScale: N(1.5),
   },
+  [ACE_CHARACTER_ID]: {
+    resource: "first-stratum-dream-energy",
+    baseCost: N(10),
+    costScale: N(15),
+  },
 };
 
 export function getCharacterLevelCostDefinition(
@@ -92,6 +99,10 @@ export function getCharacterLevelResourceAmount(
 ): Num {
   const reality = state.strata[realityStratumId];
   if (!reality) return ZERO;
+  if (resource === "first-stratum-dream-energy") {
+    const firstStratum = state.strata[dreamSeaFirstStratumId];
+    return firstStratum ? getDreamEnergy(firstStratum) : ZERO;
+  }
   if (resource === "dream-energy") return getDreamEnergy(reality);
   if (resource === "chaotic-ether-1") return getChaoticEther(reality, 1);
   if (resource === "electromagnetic-power") return getElectromagneticPower(reality);
@@ -103,7 +114,9 @@ function getSpendableCharacterLevelResourceAmount(
   resource: CharacterLevelResource,
 ): Num {
   const amount = getCharacterLevelResourceAmount(state, resource);
-  return resource === "dream-energy" ? max(ZERO, sub(amount, TEN)) : amount;
+  return resource === "dream-energy" || resource === "first-stratum-dream-energy"
+    ? max(ZERO, sub(amount, TEN))
+    : amount;
 }
 
 export function canUpgradeCharacterLevel(state: GameState, characterId: string): boolean {
@@ -182,6 +195,8 @@ function spendCharacterLevelResource(
   const reality = state.strata[realityStratumId]!;
   if (resource === "dream-energy") {
     spendDreamEnergy(reality, cost);
+  } else if (resource === "first-stratum-dream-energy") {
+    spendDreamEnergy(state.strata[dreamSeaFirstStratumId]!, cost);
   } else if (resource === "chaotic-ether-1") {
     setChaoticEther(reality, 1, sub(getChaoticEther(reality, 1), cost));
   } else if (resource === "electromagnetic-power") {
