@@ -153,6 +153,7 @@ export default {
     nodes: {
       hope: "Hope",
       conquest: "Conquest",
+      consensus: "Consensus",
       law: "Law",
       shackle: "Shackle",
       enlightenment: "Enlightenment",
@@ -179,12 +180,15 @@ export default {
     effect: {
       title: "Current Concept Crystal effect",
       copy: "Opposite concepts cancel when their amounts match. More Concept Crystals raise the concept pulse as an exponent.",
+      copyCrushTwo: "Consensus replaces Conquest, no longer suppresses CP gain, and provides an independent Shielding Efficiency effect. Other opposing concepts still cancel.",
       dcCostGrowth: "Post-20 DC cost growth: ×{value}",
       cpGain: "Coherence Point gain: ×{value}",
       assimilation: "Assimilation strength: ×{value}",
+      shieldingEfficiency: "Shielding Efficiency: ×{value}",
       contributions: {
         hope: "Hope {amount}: Assimilation strength ÷{contribution}",
         conquest: "Conquest {amount}: CP gain ÷{contribution}",
+        consensus: "Consensus {amount}: Shielding Efficiency ×{contribution}",
         law: "Law {amount}: DC cost growth ÷{contribution}",
         shackle: "Shackle {amount}: Assimilation strength ×{contribution}",
         enlightenment: "Enlightenment {amount}: CP gain ×{contribution}",
@@ -387,7 +391,7 @@ export default {
     kicker: "GLOBAL PRESTIGE",
     title: "Crush Milestones",
     description: "Crush Milestones are shared across all strata. Each Crush completed in the fourth stratum permanently adds one, and every milestone gives every Dream Crystal in every stratum an additional ×10 multiplier.",
-    placeholderNote: "The global ×10 Dream Crystal bonus and Crush I are active. Individual effects from later milestones remain placeholders.",
+    placeholderNote: "The global ×10 Dream Crystal bonus, Crush I, and Crush II are active. Later milestone effects remain placeholders.",
     currentDcBonus: "Current global DC bonus: ×{value}",
     reached: "Reached",
     next: "Next",
@@ -399,7 +403,7 @@ export default {
       },
       "2": {
         title: "Crush II",
-        effect: "One negative concept becomes a positive effect, but Entropy penalizes production more severely.",
+        effect: "Conquest becomes Consensus: it no longer reduces CP gain and slightly raises Shielding Efficiency based on its amount; every stratum's effective chaos exponent is doubled.",
       },
       "3": {
         title: "Crush III",

@@ -41,6 +41,7 @@ import {
     getEntropyChaosExponent,
     getEntropyTuningExponent,
 } from "@/engine/strata/common/entropy";
+import { getCrushTwoConsensusShieldingEfficiency } from "@/engine/crush/effects";
 import { realityStratumId } from "@/engine/strata/defs";
 import { getDreamEnergy } from "../../manager/selectors";
 
@@ -336,7 +337,13 @@ export function getDreamEnergyShieldingStrength(stratum: StratumState): Num {
     );
     return div(
         baseStrength,
-        mul(tuningReduction, stratum.characterShieldingEfficiency ?? ONE),
+        mul(
+            tuningReduction,
+            mul(
+                stratum.characterShieldingEfficiency ?? ONE,
+                getCrushTwoConsensusShieldingEfficiency(stratum),
+            ),
+        ),
     );
 }
 

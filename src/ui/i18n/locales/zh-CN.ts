@@ -153,6 +153,7 @@ export default {
     nodes: {
       hope: "希望",
       conquest: "征服",
+      consensus: "共识",
       law: "法度",
       shackle: "桎梏",
       enlightenment: "启蒙",
@@ -179,12 +180,15 @@ export default {
     effect: {
       title: "当前概念水晶效果",
       copy: "相对的概念在数量相同时会彼此抵消。概念水晶数量会作为指数放大这些概念脉冲。",
+      copyCrushTwo: "共识取代了征服，不再压制 CP 获取，并形成独立的 Shielding Efficiency 效果。其余相对概念仍会彼此抵消。",
       dcCostGrowth: "20 个后 DC 价格增长：×{value}",
       cpGain: "调谐点数获取：×{value}",
       assimilation: "兼并强度：×{value}",
+      shieldingEfficiency: "Shielding Efficiency：×{value}",
       contributions: {
         hope: "希望 {amount}：兼并强度 ÷{contribution}",
         conquest: "征服 {amount}：调谐点数获取 ÷{contribution}",
+        consensus: "共识 {amount}：Shielding Efficiency ×{contribution}",
         law: "法度 {amount}：DC 价格增长 ÷{contribution}",
         shackle: "桎梏 {amount}：兼并强度 ×{contribution}",
         enlightenment: "启蒙 {amount}：调谐点数获取 ×{contribution}",
@@ -387,7 +391,7 @@ export default {
     kicker: "GLOBAL PRESTIGE",
     title: "Crush Milestones",
     description: "Crush Milestones 跨层共享，每次在第四层完成 Crush 都会永久增加 1；每项里程碑使所有层的所有梦境水晶获得额外 ×10 multiplier。",
-    placeholderNote: "全局梦境水晶 ×10 加成与 Crush I 效果已经实装；后续里程碑单独列出的效果暂为占位。",
+    placeholderNote: "全局梦境水晶 ×10、Crush I 与 Crush II 效果已经实装；后续里程碑效果暂为占位。",
     currentDcBonus: "当前全局 DC 加成：×{value}",
     reached: "已获得",
     next: "下一项",
@@ -399,7 +403,7 @@ export default {
       },
       "2": {
         title: "Crush II",
-        effect: "一个负面概念被改为正面效果，但 Entropy 对生产的减益更加剧烈。",
+        effect: "征服转化为共识：不再降低 CP 获取，并根据共识数量少量提升 Shielding Efficiency；所有层的有效混沌系数 ×2。",
       },
       "3": {
         title: "Crush III",

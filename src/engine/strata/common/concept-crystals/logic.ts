@@ -5,6 +5,7 @@ import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals/
 import { getDreamEnergy, setDreamEnergy, spendDreamEnergy } from "@/engine/strata/common/dream-energy";
 import type { StratumState } from "@/engine/strata/state";
 import { isConceptCrystalsUnlocked } from "@/engine/strata/common/milestones";
+import { isCrushTwoActive } from "@/engine/crush/effects";
 import {
   CONCEPT_CRYSTAL_CONDENSE_DREAM_CRYSTAL_TIER,
   CONCEPT_CRYSTAL_BASE_PRODUCTION_INTERVAL_SEC,
@@ -209,10 +210,10 @@ export function getConceptCrystalDreamCrystalCostGrowthFactor(stratum: StratumSt
 }
 
 export function getConceptCrystalCoherencePointGainMultiplier(stratum: StratumState): Num {
-  const rawFactor = div(
-    getConceptCrystalNodeContribution(stratum, "enlightenment"),
-    getConceptCrystalNodeContribution(stratum, "conquest"),
-  );
+  const enlightenment = getConceptCrystalNodeContribution(stratum, "enlightenment");
+  const rawFactor = isCrushTwoActive(stratum)
+    ? enlightenment
+    : div(enlightenment, getConceptCrystalNodeContribution(stratum, "conquest"));
 
   return softenConceptCrystalRatio(rawFactor, CONCEPT_CRYSTAL_STANDARD_EFFECT_LOG_POWER);
 }

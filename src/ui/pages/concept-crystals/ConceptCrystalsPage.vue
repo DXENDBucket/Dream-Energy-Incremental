@@ -25,6 +25,10 @@ import {
   type ConceptCrystalNodeId,
 } from "@/engine/strata/common/concept-crystals";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
+import {
+  getCrushTwoConsensusShieldingEfficiency,
+  isCrushTwoActive,
+} from "@/engine/crush/effects";
 
 const props = defineProps<{
   game: {
@@ -57,14 +61,27 @@ const upgradeCountText = computed(() => formatInt(conceptCrystals.value.interval
 const canUpgradeInterval = computed(() => canUpgradeConceptCrystalInterval(activeStratum.value));
 const canCondense = computed(() => canCondenseConceptCrystal(activeStratum.value));
 const isSeveringEnabled = computed(() => conceptCrystals.value.isSeveringEnabled);
+const isConsensusActive = computed(() => isCrushTwoActive(activeStratum.value));
 const dreamCrystalCostGrowthEffectText = computed(() => format(getConceptCrystalDreamCrystalCostGrowthFactor(activeStratum.value)));
 const coherencePointGainEffectText = computed(() => format(getConceptCrystalCoherencePointGainMultiplier(activeStratum.value)));
 const assimilationStrengthEffectText = computed(() => format(getConceptCrystalAssimilationStrengthMultiplier(activeStratum.value)));
+const consensusShieldingEfficiencyText = computed(() => format(
+  getCrushTwoConsensusShieldingEfficiency(activeStratum.value),
+));
+function conceptNodeLabel(id: ConceptCrystalNodeId): string {
+  const key = id === "conquest" && isConsensusActive.value ? "consensus" : id;
+  return t(`conceptCrystals.nodes.${key}`);
+}
 const conceptContributionRows = computed(() => {
   return CONCEPT_CRYSTAL_NODE_IDS.map(id => ({
     id,
+    effectKey: id === "conquest" && isConsensusActive.value ? "consensus" : id,
     amountText: format(conceptCrystals.value.nodes[id]),
-    contributionText: format(getConceptCrystalNodeContribution(activeStratum.value, id)),
+    contributionText: format(
+      id === "conquest" && isConsensusActive.value
+        ? getCrushTwoConsensusShieldingEfficiency(activeStratum.value)
+        : getConceptCrystalNodeContribution(activeStratum.value, id),
+    ),
   }));
 });
 const progressText = computed(() => {
@@ -98,7 +115,8 @@ const nodeRows = computed(() => {
     return {
       id,
       nextId,
-      label: t(`conceptCrystals.nodes.${id}`),
+      label: conceptNodeLabel(id),
+      nextLabel: conceptNodeLabel(nextId),
       amountText: format(conceptCrystals.value.nodes[id]),
       position: nodePositions[id],
       isSeveredSource: isSeveringEnabled.value && severedPath.value.index === index,
@@ -190,7 +208,7 @@ function onCondenseConceptCrystal() {
           type="button"
           :title="t('conceptCrystals.pathTitle', {
             from: node.label,
-            to: t(`conceptCrystals.nodes.${node.nextId}`),
+            to: node.nextLabel,
           })"
           @click="onSelectPath(CONCEPT_CRYSTAL_NODE_IDS.indexOf(node.id))"
         >
@@ -207,9 +225,9 @@ function onCondenseConceptCrystal() {
             <div class="pointer-text">
               <span>{{ t(isSeveringEnabled ? "conceptCrystals.severed" : "conceptCrystals.notSevered") }}</span>
               <strong>
-                {{ t(`conceptCrystals.nodes.${severedPath.from}`) }}
+                {{ conceptNodeLabel(severedPath.from) }}
                 →
-                {{ t(`conceptCrystals.nodes.${severedPath.to}`) }}
+                {{ conceptNodeLabel(severedPath.to) }}
               </strong>
             </div>
             <button type="button" class="pointer-button" :title="t('conceptCrystals.rotateRight')" @click="onRotate(1)">
@@ -243,7 +261,9 @@ function onCondenseConceptCrystal() {
 
     <section class="effect-section">
       <div class="effect-title">{{ t("conceptCrystals.effect.title") }}</div>
-      <div class="effect-copy">{{ t("conceptCrystals.effect.copy") }}</div>
+      <div class="effect-copy">
+        {{ t(isConsensusActive ? "conceptCrystals.effect.copyCrushTwo" : "conceptCrystals.effect.copy") }}
+      </div>
       <div class="effect-grid">
         <div class="effect-line">
           {{ t("conceptCrystals.effect.dcCostGrowth", { value: dreamCrystalCostGrowthEffectText }) }}
@@ -254,6 +274,9 @@ function onCondenseConceptCrystal() {
         <div class="effect-line">
           {{ t("conceptCrystals.effect.assimilation", { value: assimilationStrengthEffectText }) }}
         </div>
+        <div v-if="isConsensusActive" class="effect-line">
+          {{ t("conceptCrystals.effect.shieldingEfficiency", { value: consensusShieldingEfficiencyText }) }}
+        </div>
       </div>
       <div class="contribution-grid">
         <div
@@ -261,7 +284,7 @@ function onCondenseConceptCrystal() {
           :key="row.id"
           class="contribution-line"
         >
-          {{ t(`conceptCrystals.effect.contributions.${row.id}`, {
+          {{ t(`conceptCrystals.effect.contributions.${row.effectKey}`, {
             amount: row.amountText,
             contribution: row.contributionText,
           }) }}

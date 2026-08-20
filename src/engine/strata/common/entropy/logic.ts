@@ -3,6 +3,7 @@ import { ONE, ZERO, add, div, gt, log10, lte, max, min, mul, normalizeNum, pow }
 import { getDreamCrystalAmount } from "@/engine/strata/common/dream-crystals";
 import type { StratumState } from "@/engine/strata/state";
 import { getStratumDefinition } from "@/engine/strata/defs";
+import { isCrushTwoActive } from "@/engine/crush/effects";
 import { ENTROPY_DEFAULT_TUNING_EXPONENT } from "./balance";
 import { createEntropyState, getDefaultEntropyChaosExponent } from "./state";
 
@@ -32,7 +33,8 @@ export function getEntropyTuningExponent(stratum: StratumState): Num {
 }
 
 export function getEntropyChaosExponent(stratum: StratumState): Num {
-  return ensureEntropyState(stratum).chaosExponent;
+  const baseExponent = ensureEntropyState(stratum).chaosExponent;
+  return isCrushTwoActive(stratum) ? mul(baseExponent, 2) : baseExponent;
 }
 
 export function getEntropyGrowthRateMultiplier(stratum: StratumState): Num {

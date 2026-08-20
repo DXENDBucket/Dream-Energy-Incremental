@@ -96,7 +96,7 @@ export const ELECTROMAGNETIC_UPGRADE_DEFINITIONS: Record<
     id: ELECTROMAGNETIC_UPGRADE_COHERENCE_POINT_GAIN_ID,
     kind: "single",
     resource: "electromagnetic-power",
-    baseCost: N(3e12),
+    baseCost: N(2e8),
   },
   [ELECTROMAGNETIC_UPGRADE_POWER_DECAY_ID]: {
     id: ELECTROMAGNETIC_UPGRADE_POWER_DECAY_ID,
