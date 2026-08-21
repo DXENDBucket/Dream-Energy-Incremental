@@ -11,7 +11,11 @@ import {
 } from "@/engine/strata/defs";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import type { StratumState } from "@/engine/strata/state";
-import { getCrushOneChaoticEtherGainMultiplier } from "@/engine/crush/effects";
+import {
+  applyCrushFiveFaithToCharacterBonus,
+  getCrushFiveRevolutionChaoticEtherMultiplier,
+  getCrushOneChaoticEtherGainMultiplier,
+} from "@/engine/crush/effects";
 import {
   CHAOTIC_ETHER_EXTRACT_ACCELERATION_POWER,
   CHAOTIC_ETHER_EXTRACT_ACCELERATION_START,
@@ -117,8 +121,14 @@ export function getChaoticEtherGain(stratum: StratumState): Num {
   const dreamEnergyRatio = div(dreamEnergy, CHAOTIC_ETHER_EXTRACT_REQUIREMENT);
   const baseGain = pow(dreamEnergyRatio, div(ONE, CHAOTIC_ETHER_EXTRACT_LOG_DIVISOR));
   const gainMultiplier = mul(
-    stratum.characterChaoticEtherGainMultiplier ?? ONE,
-    getCrushOneChaoticEtherGainMultiplier(stratum),
+    mul(
+      applyCrushFiveFaithToCharacterBonus(
+        stratum,
+        stratum.characterChaoticEtherGainMultiplier ?? ONE,
+      ),
+      getCrushOneChaoticEtherGainMultiplier(stratum),
+    ),
+    getCrushFiveRevolutionChaoticEtherMultiplier(stratum),
   );
   if (lte(baseGain, CHAOTIC_ETHER_EXTRACT_ACCELERATION_START)) {
     return floor(mul(baseGain, gainMultiplier));

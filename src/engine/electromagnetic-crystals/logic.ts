@@ -2,6 +2,7 @@ import type { StratumState } from "@/engine/strata/state";
 import { N, ONE, ZERO, add, div, gte, lte, max, mul, normalizeNum, pow, sqrt, sub, type Num } from "@/engine/math/num";
 import { isElectromagneticCrystalsUnlocked } from "@/engine/strata/common/milestones";
 import { getCoherenceElectromagneticPowerGainMultiplier } from "@/engine/strata/common/coherence/upgrades";
+import { applyCrushFiveFaithToCharacterBonus } from "@/engine/crush/effects";
 import {
   ELECTROMAGNETIC_DEFAULT_INITIAL_DIRECTION_DEG,
   ELECTROMAGNETIC_DEFAULT_INITIAL_SPEED,
@@ -155,7 +156,10 @@ export function getElectromagneticPowerPerCrossing(state: StratumState): Num {
       mul(
         mul(
           ELECTROMAGNETIC_POWER_PER_CROSSING,
-          state.characterElectromagneticPowerGainMultiplier ?? ONE,
+          applyCrushFiveFaithToCharacterBonus(
+            state,
+            state.characterElectromagneticPowerGainMultiplier ?? ONE,
+          ),
         ),
         getElectromagneticUpgradePowerGainMultiplier(state),
       ),

@@ -17,7 +17,11 @@ import {
   sub,
 } from "@/engine/math/num";
 import type { StratumState } from "@/engine/strata/state";
-import { getCrushOneChaoticEtherGainMultiplier } from "@/engine/crush/effects";
+import {
+  applyCrushFiveFaithToCharacterBonus,
+  getCrushFiveRevolutionChaoticEtherMultiplier,
+  getCrushOneChaoticEtherGainMultiplier,
+} from "@/engine/crush/effects";
 import { DREAM_CRYSTAL_TIERS } from "@/engine/math/dream-crystals";
 import {
   getDreamEnergy,
@@ -126,12 +130,18 @@ export function getDreamCrystalMultiplierBreakdown(
     ?? firstTier;
   const activeTiers = DREAM_CRYSTAL_TIERS.filter(tier => tier <= highestActiveTier);
   const firstTierAmount = getDreamCrystalAmount(stratum.dreamCrystals, firstTier);
-  const multiplierPower = stratum.dreamCrystalMultiplierPower ?? ONE;
+  const multiplierPower = applyCrushFiveFaithToCharacterBonus(
+    stratum,
+    stratum.dreamCrystalMultiplierPower ?? ONE,
+  );
   const currentCoherenceFactor = getDreamCrystalCurrentCoherenceMultiplier(stratum);
   const entryCoherenceFactor = stratum.coherenceDreamCrystalMultiplier ?? ONE;
   const coherenceRecordsFactor = stratum.coherenceProgressionDreamCrystalMultiplier ?? ONE;
   const crushFactor = stratum.crushDreamCrystalMultiplier ?? ONE;
-  const characterFactor = stratum.characterDreamCrystalMultiplier ?? ONE;
+  const characterFactor = applyCrushFiveFaithToCharacterBonus(
+    stratum,
+    stratum.characterDreamCrystalMultiplier ?? ONE,
+  );
   const electromagneticFactor = getElectromagneticDreamCrystalMultiplier(stratum);
   const speedFactor = max(ZERO, stratum.stratumSpeed);
 
@@ -327,7 +337,10 @@ export function getCoherencePointMultiplierBreakdown(
     ? ONE
     : pow(N(2), pointUpgradeBought);
   const conceptFactor = getConceptCrystalCoherencePointGainMultiplier(stratum);
-  const characterFactor = stratum.characterCoherencePointGainMultiplier ?? ONE;
+  const characterFactor = applyCrushFiveFaithToCharacterBonus(
+    stratum,
+    stratum.characterCoherencePointGainMultiplier ?? ONE,
+  );
   const totalValue = floor(mul(mul(adjustedConversion, pointUpgradeFactor), mul(conceptFactor, characterFactor)));
 
   return {
@@ -378,15 +391,23 @@ export function getChaoticEtherMultiplierBreakdown(
   stratum: StratumState,
 ): MultiplierBreakdownData {
   const gain = getChaoticEtherGainStages(stratum);
-  const characterFactor = stratum.characterChaoticEtherGainMultiplier ?? ONE;
+  const characterFactor = applyCrushFiveFaithToCharacterBonus(
+    stratum,
+    stratum.characterChaoticEtherGainMultiplier ?? ONE,
+  );
   const crushOneFactor = getCrushOneChaoticEtherGainMultiplier(stratum);
+  const revolutionFactor = getCrushFiveRevolutionChaoticEtherMultiplier(stratum);
   return {
     baseValue: gain.base,
-    totalValue: floor(mul(mul(gain.accelerated, characterFactor), crushOneFactor)),
+    totalValue: floor(mul(
+      mul(mul(gain.accelerated, characterFactor), crushOneFactor),
+      revolutionFactor,
+    )),
     entries: [
       { id: "extraction-acceleration", factor: stageFactor(gain.accelerated, gain.base) },
       { id: "characters", factor: characterFactor },
       { id: "crush-one", factor: crushOneFactor },
+      { id: "revolution", factor: revolutionFactor },
     ],
   };
 }

@@ -5,34 +5,37 @@ import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals/
 import { getDreamEnergy, setDreamEnergy, spendDreamEnergy } from "@/engine/strata/common/dream-energy";
 import type { StratumState } from "@/engine/strata/state";
 import { isConceptCrystalsUnlocked } from "@/engine/strata/common/milestones";
-import { isCrushFourActive, isCrushThreeActive, isCrushTwoActive } from "@/engine/crush/effects";
+import { isCrushFiveActive, isCrushFourActive, isCrushThreeActive, isCrushTwoActive } from "@/engine/crush/effects";
 import {
   CONCEPT_CRYSTAL_CONDENSE_DREAM_CRYSTAL_TIER,
   CONCEPT_CRYSTAL_BASE_PRODUCTION_INTERVAL_SEC,
+  CONCEPT_CRYSTAL_ASSIMILATION_SCALE,
+  CONCEPT_CRYSTAL_CP_GAIN_SCALE,
+  CONCEPT_CRYSTAL_DC_COST_LOG_POWER,
+  CONCEPT_CRYSTAL_DC_COST_SCALE,
   CONCEPT_CRYSTAL_INTERVAL_REDUCTION,
   CONCEPT_CRYSTAL_INTERVAL_UPGRADE_REQUIREMENT,
   CONCEPT_CRYSTAL_INTERVAL_UPGRADE_REQUIREMENT_SCALE,
   CONCEPT_CRYSTAL_NODE_HARDCAP,
+  CONCEPT_CRYSTAL_NODE_BASE_LOG_WEIGHT,
+  CONCEPT_CRYSTAL_NODE_MAGNITUDE_POWER,
+  CONCEPT_CRYSTAL_NODE_PER_CRYSTAL_LOG_WEIGHT,
+  CONCEPT_CRYSTAL_NODE_SCALE_LOG_WEIGHT,
+  CONCEPT_CRYSTAL_STANDARD_EFFECT_LOG_POWER,
 } from "./balance";
 import {
   CONCEPT_CRYSTAL_NODE_IDS,
+  INNER_CONCEPT_NODE_IDS,
   createConceptCrystalNodeAmounts,
   createConceptCrystalsState,
+  createInnerConceptNodeAmounts,
+  createInnerConceptNodeSevering,
   type ConceptCrystalNodeId,
   type ConceptCrystalsState,
+  type InnerConceptNodeId,
 } from "./state";
 
 const CONCEPT_CRYSTAL_PRODUCTION_RATIO = ONE;
-const CONCEPT_CRYSTAL_NODE_MAGNITUDE_POWER = N(1.05);
-const CONCEPT_CRYSTAL_NODE_BASE_LOG_WEIGHT = N(0.035);
-const CONCEPT_CRYSTAL_NODE_SCALE_LOG_WEIGHT = N(0.0425);
-const CONCEPT_CRYSTAL_NODE_PER_CRYSTAL_LOG_WEIGHT = N(0.065);
-const CONCEPT_CRYSTAL_DC_COST_SCALE = div(N(2), N(3));
-const CONCEPT_CRYSTAL_DC_COST_LOG_POWER = div(ONE, N(4));
-const CONCEPT_CRYSTAL_STANDARD_EFFECT_LOG_POWER = N(Math.LN10);
-const CONCEPT_CRYSTAL_CP_GAIN_SCALE = N(5);
-const CONCEPT_CRYSTAL_ASSIMILATION_SCALE = div(ONE, N(5));
-
 export function ensureConceptCrystalsState(stratum: StratumState): ConceptCrystalsState {
   stratum.conceptCrystals ??= createConceptCrystalsState();
   stratum.conceptCrystals.amount = normalizeNum(stratum.conceptCrystals.amount, 1);
@@ -58,6 +61,20 @@ export function ensureConceptCrystalsState(stratum: StratumState): ConceptCrysta
     stratum.conceptCrystals.nodes[nodeId] = gt(normalized, CONCEPT_CRYSTAL_NODE_HARDCAP)
       ? CONCEPT_CRYSTAL_NODE_HARDCAP
       : normalized;
+  }
+
+  const innerDefaults = createInnerConceptNodeAmounts();
+  stratum.conceptCrystals.innerNodes ??= innerDefaults;
+  stratum.conceptCrystals.innerSevered ??= createInnerConceptNodeSevering();
+
+  for (const nodeId of INNER_CONCEPT_NODE_IDS) {
+    const normalized = normalizeNum(stratum.conceptCrystals.innerNodes[nodeId], innerDefaults[nodeId]);
+    stratum.conceptCrystals.innerNodes[nodeId] = min(
+      CONCEPT_CRYSTAL_NODE_HARDCAP,
+      max(ONE, normalized),
+    );
+    stratum.conceptCrystals.innerSevered[nodeId] =
+      stratum.conceptCrystals.innerSevered[nodeId] === true;
   }
 
   return stratum.conceptCrystals;
@@ -120,6 +137,8 @@ export function condenseConceptCrystal(stratum: StratumState): void {
   const conceptCrystals = ensureConceptCrystalsState(stratum);
   conceptCrystals.amount = add(conceptCrystals.amount, 1);
   conceptCrystals.nodes = createConceptCrystalNodeAmounts();
+  conceptCrystals.innerNodes = createInnerConceptNodeAmounts();
+  conceptCrystals.innerSevered = createInnerConceptNodeSevering();
 
   setDreamEnergy(stratum, TEN);
   stratum.dreamCrystals = createDreamCrystalsState();
@@ -139,6 +158,8 @@ export function rotateConceptCrystalSeveredPath(stratum: StratumState, direction
 export function resetConceptCrystalNodes(stratum: StratumState): void {
   const conceptCrystals = ensureConceptCrystalsState(stratum);
   conceptCrystals.nodes = createConceptCrystalNodeAmounts();
+  conceptCrystals.innerNodes = createInnerConceptNodeAmounts();
+  conceptCrystals.innerSevered = createInnerConceptNodeSevering();
 }
 
 export function toggleConceptCrystalSevering(stratum: StratumState): void {
@@ -161,6 +182,15 @@ function getConceptCrystalNodeLogWeight(stratum: StratumState, scale: Num): Num 
     add(CONCEPT_CRYSTAL_NODE_BASE_LOG_WEIGHT, scaleWeight),
     additionalCrystalWeight,
   );
+}
+
+export function toggleInnerConceptProduction(
+  stratum: StratumState,
+  nodeId: InnerConceptNodeId,
+): void {
+  if (!isCrushFiveActive(stratum)) return;
+  const conceptCrystals = ensureConceptCrystalsState(stratum);
+  conceptCrystals.innerSevered[nodeId] = !conceptCrystals.innerSevered[nodeId];
 }
 
 function getConceptCrystalNodeEffect(
@@ -237,6 +267,9 @@ export function runConceptCrystalProduction(stratum: StratumState): void {
   if (!isConceptCrystalsUnlocked(stratum)) return;
 
   const conceptCrystals = ensureConceptCrystalsState(stratum);
+  if (isCrushFiveActive(stratum)) {
+    runInnerConceptProduction(stratum);
+  }
   const gains: Partial<Record<(typeof CONCEPT_CRYSTAL_NODE_IDS)[number], Num>> = {};
 
   for (let index = 0; index < CONCEPT_CRYSTAL_NODE_IDS.length; index++) {
@@ -259,6 +292,65 @@ export function runConceptCrystalProduction(stratum: StratumState): void {
       CONCEPT_CRYSTAL_NODE_HARDCAP,
     );
   }
+}
+
+const INNER_CONCEPT_SOURCE_PAIRS: Record<
+  InnerConceptNodeId,
+  readonly [ConceptCrystalNodeId, ConceptCrystalNodeId]
+> = {
+  faith: ["hope", "conquest"],
+  justice: ["law", "shackle"],
+  revolution: ["enlightenment", "war"],
+};
+
+const INNER_CONCEPT_PREVIOUS_NODE: Record<InnerConceptNodeId, InnerConceptNodeId> = {
+  faith: "revolution",
+  justice: "faith",
+  revolution: "justice",
+};
+
+export function getInnerConceptPositiveProduction(
+  stratum: StratumState,
+  nodeId: InnerConceptNodeId,
+): Num {
+  if (!isCrushFiveActive(stratum)) return ZERO;
+  const conceptCrystals = ensureConceptCrystalsState(stratum);
+  const [firstSource, secondSource] = INNER_CONCEPT_SOURCE_PAIRS[nodeId];
+  return sqrt(mul(
+    conceptCrystals.nodes[firstSource],
+    conceptCrystals.nodes[secondSource],
+  ));
+}
+
+export function getInnerConceptNetProduction(
+  stratum: StratumState,
+  nodeId: InnerConceptNodeId,
+): Num {
+  if (!isCrushFiveActive(stratum)) return ZERO;
+  const conceptCrystals = ensureConceptCrystalsState(stratum);
+  if (conceptCrystals.innerSevered[nodeId]) return ZERO;
+  return sub(
+    getInnerConceptPositiveProduction(stratum, nodeId),
+    conceptCrystals.innerNodes[INNER_CONCEPT_PREVIOUS_NODE[nodeId]],
+  );
+}
+
+function runInnerConceptProduction(stratum: StratumState): void {
+  const conceptCrystals = ensureConceptCrystalsState(stratum);
+  const nextAmounts = { ...conceptCrystals.innerNodes };
+
+  for (const nodeId of INNER_CONCEPT_NODE_IDS) {
+    if (conceptCrystals.innerSevered[nodeId]) continue;
+    nextAmounts[nodeId] = min(
+      CONCEPT_CRYSTAL_NODE_HARDCAP,
+      max(ONE, add(
+        conceptCrystals.innerNodes[nodeId],
+        getInnerConceptNetProduction(stratum, nodeId),
+      )),
+    );
+  }
+
+  conceptCrystals.innerNodes = nextAmounts;
 }
 
 type ConceptCrystalMatrix = Num[][];
@@ -324,8 +416,8 @@ export function runConceptCrystalProductionCycles(stratum: StratumState, cycles:
   const wholeCycles = Math.floor(cycles);
   if (wholeCycles <= 0) return 0;
 
-  if (conceptCrystals.isSeveringEnabled) {
-    const processedCycles = Math.min(wholeCycles, 512);
+  if (conceptCrystals.isSeveringEnabled || isCrushFiveActive(stratum)) {
+    const processedCycles = Math.min(wholeCycles, isCrushFiveActive(stratum) ? 4096 : 512);
     for (let cycle = 0; cycle < processedCycles; cycle++) {
       runConceptCrystalProduction(stratum);
     }

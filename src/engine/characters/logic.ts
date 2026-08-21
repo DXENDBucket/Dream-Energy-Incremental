@@ -1,6 +1,7 @@
 import type { GameState } from "@/engine/core/state";
 import { add, mul, normalizeNum, ONE, sub, type Num } from "@/engine/math/num";
 import { STRATUM_DEFINITIONS } from "@/engine/strata/defs";
+import { applyCrushFiveFaithToCharacterBonus } from "@/engine/crush/effects";
 import {
   ALPHA_CHARACTER_ID,
   ACE_DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID,
@@ -304,82 +305,109 @@ function getMultiplicativeCharacterAffix(
     .reduce((product, value) => mul(product, value), ONE);
 }
 
+function applyFaithCharacterBonus(
+  state: GameState,
+  stratumId: string,
+  bonus: Num,
+  includeFaith: boolean,
+): Num {
+  const stratum = state.strata[stratumId];
+  return includeFaith && stratum
+    ? applyCrushFiveFaithToCharacterBonus(stratum, bonus)
+    : bonus;
+}
+
 export function getCharacterDreamCrystalMultiplierPower(
   state: GameState,
   stratumId: string,
+  includeFaith = true,
 ): Num {
-  return getProductionCharacterAffixValues(
+  const power = getProductionCharacterAffixValues(
     state,
     stratumId,
     DREAM_CRYSTAL_MULTIPLIER_POWER_AFFIX_ID,
   ).reduce((power, value) => add(power, sub(value, ONE)), ONE);
+  return applyFaithCharacterBonus(state, stratumId, power, includeFaith);
 }
 
 export function getCharacterDreamCrystalMultiplier(
   state: GameState,
   stratumId: string,
+  includeFaith = true,
 ): Num {
-  return mul(
+  const multiplier = mul(
     getMultiplicativeCharacterAffix(state, stratumId, DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID),
     getMultiplicativeCharacterAffix(state, stratumId, ACE_DREAM_CRYSTAL_MULTIPLIER_AFFIX_ID),
   );
+  return applyFaithCharacterBonus(state, stratumId, multiplier, includeFaith);
 }
 
 export function getCharacterCoherencePointGainMultiplier(
   state: GameState,
   stratumId: string,
+  includeFaith = true,
 ): Num {
-  return getMultiplicativeCharacterAffix(
+  return applyFaithCharacterBonus(state, stratumId, getMultiplicativeCharacterAffix(
     state,
     stratumId,
     COHERENCE_POINT_GAIN_MULTIPLIER_AFFIX_ID,
-  );
+  ), includeFaith);
 }
 
 export function getCharacterChaoticEtherGainMultiplier(
   state: GameState,
   stratumId: string,
+  includeFaith = true,
 ): Num {
-  return getMultiplicativeCharacterAffix(
+  return applyFaithCharacterBonus(state, stratumId, getMultiplicativeCharacterAffix(
     state,
     stratumId,
     CHAOTIC_ETHER_GAIN_MULTIPLIER_AFFIX_ID,
-  );
+  ), includeFaith);
 }
 
 export function getCharacterElectromagneticPowerGainMultiplier(
   state: GameState,
   stratumId: string,
+  includeFaith = true,
 ): Num {
-  return getMultiplicativeCharacterAffix(
+  return applyFaithCharacterBonus(state, stratumId, getMultiplicativeCharacterAffix(
     state,
     stratumId,
     ELECTROMAGNETIC_POWER_GAIN_MULTIPLIER_AFFIX_ID,
-  );
+  ), includeFaith);
 }
 
 export function getCharacterShieldingEfficiency(
   state: GameState,
   stratumId: string,
+  includeFaith = true,
 ): Num {
-  return getMultiplicativeCharacterAffix(state, stratumId, SHIELDING_EFFICIENCY_AFFIX_ID);
+  return applyFaithCharacterBonus(
+    state,
+    stratumId,
+    getMultiplicativeCharacterAffix(state, stratumId, SHIELDING_EFFICIENCY_AFFIX_ID),
+    includeFaith,
+  );
 }
 
 export function syncCharacterProductionPowers(state: GameState): void {
   ensureCharacterSystemState(state);
   for (const [stratumId, stratum] of Object.entries(state.strata)) {
-    stratum.characterDreamCrystalMultiplier = getCharacterDreamCrystalMultiplier(state, stratumId);
-    stratum.dreamCrystalMultiplierPower = getCharacterDreamCrystalMultiplierPower(state, stratumId);
+    stratum.characterDreamCrystalMultiplier = getCharacterDreamCrystalMultiplier(state, stratumId, false);
+    stratum.dreamCrystalMultiplierPower = getCharacterDreamCrystalMultiplierPower(state, stratumId, false);
     stratum.characterCoherencePointGainMultiplier = getCharacterCoherencePointGainMultiplier(
       state,
       stratumId,
+      false,
     );
     stratum.characterChaoticEtherGainMultiplier = getCharacterChaoticEtherGainMultiplier(
       state,
       stratumId,
+      false,
     );
     stratum.characterElectromagneticPowerGainMultiplier =
-      getCharacterElectromagneticPowerGainMultiplier(state, stratumId);
-    stratum.characterShieldingEfficiency = getCharacterShieldingEfficiency(state, stratumId);
+      getCharacterElectromagneticPowerGainMultiplier(state, stratumId, false);
+    stratum.characterShieldingEfficiency = getCharacterShieldingEfficiency(state, stratumId, false);
   }
 }

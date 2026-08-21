@@ -30,6 +30,7 @@ import {
 } from "./state";
 import { getConceptCrystalCoherencePointGainMultiplier } from "@/engine/strata/common/concept-crystals";
 import { getElectromagneticUpgradeCoherencePointGainMultiplier } from "@/engine/electromagnetic-crystals/upgrades";
+import { applyCrushFiveFaithToCharacterBonus } from "@/engine/crush/effects";
 import {
   getNextStratumDefinition,
   STRATUM_DEFINITIONS,
@@ -229,7 +230,10 @@ export function getCoherencePointGainMultiplier(stratum: StratumState): Num {
   return mul(
     mul(
       mul(upgradeMultiplier, getConceptCrystalCoherencePointGainMultiplier(stratum)),
-      stratum.characterCoherencePointGainMultiplier ?? ONE,
+      applyCrushFiveFaithToCharacterBonus(
+        stratum,
+        stratum.characterCoherencePointGainMultiplier ?? ONE,
+      ),
     ),
     getElectromagneticUpgradeCoherencePointGainMultiplier(stratum),
   );

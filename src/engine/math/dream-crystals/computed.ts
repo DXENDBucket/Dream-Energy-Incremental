@@ -13,7 +13,10 @@ import {
 import { applyEntropyToProduction } from "@/engine/strata/common/entropy";
 import { getConceptCrystalDreamCrystalCostGrowthFactor } from "@/engine/strata/common/concept-crystals";
 import { getElectromagneticDreamCrystalMultiplier } from "@/engine/electromagnetic-crystals";
-import { isDreamCrystalProductionDisabledByCrush } from "@/engine/crush/effects";
+import {
+    applyCrushFiveFaithToCharacterBonus,
+    isDreamCrystalProductionDisabledByCrush,
+} from "@/engine/crush/effects";
 
 const DREAM_CRYSTAL_COST_SOFTCAP_START = 20;
 const DREAM_CRYSTAL_COST_SOFTCAP_EXACT_STEPS = 128;
@@ -138,9 +141,15 @@ export function getDreamCrystalMultiplier(
     multiplier = mul(multiplier, stratum.coherenceDreamCrystalMultiplier ?? ONE)
     multiplier = mul(multiplier, stratum.coherenceProgressionDreamCrystalMultiplier ?? ONE)
     multiplier = mul(multiplier, stratum.crushDreamCrystalMultiplier ?? ONE)
-    multiplier = mul(multiplier, stratum.characterDreamCrystalMultiplier ?? ONE)
+    multiplier = mul(multiplier, applyCrushFiveFaithToCharacterBonus(
+        stratum,
+        stratum.characterDreamCrystalMultiplier ?? ONE,
+    ))
     multiplier = mul(multiplier, getElectromagneticDreamCrystalMultiplier(stratum))
-    return pow(multiplier, stratum.dreamCrystalMultiplierPower ?? ONE);
+    return pow(multiplier, applyCrushFiveFaithToCharacterBonus(
+        stratum,
+        stratum.dreamCrystalMultiplierPower ?? ONE,
+    ));
 }
 
 export function getDreamCrystalIncrement(

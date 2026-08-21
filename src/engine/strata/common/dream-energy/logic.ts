@@ -42,6 +42,7 @@ import {
     getEntropyTuningExponent,
 } from "@/engine/strata/common/entropy";
 import {
+    applyCrushFiveFaithToCharacterBonus,
     applyCrushFourFreedomToSoftcapStrength,
     getCrushTwoConsensusShieldingEfficiency,
 } from "@/engine/crush/effects";
@@ -346,7 +347,10 @@ export function getDreamEnergyShieldingStrength(stratum: StratumState): Num {
         mul(
             tuningReduction,
             mul(
-                stratum.characterShieldingEfficiency ?? ONE,
+                applyCrushFiveFaithToCharacterBonus(
+                    stratum,
+                    stratum.characterShieldingEfficiency ?? ONE,
+                ),
                 getCrushTwoConsensusShieldingEfficiency(stratum),
             ),
         ),
