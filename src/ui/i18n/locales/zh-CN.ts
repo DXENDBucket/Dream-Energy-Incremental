@@ -620,6 +620,7 @@ export default {
     available: "拥有：{amount} {resource}",
     upgrade: "升级 — {cost} {resource}",
     upgradeMax: "最大升级（+{count}）",
+    maxLevelReached: "已达到等级上限",
     resources: {
       "dream-energy": "现实层 DE",
       "chaotic-ether-1": "现实层 CE I",

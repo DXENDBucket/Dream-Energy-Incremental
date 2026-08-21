@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import type { GameState } from "@/engine/core/state";
 import { format, formatInt } from "@/engine/math/format";
 import {
+  CHARACTER_MAX_LEVEL,
   CHARACTER_DEFINITIONS,
   canUpgradeCharacterLevel,
   getCharacterAffixDefinition,
@@ -29,6 +30,7 @@ const characterRows = computed(() => CHARACTER_DEFINITIONS
     return {
       character,
       levelText: formatInt(level),
+      isMaxLevel: level.gte(CHARACTER_MAX_LEVEL),
       costText: format(getCharacterLevelCost(props.game.state, character.id)),
       resourceName: t(`characterLevels.resources.${costDefinition.resource}`),
       resourceAmountText: format(
@@ -82,7 +84,10 @@ function onUpgradeMax(characterId: string): void {
         </div>
       </div>
 
-      <div class="upgrade-area">
+      <div v-if="row.isMaxLevel" class="upgrade-area max-level-area">
+        {{ t("characterLevels.maxLevelReached") }}
+      </div>
+      <div v-else class="upgrade-area">
         <div class="resource-owned">
           {{ t("characterLevels.available", {
             resource: row.resourceName,
@@ -171,6 +176,16 @@ h3 { margin: 0 0 4px; }
 .effect-row strong { color: #fff; }
 
 .upgrade-area { display: grid; gap: 7px; }
+.max-level-area {
+  min-height: 56px;
+  place-items: center;
+  border: 1px solid rgba(137, 255, 181, 0.48);
+  border-radius: 6px;
+  color: #9dffc1;
+  background: rgba(38, 112, 70, 0.2);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
 .resource-owned { color: #aeb8d3; font-size: 0.78rem; text-align: center; }
 button {
   min-height: 48px;

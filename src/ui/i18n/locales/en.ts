@@ -620,6 +620,7 @@ export default {
     available: "Available: {amount} {resource}",
     upgrade: "Upgrade — {cost} {resource}",
     upgradeMax: "Upgrade Max (+{count})",
+    maxLevelReached: "Maximum Level Reached",
     resources: {
       "dream-energy": "Reality DE",
       "chaotic-ether-1": "Reality CE I",
