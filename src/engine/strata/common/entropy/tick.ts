@@ -1,5 +1,5 @@
 import type { Num } from "@/engine/math/num";
-import { ONE, add, min, mul } from "@/engine/math/num";
+import { ONE, add, gte, min, mul } from "@/engine/math/num";
 import type { StratumState } from "@/engine/strata/state";
 import { ENTROPY_GAIN_PER_SECOND } from "./balance";
 import {
@@ -18,6 +18,7 @@ export function tickEntropy(stratum: StratumState, dtSec: Num): void {
   }
 
   if (!entropy.isStarted) return;
+  if (gte(entropy.value, ONE)) return;
 
   entropy.value = min(
     ONE,

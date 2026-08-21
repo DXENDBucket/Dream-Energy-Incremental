@@ -32,7 +32,13 @@ export function getDreamCrystalCostSoftcapGrowth(stratum?: StratumState): Num {
     return pow(baseGrowth, upgradeFactor);
 }
 
-function getDreamCrystalSoftcappedCost(base: Num, scale: Num, amountBought: Num, stratum?: StratumState): Num {
+function getDreamCrystalSoftcappedCost(
+    base: Num,
+    scale: Num,
+    amountBought: Num,
+    stratum?: StratumState,
+    softcapGrowthOverride?: Num,
+): Num {
     const softcapStart = DREAM_CRYSTAL_COST_SOFTCAP_START;
     const bought = floor(amountBought);
 
@@ -47,7 +53,7 @@ function getDreamCrystalSoftcappedCost(base: Num, scale: Num, amountBought: Num,
 
     let cost = mul(base, pow(scale, softcapStart));
     const softcappedPurchases = sub(bought, softcapStart);
-    const softcapGrowth = getDreamCrystalCostSoftcapGrowth(stratum);
+    const softcapGrowth = softcapGrowthOverride ?? getDreamCrystalCostSoftcapGrowth(stratum);
     const exactSteps = Math.min(
         DREAM_CRYSTAL_COST_SOFTCAP_EXACT_STEPS,
         Math.max(0, softcappedPurchases.floor().toNumber()),
@@ -72,7 +78,12 @@ function getDreamCrystalSoftcappedCost(base: Num, scale: Num, amountBought: Num,
     return mul(cost, mul(pow(growthIncrement, remainingSteps), pow(softcapGrowth, doubledIncrementPower)));
 }
 
-export function getDreamCrystalCost(tier: number, amountBought: Num, stratum?: StratumState) {
+export function getDreamCrystalCost(
+    tier: number,
+    amountBought: Num,
+    stratum?: StratumState,
+    softcapGrowthOverride?: Num,
+) {
     const base = DREAM_CRYSTAL_BASE_COSTS[tier as keyof typeof DREAM_CRYSTAL_BASE_COSTS];
     const scale = DREAM_CRYSTAL_COST_SCALES[tier as keyof typeof DREAM_CRYSTAL_COST_SCALES];
 
@@ -84,7 +95,13 @@ export function getDreamCrystalCost(tier: number, amountBought: Num, stratum?: S
         throw new Error(`Dream Crystal cost scale for tier ${tier} not found.`);
     }
 
-    return getDreamCrystalSoftcappedCost(base, scale, amountBought, stratum);
+    return getDreamCrystalSoftcappedCost(
+        base,
+        scale,
+        amountBought,
+        stratum,
+        softcapGrowthOverride,
+    );
 }
 
 export function getNextDreamCrystalCost(
@@ -92,6 +109,7 @@ export function getNextDreamCrystalCost(
     amountBought: Num,
     currentCost: Num,
     stratum?: StratumState,
+    softcapGrowthOverride?: Num,
 ) {
     const scale = DREAM_CRYSTAL_COST_SCALES[tier as keyof typeof DREAM_CRYSTAL_COST_SCALES];
 
@@ -110,7 +128,7 @@ export function getNextDreamCrystalCost(
     }
 
     const softcappedStep = sub(add(bought, ONE), DREAM_CRYSTAL_COST_SOFTCAP_START);
-    const softcapGrowth = getDreamCrystalCostSoftcapGrowth(stratum);
+    const softcapGrowth = softcapGrowthOverride ?? getDreamCrystalCostSoftcapGrowth(stratum);
     const growthPower = pow(softcapGrowth, softcappedStep);
     const ratio = softcappedStep.lte(DREAM_CRYSTAL_COST_SOFTCAP_EXACT_STEPS)
         ? add(ONE, mul(growthIncrement, growthPower))

@@ -298,9 +298,9 @@ export function getCoherenceBestEntryCoherenceMultiplier(stratum: StratumState):
 }
 
 export function syncCoherenceProgressionDreamCrystalMultipliers(state: GameState): void {
-  for (const stratum of Object.values(state.strata)) {
-    stratum.coherenceProgressionDreamCrystalMultiplier = ONE;
-  }
+  const nextMultipliers = Object.fromEntries(
+    Object.keys(state.strata).map(stratumId => [stratumId, ONE]),
+  ) as Record<string, Num>;
 
   for (const definition of STRATUM_DEFINITIONS) {
     const sourceStratumId = definition.id;
@@ -316,16 +316,23 @@ export function syncCoherenceProgressionDreamCrystalMultipliers(state: GameState
     const bestEntryCoherenceMultiplier = getCoherenceBestEntryCoherenceMultiplier(source);
     const combinedMultiplier = mul(bestDreamEnergyMultiplier, bestEntryCoherenceMultiplier);
 
-    source.coherenceProgressionDreamCrystalMultiplier = mul(
-      source.coherenceProgressionDreamCrystalMultiplier,
+    nextMultipliers[sourceStratumId] = mul(
+      nextMultipliers[sourceStratumId] ?? ONE,
       combinedMultiplier,
     );
 
     if (next) {
-      next.coherenceProgressionDreamCrystalMultiplier = mul(
-        next.coherenceProgressionDreamCrystalMultiplier,
+      nextMultipliers[nextStratumId!] = mul(
+        nextMultipliers[nextStratumId!] ?? ONE,
         combinedMultiplier,
       );
+    }
+  }
+
+  for (const [stratumId, stratum] of Object.entries(state.strata)) {
+    const nextMultiplier = nextMultipliers[stratumId] ?? ONE;
+    if (!stratum.coherenceProgressionDreamCrystalMultiplier.eq(nextMultiplier)) {
+      stratum.coherenceProgressionDreamCrystalMultiplier = nextMultiplier;
     }
   }
 }

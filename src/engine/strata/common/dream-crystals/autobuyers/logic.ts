@@ -13,6 +13,10 @@ import {
 
 export const DREAM_CRYSTAL_AUTOBUYER_INTERVAL_SEC = N(0.5);
 export const DREAM_CRYSTAL_REFINE_AUTOBUYER_INTERVAL_SEC = N(0.5);
+// Buy Max can otherwise perform 4096 full cost calculations for every tier in
+// one animation frame. Repeating a smaller exact batch keeps the automatic
+// buyer responsive while still allowing hundreds of purchases per second.
+const DREAM_CRYSTAL_AUTOBUYER_PAID_PURCHASES_PER_TIER = 32;
 
 export function getDreamCrystalAutobuyerIntervalSec(stratum: StratumState): Num {
   return sub(
@@ -106,7 +110,11 @@ export function runDreamCrystalAutobuyers(stratum: StratumState): void {
 
   for (const tier of DREAM_CRYSTAL_TIERS) {
     if (isDreamCrystalAutobuyerEnabled(stratum, tier)) {
-      buyMaxDreamCrystal(stratum, tier);
+      buyMaxDreamCrystal(
+        stratum,
+        tier,
+        DREAM_CRYSTAL_AUTOBUYER_PAID_PURCHASES_PER_TIER,
+      );
     }
   }
 }

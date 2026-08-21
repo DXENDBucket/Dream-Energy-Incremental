@@ -1,5 +1,5 @@
 import type { StratumState } from "../../state";
-import { add } from "@/engine/math/num";
+import { add, lte } from "@/engine/math/num";
 import type { Num } from "@/engine/math/num";
 import { getDreamCrystalAmount } from "./selectors";
 import { getDreamCrystalProduction } from "@/engine/math/dream-crystals/computed";
@@ -15,6 +15,7 @@ export function tickDreamCrystals(stratum: StratumState, dtSec: Num) {
     }
 
     for (const produced of production) {
+        if (lte(produced.amount, 0)) continue;
         const lowerCrystal = stratum.dreamCrystals.tiers[produced.lowerTier];
 
         if (!lowerCrystal) {

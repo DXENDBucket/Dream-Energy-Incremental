@@ -37,6 +37,10 @@ export interface OfflineProgressState {
 
 const OFFLINE_PROGRESS_MODAL_MIN_SEC = 2;
 const OFFLINE_PROGRESS_FRAME_BUDGET_MS = 8;
+// Incremental values do not need to invalidate the whole Vue tree at the
+// monitor refresh rate. The engine still receives all elapsed time, while a
+// 30 Hz state commit keeps numbers and the particle visually responsive.
+const REALTIME_GAMEPLAY_UPDATE_INTERVAL_MS = 1000 / 30;
 
 function resetRuntimeClocks(state: GameState): void {
   state.lastTickMs = performance.now();
@@ -235,7 +239,10 @@ export function createGameStore() {
     const realDtSec = Math.max(0, (now - lastLoopMs) / 1000);
     lastLoopMs = now;
 
-    if (!offlineProgress.isActive) {
+    if (
+      !offlineProgress.isActive
+      && now - state.lastTickMs >= REALTIME_GAMEPLAY_UPDATE_INTERVAL_MS
+    ) {
       engine.tick(now);
     }
 

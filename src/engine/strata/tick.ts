@@ -24,7 +24,6 @@ export function tickStratum(stratum: StratumState, dtSec: Num): void {
 
 export function tickActiveStratum(state: GameState, dtSec: Num): void {
   const stratum = getActiveStratum(state);
-  syncCoherenceProgressionDreamCrystalMultipliers(state);
   let computedDtSec = dtSec;
   computedDtSec = mul(computedDtSec,stratum.stratumSpeed);
   tickStratum(stratum, computedDtSec);

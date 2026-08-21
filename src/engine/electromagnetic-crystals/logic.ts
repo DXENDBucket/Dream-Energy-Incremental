@@ -272,6 +272,7 @@ export function resetElectromagneticParticle(state: StratumState): void {
 }
 
 function decayElectromagneticPower(state: StratumState, dtSec: Num): void {
+  if (lte(state.electromagneticCrystals.power, ZERO)) return;
   state.electromagneticCrystals.power = div(
     state.electromagneticCrystals.power,
     pow(getElectromagneticPowerDecayDivisorPerSecond(state), dtSec),

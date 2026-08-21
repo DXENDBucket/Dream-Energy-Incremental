@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted, shallowRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { GameState } from "@/engine/core/state";
 import { format, formatInt } from "@/engine/math/format";
@@ -10,7 +10,6 @@ import {
   canCondenseConceptCrystal,
   canUpgradeConceptCrystalInterval,
   condenseConceptCrystal,
-  ensureConceptCrystalsState,
   getConceptCrystalAssimilationStrengthMultiplier,
   getConceptCrystalCoherencePointGainMultiplier,
   getConceptCrystalCondenseRequirement,
@@ -47,7 +46,23 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const activeStratum = computed(() => getActiveStratum(props.game.state));
-const conceptCrystals = computed(() => ensureConceptCrystalsState(activeStratum.value));
+const conceptCrystals = computed(() => activeStratum.value.conceptCrystals);
+const displayedProductionElapsedSec = shallowRef(conceptCrystals.value.productionElapsedSec);
+let progressRefreshTimer: ReturnType<typeof setInterval> | undefined;
+
+function refreshDisplayedProgress(): void {
+  displayedProductionElapsedSec.value = conceptCrystals.value.productionElapsedSec;
+}
+
+watch(() => activeStratum.value.stratumId, refreshDisplayedProgress);
+
+onMounted(() => {
+  progressRefreshTimer = setInterval(refreshDisplayedProgress, 100);
+});
+
+onUnmounted(() => {
+  if (progressRefreshTimer !== undefined) clearInterval(progressRefreshTimer);
+});
 
 const HEX_RADIUS_PERCENT = 36;
 const HEX_HALF_RADIUS_PERCENT = HEX_RADIUS_PERCENT / 2;
@@ -137,7 +152,7 @@ const conceptContributionRows = computed(() => {
 const progressText = computed(() => {
   const interval = getConceptCrystalProductionInterval(activeStratum.value);
   if (interval.lte(0)) return "0";
-  return format(mul(div(conceptCrystals.value.productionElapsedSec, interval), 100));
+  return format(mul(div(displayedProductionElapsedSec.value, interval), 100));
 });
 
 const severedPath = computed(() => {
