@@ -38,7 +38,7 @@ import { createStratumState, type StratumState } from "@/engine/strata/state";
 import { LIFT_UNLOCK_REQUIREMENT } from "./balance";
 import { markRealityLiftMilestoneClaimed } from "@/engine/reality/milestones";
 import { returnCharactersToRosterFromStratum } from "@/engine/characters";
-import { syncCrushDreamCrystalMultipliers } from "@/engine/crush";
+import { hasCrushMilestone, syncCrushDreamCrystalMultipliers } from "@/engine/crush";
 
 export type StratumTravelDirection = "deeper" | "shallower";
 
@@ -96,12 +96,13 @@ export function getStratumEntryEntropyGrowthRateMultiplier(
   const targetDefinition = getStratumDefinition(targetStratumId);
   if (!targetDefinition) return ZERO;
 
-  return mul(
+  const baseMultiplier = mul(
     targetDefinition.entropyBaseGrowthMultiplier,
     computeEntropyGrowthRateMultiplierFromCoherence(
       getStratumEntryCoherenceCost(state, targetStratumId),
     ),
   );
+  return hasCrushMilestone(state, 4) ? mul(baseMultiplier, 10) : baseMultiplier;
 }
 
 export function isStratumVisible(state: GameState, stratumId: string): boolean {

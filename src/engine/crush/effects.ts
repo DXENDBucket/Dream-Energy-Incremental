@@ -13,6 +13,10 @@ export function isCrushThreeActive(stratum: StratumState): boolean {
   return (stratum.crushMilestoneCount ?? 0) >= 3;
 }
 
+export function isCrushFourActive(stratum: StratumState): boolean {
+  return (stratum.crushMilestoneCount ?? 0) >= 4;
+}
+
 export function getCrushOneChaoticEtherGainMultiplier(stratum: StratumState): Num {
   if (!isCrushOneActive(stratum)) return ONE;
   const bestDreamEnergyLog2 = logn(max(stratum.bestDreamEnergy, ONE), N(2));
@@ -27,13 +31,38 @@ export function isDreamCrystalProductionDisabledByCrush(
   return isCrushOneActive(stratum) && sourceTier >= 7;
 }
 
-export function getCrushTwoConsensusShieldingEfficiency(stratum: StratumState): Num {
-  if (!isCrushTwoActive(stratum)) return ONE;
-  const consensusAmount = max(stratum.conceptCrystals?.nodes?.conquest ?? ONE, ONE);
+function getInvertedConceptEfficiency(
+  stratum: StratumState,
+  nodeAmount: Num,
+): Num {
   const heldConceptCrystals = max(stratum.conceptCrystals?.amount ?? ONE, ONE);
   const heldAmountExponent = add(
     ONE,
     mul(N(0.065), max(ZERO, sub(heldConceptCrystals, ONE))),
   );
-  return pow(consensusAmount, div(heldAmountExponent, N(154)));
+  return pow(max(nodeAmount, ONE), div(heldAmountExponent, N(154)));
+}
+
+export function getCrushTwoConsensusShieldingEfficiency(stratum: StratumState): Num {
+  if (!isCrushTwoActive(stratum)) return ONE;
+  return getInvertedConceptEfficiency(
+    stratum,
+    stratum.conceptCrystals?.nodes?.conquest ?? ONE,
+  );
+}
+
+export function getCrushFourFreedomSoftcapEfficiency(stratum: StratumState): Num {
+  if (!isCrushFourActive(stratum)) return ONE;
+  return getInvertedConceptEfficiency(
+    stratum,
+    stratum.conceptCrystals?.nodes?.shackle ?? ONE,
+  );
+}
+
+export function applyCrushFourFreedomToSoftcapStrength(
+  stratum: StratumState,
+  strength: Num,
+): Num {
+  const efficiency = getCrushFourFreedomSoftcapEfficiency(stratum);
+  return add(ONE, div(max(ZERO, sub(strength, ONE)), efficiency));
 }

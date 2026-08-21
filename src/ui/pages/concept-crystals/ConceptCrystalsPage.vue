@@ -26,7 +26,9 @@ import {
 } from "@/engine/strata/common/concept-crystals";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
 import {
+  getCrushFourFreedomSoftcapEfficiency,
   getCrushTwoConsensusShieldingEfficiency,
+  isCrushFourActive,
   isCrushTwoActive,
 } from "@/engine/crush/effects";
 
@@ -62,24 +64,39 @@ const canUpgradeInterval = computed(() => canUpgradeConceptCrystalInterval(activ
 const canCondense = computed(() => canCondenseConceptCrystal(activeStratum.value));
 const isSeveringEnabled = computed(() => conceptCrystals.value.isSeveringEnabled);
 const isConsensusActive = computed(() => isCrushTwoActive(activeStratum.value));
+const isFreedomActive = computed(() => isCrushFourActive(activeStratum.value));
 const dreamCrystalCostGrowthEffectText = computed(() => format(getConceptCrystalDreamCrystalCostGrowthFactor(activeStratum.value)));
 const coherencePointGainEffectText = computed(() => format(getConceptCrystalCoherencePointGainMultiplier(activeStratum.value)));
 const assimilationStrengthEffectText = computed(() => format(getConceptCrystalAssimilationStrengthMultiplier(activeStratum.value)));
 const consensusShieldingEfficiencyText = computed(() => format(
   getCrushTwoConsensusShieldingEfficiency(activeStratum.value),
 ));
+const freedomSoftcapEfficiencyText = computed(() => format(
+  getCrushFourFreedomSoftcapEfficiency(activeStratum.value),
+));
+const effectCopyKey = computed(() => {
+  if (isFreedomActive.value) return "conceptCrystals.effect.copyCrushFour";
+  if (isConsensusActive.value) return "conceptCrystals.effect.copyCrushTwo";
+  return "conceptCrystals.effect.copy";
+});
+function conceptNodeEffectKey(id: ConceptCrystalNodeId): string {
+  if (id === "conquest" && isConsensusActive.value) return "consensus";
+  if (id === "shackle" && isFreedomActive.value) return "freedom";
+  return id;
+}
 function conceptNodeLabel(id: ConceptCrystalNodeId): string {
-  const key = id === "conquest" && isConsensusActive.value ? "consensus" : id;
-  return t(`conceptCrystals.nodes.${key}`);
+  return t(`conceptCrystals.nodes.${conceptNodeEffectKey(id)}`);
 }
 const conceptContributionRows = computed(() => {
   return CONCEPT_CRYSTAL_NODE_IDS.map(id => ({
     id,
-    effectKey: id === "conquest" && isConsensusActive.value ? "consensus" : id,
+    effectKey: conceptNodeEffectKey(id),
     amountText: format(conceptCrystals.value.nodes[id]),
     contributionText: format(
       id === "conquest" && isConsensusActive.value
         ? getCrushTwoConsensusShieldingEfficiency(activeStratum.value)
+        : id === "shackle" && isFreedomActive.value
+          ? getCrushFourFreedomSoftcapEfficiency(activeStratum.value)
         : getConceptCrystalNodeContribution(activeStratum.value, id),
     ),
   }));
@@ -262,7 +279,7 @@ function onCondenseConceptCrystal() {
     <section class="effect-section">
       <div class="effect-title">{{ t("conceptCrystals.effect.title") }}</div>
       <div class="effect-copy">
-        {{ t(isConsensusActive ? "conceptCrystals.effect.copyCrushTwo" : "conceptCrystals.effect.copy") }}
+        {{ t(effectCopyKey) }}
       </div>
       <div class="effect-grid">
         <div class="effect-line">
@@ -276,6 +293,9 @@ function onCondenseConceptCrystal() {
         </div>
         <div v-if="isConsensusActive" class="effect-line">
           {{ t("conceptCrystals.effect.shieldingEfficiency", { value: consensusShieldingEfficiencyText }) }}
+        </div>
+        <div v-if="isFreedomActive" class="effect-line">
+          {{ t("conceptCrystals.effect.softcapEfficiency", { value: freedomSoftcapEfficiencyText }) }}
         </div>
       </div>
       <div class="contribution-grid">

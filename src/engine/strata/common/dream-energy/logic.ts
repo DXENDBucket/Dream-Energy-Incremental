@@ -41,7 +41,10 @@ import {
     getEntropyChaosExponent,
     getEntropyTuningExponent,
 } from "@/engine/strata/common/entropy";
-import { getCrushTwoConsensusShieldingEfficiency } from "@/engine/crush/effects";
+import {
+    applyCrushFourFreedomToSoftcapStrength,
+    getCrushTwoConsensusShieldingEfficiency,
+} from "@/engine/crush/effects";
 import { realityStratumId } from "@/engine/strata/defs";
 import { getDreamEnergy } from "../../manager/selectors";
 
@@ -303,12 +306,15 @@ export function removeDreamEnergyConceptConflict(stratum: StratumState, conflict
 }
 
 export function getDreamEnergyConceptConflictStrength(stratum: StratumState): Num {
-    return mul(
+    return applyCrushFourFreedomToSoftcapStrength(
+        stratum,
         mul(
-            DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
-            getDreamCrystalConceptConflictStrengthMultiplier(stratum),
+            mul(
+                DREAM_ENERGY_CONCEPT_CONFLICT_STRENGTH_BASE,
+                getDreamCrystalConceptConflictStrengthMultiplier(stratum),
+            ),
+            getCoherenceConceptConflictStrengthMultiplier(stratum),
         ),
-        getCoherenceConceptConflictStrengthMultiplier(stratum),
     );
 }
 
@@ -559,7 +565,13 @@ export function getDreamEnergySoftcapThreeRatio(dreamEnergy: Num) {
 export function getDreamEnergySoftcapOneBaseStrengthDisplay(stratum?: StratumState) {
     const baseStrength = DREAM_ENERGY_SOFTCAP_POWER_DISPLAY;
     if (!stratum) return baseStrength;
-    return applySoftcapStrengthMultiplier(baseStrength, getDreamCrystalSoftcapOneStrengthMultiplier(stratum));
+    return applyCrushFourFreedomToSoftcapStrength(
+        stratum,
+        applySoftcapStrengthMultiplier(
+            baseStrength,
+            getDreamCrystalSoftcapOneStrengthMultiplier(stratum),
+        ),
+    );
 }
 
 export function getDreamEnergySoftCapOneBasePower(stratum?: StratumState) {
@@ -649,11 +661,14 @@ export function getDreamEnergySoftcapTwoEffectiveStrengthGrowthAt(stratum: Strat
 export function getDreamEnergySoftcapTwoBaseStrengthGrowth(stratum?: StratumState) {
     const baseGrowth = DREAM_ENERGY_SOFTCAP_TWO_STRENGTH_GROWTH;
     if (!stratum) return baseGrowth;
-    return applySoftcapStrengthMultiplier(
-        baseGrowth,
-        mul(
-            getDreamCrystalSoftcapTwoStrengthMultiplier(stratum),
-            getCoherenceSoftcapTwoStrengthMultiplier(stratum),
+    return applyCrushFourFreedomToSoftcapStrength(
+        stratum,
+        applySoftcapStrengthMultiplier(
+            baseGrowth,
+            mul(
+                getDreamCrystalSoftcapTwoStrengthMultiplier(stratum),
+                getCoherenceSoftcapTwoStrengthMultiplier(stratum),
+            ),
         ),
     );
 }
@@ -673,13 +688,16 @@ export function getDreamEnergySoftcapThreeStrengthBase() {
 
 export function getDreamEnergySoftcapThreeStrengthGrowth(stratum?: StratumState) {
     if (!stratum) return DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH;
-    return max(
-        ONE,
-        applySoftcapStrengthMultiplier(
-            DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH,
-            mul(
-                getConceptCrystalAssimilationStrengthMultiplier(stratum),
-                getCoherenceSoftcapThreeRepeatableStrengthMultiplier(stratum),
+    return applyCrushFourFreedomToSoftcapStrength(
+        stratum,
+        max(
+            ONE,
+            applySoftcapStrengthMultiplier(
+                DREAM_ENERGY_SOFTCAP_THREE_STRENGTH_GROWTH,
+                mul(
+                    getConceptCrystalAssimilationStrengthMultiplier(stratum),
+                    getCoherenceSoftcapThreeRepeatableStrengthMultiplier(stratum),
+                ),
             ),
         ),
     );
