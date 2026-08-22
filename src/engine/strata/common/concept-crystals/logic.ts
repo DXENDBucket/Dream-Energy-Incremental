@@ -5,7 +5,14 @@ import { createDreamCrystalsState } from "@/engine/strata/common/dream-crystals/
 import { getDreamEnergy, setDreamEnergy, spendDreamEnergy } from "@/engine/strata/common/dream-energy";
 import type { StratumState } from "@/engine/strata/state";
 import { isConceptCrystalsUnlocked } from "@/engine/strata/common/milestones";
-import { isCrushFiveActive, isCrushFourActive, isCrushThreeActive, isCrushTwoActive } from "@/engine/crush/effects";
+import {
+  getCrushSixPeaceConceptProductionSpeedMultiplier,
+  isCrushFiveActive,
+  isCrushFourActive,
+  isCrushSixActive,
+  isCrushThreeActive,
+  isCrushTwoActive,
+} from "@/engine/crush/effects";
 import {
   CONCEPT_CRYSTAL_CONDENSE_DREAM_CRYSTAL_TIER,
   CONCEPT_CRYSTAL_BASE_PRODUCTION_INTERVAL_SEC,
@@ -86,9 +93,12 @@ export function ensureConceptCrystalsState(stratum: StratumState): ConceptCrysta
 
 export function getConceptCrystalProductionInterval(stratum: StratumState): Num {
   const conceptCrystals = stratum.conceptCrystals;
-  return mul(
-    CONCEPT_CRYSTAL_BASE_PRODUCTION_INTERVAL_SEC,
-    pow(CONCEPT_CRYSTAL_INTERVAL_REDUCTION, conceptCrystals.intervalUpgrades),
+  return div(
+    mul(
+      CONCEPT_CRYSTAL_BASE_PRODUCTION_INTERVAL_SEC,
+      pow(CONCEPT_CRYSTAL_INTERVAL_REDUCTION, conceptCrystals.intervalUpgrades),
+    ),
+    getCrushSixPeaceConceptProductionSpeedMultiplier(stratum),
   );
 }
 
@@ -238,10 +248,10 @@ function softenConceptCrystalRatio(rawFactor: Num, logPower: Num): Num {
 }
 
 export function getConceptCrystalDreamCrystalCostGrowthFactor(stratum: StratumState): Num {
-  const rawFactor = div(
-    getConceptCrystalNodeContribution(stratum, "war"),
-    getConceptCrystalNodeContribution(stratum, "law"),
-  );
+  const law = getConceptCrystalNodeContribution(stratum, "law");
+  const rawFactor = isCrushSixActive(stratum)
+    ? div(ONE, law)
+    : div(getConceptCrystalNodeContribution(stratum, "war"), law);
 
   return softenConceptCrystalRatio(rawFactor, CONCEPT_CRYSTAL_DC_COST_LOG_POWER);
 }

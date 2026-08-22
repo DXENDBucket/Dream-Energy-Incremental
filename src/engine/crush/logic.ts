@@ -4,6 +4,7 @@ import { N, gte, pow, type Num } from "@/engine/math/num";
 import { getCoherencePointGain } from "@/engine/strata/common/coherence";
 import { dreamSeaFourthStratumId } from "@/engine/strata/defs";
 import { getActiveStratum } from "@/engine/strata/manager/selectors";
+import { grantAllCharacters } from "@/engine/characters/logic";
 import { CRUSH_MILESTONE_COUNT } from "./definitions";
 import { createCrushState, type CrushState } from "./state";
 
@@ -65,6 +66,7 @@ export function crush(state: GameState): boolean {
   fresh.settings = preservedSettings;
   fresh.crush.milestoneCount = nextMilestoneCount;
   syncCrushDreamCrystalMultipliers(fresh);
+  if (nextMilestoneCount >= 6) grantAllCharacters(fresh);
   Object.assign(state, fresh);
   return true;
 }

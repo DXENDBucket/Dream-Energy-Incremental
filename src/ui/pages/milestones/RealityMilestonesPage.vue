@@ -5,6 +5,7 @@ import type { GameState } from "@/engine/core/state";
 import { format } from "@/engine/math/format";
 import {
   REALITY_MILESTONE_ORDER,
+  REALITY_MILESTONE_CHARACTER_PRODUCTION_ID,
   canClaimRealityMilestone,
   claimRealityMilestone,
   getRealityMilestoneDefinition,
@@ -15,19 +16,24 @@ import {
 const props = defineProps<{ game: { state: GameState } }>();
 const { t } = useI18n();
 
-const milestoneRows = computed(() => REALITY_MILESTONE_ORDER.map(id => {
-  const definition = getRealityMilestoneDefinition(id);
-  const claimed = hasRealityMilestone(props.game.state, id);
-  const canClaim = canClaimRealityMilestone(props.game.state, id);
-  return {
-    ...definition,
-    claimed,
-    canClaim,
-    requirement: t("realityMilestones.requirement", {
-      amount: format(definition.dreamEnergyRequirement),
-    }),
-  };
-}));
+const milestoneRows = computed(() => REALITY_MILESTONE_ORDER
+  .filter(id => !(
+    id === REALITY_MILESTONE_CHARACTER_PRODUCTION_ID
+    && props.game.state.crush.milestoneCount >= 6
+  ))
+  .map(id => {
+    const definition = getRealityMilestoneDefinition(id);
+    const claimed = hasRealityMilestone(props.game.state, id);
+    const canClaim = canClaimRealityMilestone(props.game.state, id);
+    return {
+      ...definition,
+      claimed,
+      canClaim,
+      requirement: t("realityMilestones.requirement", {
+        amount: format(definition.dreamEnergyRequirement),
+      }),
+    };
+  }));
 
 function onClaim(id: RealityMilestoneId): void {
   claimRealityMilestone(props.game.state, id);

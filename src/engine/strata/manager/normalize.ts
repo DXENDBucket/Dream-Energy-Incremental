@@ -27,6 +27,7 @@ import { createStratumState } from "@/engine/strata/state";
 import type { StratumState } from "@/engine/strata/state";
 import { createMilestonesState } from "@/engine/strata/common/milestones";
 import {
+  grantAllCharacters,
   grantStarterCharacters,
   normalizeCharacterSystemState,
   syncCharacterProductionPowers,
@@ -112,7 +113,9 @@ export function normalizeGameState(state: GameState): GameState {
     state.lift.isLiftUnlocked = true;
   }
 
-  if (hasRealityMilestone(state, REALITY_MILESTONE_CHARACTER_PRODUCTION_ID)) {
+  if (state.crush.milestoneCount >= 6) {
+    grantAllCharacters(state);
+  } else if (hasRealityMilestone(state, REALITY_MILESTONE_CHARACTER_PRODUCTION_ID)) {
     grantStarterCharacters(state);
   }
 

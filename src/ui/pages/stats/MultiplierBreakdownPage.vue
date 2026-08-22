@@ -10,11 +10,17 @@ import {
   type ConceptCrystalNodeId,
 } from "@/engine/strata/common/concept-crystals";
 import {
+  isCrushFourActive,
+  isCrushSixActive,
+  isCrushTwoActive,
+} from "@/engine/crush/effects";
+import {
   getChaoticEtherMultiplierBreakdown,
   getCoherencePointMultiplierBreakdown,
   getConceptSpeedMultiplierBreakdown,
   getDreamCrystalMultiplierBreakdown,
   getDreamEnergyProductionMultiplierBreakdown,
+  getElectromagneticPowerGainMultiplierBreakdown,
   type MultiplierBreakdownCategoryId,
   type MultiplierBreakdownData,
   type MultiplierBreakdownEntry,
@@ -38,6 +44,7 @@ const categories: MultiplierBreakdownCategoryId[] = [
   "dream-crystals",
   "coherence-points",
   "chaotic-ether",
+  "electromagnetic-power",
   "concept-speed",
 ];
 
@@ -49,6 +56,8 @@ function readData(): MultiplierBreakdownData {
       return getCoherencePointMultiplierBreakdown(activeStratum.value);
     case "chaotic-ether":
       return getChaoticEtherMultiplierBreakdown(activeStratum.value);
+    case "electromagnetic-power":
+      return getElectromagneticPowerGainMultiplierBreakdown(activeStratum.value);
     case "concept-speed":
       return getConceptSpeedMultiplierBreakdown(
         activeStratum.value,
@@ -194,6 +203,19 @@ function entryLabel(entry: MultiplierBreakdownEntry): string {
   );
 }
 
+function conceptNodeLabel(nodeId: ConceptCrystalNodeId): string {
+  if (nodeId === "conquest" && isCrushTwoActive(activeStratum.value)) {
+    return t("conceptCrystals.nodes.consensus");
+  }
+  if (nodeId === "shackle" && isCrushFourActive(activeStratum.value)) {
+    return t("conceptCrystals.nodes.freedom");
+  }
+  if (nodeId === "war" && isCrushSixActive(activeStratum.value)) {
+    return t("conceptCrystals.nodes.peace");
+  }
+  return t(`conceptCrystals.nodes.${nodeId}`);
+}
+
 function setHoveredEntry(id: string | null, detailId: string | null = null): void {
   hoveredEntryId.value = id;
   hoveredDetailId.value = detailId;
@@ -245,7 +267,7 @@ function toggleEntry(id: string): void {
           :class="{ active: selectedConceptNode === nodeId }"
           @click="selectedConceptNode = nodeId"
         >
-          {{ t(`conceptCrystals.nodes.${nodeId}`) }}
+          {{ conceptNodeLabel(nodeId) }}
         </button>
       </div>
 
@@ -255,6 +277,10 @@ function toggleEntry(id: string): void {
 
       <div v-else-if="selectedCategory === 'dream-crystals'" class="scope-note">
         {{ t("multiplierBreakdown.dreamCrystalTargetNote") }}
+      </div>
+
+      <div v-else-if="selectedCategory === 'electromagnetic-power'" class="scope-note">
+        {{ t("multiplierBreakdown.electromagneticPowerGainNote") }}
       </div>
     </div>
 

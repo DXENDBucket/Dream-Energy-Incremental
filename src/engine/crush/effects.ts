@@ -29,6 +29,14 @@ export function isCrushFiveActive(stratum: StratumState): boolean {
   return (stratum.crushMilestoneCount ?? 0) >= 5;
 }
 
+export function isCrushSixActive(stratum: StratumState): boolean {
+  return (stratum.crushMilestoneCount ?? 0) >= 6;
+}
+
+export function getCrushSixChaosExponentMultiplier(stratum: StratumState): Num {
+  return isCrushSixActive(stratum) ? N(500) : ONE;
+}
+
 export function getCrushOneChaoticEtherGainMultiplier(stratum: StratumState): Num {
   if (!isCrushOneActive(stratum)) return ONE;
   const bestDreamEnergyLog2 = logn(max(stratum.bestDreamEnergy, ONE), N(2));
@@ -78,6 +86,17 @@ export function applyCrushFourFreedomToSoftcapStrength(
 ): Num {
   const efficiency = getCrushFourFreedomSoftcapEfficiency(stratum);
   return add(ONE, div(max(ZERO, sub(strength, ONE)), efficiency));
+}
+
+export function getCrushSixPeaceConceptProductionSpeedMultiplier(
+  stratum: StratumState,
+): Num {
+  if (!isCrushSixActive(stratum)) return ONE;
+  const efficiency = getInvertedConceptEfficiency(
+    stratum,
+    stratum.conceptCrystals?.nodes?.war ?? ONE,
+  );
+  return add(ONE, log10(max(efficiency, ONE)));
 }
 
 function getCrushFiveInnerConceptEfficiency(

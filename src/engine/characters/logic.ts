@@ -107,6 +107,12 @@ export function grantStarterCharacters(state: GameState): void {
   grantCharacter(state, ALPHA_CHARACTER_ID);
 }
 
+export function grantAllCharacters(state: GameState): void {
+  for (const character of CHARACTER_DEFINITIONS) {
+    grantCharacter(state, character.id);
+  }
+}
+
 export function grantCharacter(state: GameState, characterId: string): void {
   if (!getCharacterDefinition(characterId)) return;
   const characters = ensureCharacterSystemState(state);

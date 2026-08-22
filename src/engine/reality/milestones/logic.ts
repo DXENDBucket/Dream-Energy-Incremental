@@ -49,5 +49,6 @@ export function markRealityLiftMilestoneClaimed(state: GameState): void {
 }
 
 export function isCharacterProductionUnlocked(state: GameState): boolean {
-  return hasRealityMilestone(state, REALITY_MILESTONE_CHARACTER_PRODUCTION_ID);
+  return (state.crush?.milestoneCount ?? 0) >= 6
+    || hasRealityMilestone(state, REALITY_MILESTONE_CHARACTER_PRODUCTION_ID);
 }

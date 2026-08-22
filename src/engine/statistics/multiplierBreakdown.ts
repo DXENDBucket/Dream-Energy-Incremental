@@ -21,6 +21,7 @@ import {
   applyCrushFiveFaithToCharacterBonus,
   getCrushFiveRevolutionChaoticEtherMultiplier,
   getCrushOneChaoticEtherGainMultiplier,
+  getCrushSixPeaceConceptProductionSpeedMultiplier,
 } from "@/engine/crush/effects";
 import { DREAM_CRYSTAL_TIERS } from "@/engine/math/dream-crystals";
 import {
@@ -46,6 +47,7 @@ import {
   getCoherenceProductionLoss,
   getCoherenceRepeatableUpgradeBought,
 } from "@/engine/strata/common/coherence";
+import { getCoherenceElectromagneticPowerGainMultiplier } from "@/engine/strata/common/coherence/upgrades";
 import { getConceptCrystalCoherencePointGainMultiplier } from "@/engine/strata/common/concept-crystals";
 import {
   CHAOTIC_ETHER_EXTRACT_ACCELERATION_POWER,
@@ -55,19 +57,27 @@ import {
 } from "@/engine/strata/common/chaotic-ether/balance";
 import {
   CONCEPT_CRYSTAL_BASE_PRODUCTION_INTERVAL_SEC,
+  CONCEPT_CRYSTAL_INTERVAL_REDUCTION,
   CONCEPT_CRYSTAL_NODE_HARDCAP,
   CONCEPT_CRYSTAL_NODE_IDS,
   ensureConceptCrystalsState,
-  getConceptCrystalProductionInterval,
   type ConceptCrystalNodeId,
 } from "@/engine/strata/common/concept-crystals";
-import { getElectromagneticDreamCrystalMultiplier } from "@/engine/electromagnetic-crystals";
+import {
+  ELECTROMAGNETIC_POWER_PER_CROSSING,
+  getElectromagneticDreamCrystalMultiplier,
+  getElectromagneticPowerPerCrossing,
+  getElectromagneticUpgradeAdvancedPowerGainMultiplier,
+  getElectromagneticUpgradePowerGainMultiplier,
+} from "@/engine/electromagnetic-crystals";
+import { isElectromagneticCrystalsUnlocked } from "@/engine/strata/common/milestones";
 
 export type MultiplierBreakdownCategoryId =
   | "dream-energy"
   | "dream-crystals"
   | "coherence-points"
   | "chaotic-ether"
+  | "electromagnetic-power"
   | "concept-speed";
 
 export interface MultiplierBreakdownEntry {
@@ -422,17 +432,24 @@ export function getConceptSpeedMultiplierBreakdown(
     % CONCEPT_CRYSTAL_NODE_IDS.length;
   const sourceId = CONCEPT_CRYSTAL_NODE_IDS[sourceIndex]!;
   const sourceAmount = concepts.nodes[sourceId];
-  const intervalFactor = div(
-    CONCEPT_CRYSTAL_BASE_PRODUCTION_INTERVAL_SEC,
-    getConceptCrystalProductionInterval(stratum),
+  const intervalFactor = pow(
+    div(ONE, CONCEPT_CRYSTAL_INTERVAL_REDUCTION),
+    concepts.intervalUpgrades,
   );
+  const peaceFactor = getCrushSixPeaceConceptProductionSpeedMultiplier(stratum);
   const isSevered = concepts.isSeveringEnabled && concepts.severedPathIndex === sourceIndex;
   const severingFactor = isSevered ? stageFactor(sqrt(sourceAmount), sourceAmount) : ONE;
   const hardcapFactor = gte(concepts.nodes[nodeId], CONCEPT_CRYSTAL_NODE_HARDCAP) ? ZERO : ONE;
   const baseValue = div(sourceAmount, CONCEPT_CRYSTAL_BASE_PRODUCTION_INTERVAL_SEC);
   const totalValue = mul(
     baseValue,
-    mul(intervalFactor, mul(max(ZERO, stratum.stratumSpeed), mul(severingFactor, hardcapFactor))),
+    mul(
+      intervalFactor,
+      mul(
+        peaceFactor,
+        mul(max(ZERO, stratum.stratumSpeed), mul(severingFactor, hardcapFactor)),
+      ),
+    ),
   );
 
   return {
@@ -440,9 +457,34 @@ export function getConceptSpeedMultiplierBreakdown(
     totalValue,
     entries: [
       { id: "concept-interval", factor: intervalFactor },
+      { id: "peace", factor: peaceFactor },
       { id: "stratum-speed", factor: max(ZERO, stratum.stratumSpeed) },
       { id: "severing", factor: severingFactor },
       { id: "concept-hardcap", factor: hardcapFactor },
+    ],
+  };
+}
+
+export function getElectromagneticPowerGainMultiplierBreakdown(
+  stratum: StratumState,
+): MultiplierBreakdownData {
+  const unlocked = isElectromagneticCrystalsUnlocked(stratum);
+  const characterFactor = applyCrushFiveFaithToCharacterBonus(
+    stratum,
+    stratum.characterElectromagneticPowerGainMultiplier ?? ONE,
+  );
+  const basicUpgradeFactor = getElectromagneticUpgradePowerGainMultiplier(stratum);
+  const advancedUpgradeFactor = getElectromagneticUpgradeAdvancedPowerGainMultiplier(stratum);
+  const coherenceFactor = getCoherenceElectromagneticPowerGainMultiplier(stratum);
+
+  return {
+    baseValue: unlocked ? ELECTROMAGNETIC_POWER_PER_CROSSING : ZERO,
+    totalValue: unlocked ? getElectromagneticPowerPerCrossing(stratum) : ZERO,
+    entries: [
+      { id: "characters", factor: characterFactor },
+      { id: "ep-power-gain-upgrade", factor: basicUpgradeFactor },
+      { id: "ep-line-gain-upgrade", factor: advancedUpgradeFactor },
+      { id: "coherence-ep-gain", factor: coherenceFactor },
     ],
   };
 }

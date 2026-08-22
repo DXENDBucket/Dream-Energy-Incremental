@@ -5,6 +5,7 @@ import type { StratumState } from "@/engine/strata/state";
 import { getStratumDefinition } from "@/engine/strata/defs";
 import {
   getCrushFiveJusticeEntropyDivisor,
+  getCrushSixChaosExponentMultiplier,
   isCrushFourActive,
   isCrushTwoActive,
 } from "@/engine/crush/effects";
@@ -38,7 +39,10 @@ export function getEntropyTuningExponent(stratum: StratumState): Num {
 
 export function getEntropyChaosExponent(stratum: StratumState): Num {
   const baseExponent = ensureEntropyState(stratum).chaosExponent;
-  return isCrushTwoActive(stratum) ? mul(baseExponent, 2) : baseExponent;
+  const crushTwoAdjusted = isCrushTwoActive(stratum)
+    ? mul(baseExponent, 2)
+    : baseExponent;
+  return mul(crushTwoAdjusted, getCrushSixChaosExponentMultiplier(stratum));
 }
 
 export function getEntropyGrowthRateMultiplier(stratum: StratumState): Num {
@@ -74,7 +78,7 @@ export function applyEntropyToProduction(stratum: StratumState, raw: Num): Num {
   if (entropy.gte(ONE)) return ZERO;
 
   const tuningExponent = entropyState.tuningExponent;
-  const chaosExponent = entropyState.chaosExponent;
+  const chaosExponent = getEntropyChaosExponent(stratum);
   const productionExponent = pow(
     max(ZERO, add(ONE, mul(pow(entropy, tuningExponent), -1))),
     chaosExponent,

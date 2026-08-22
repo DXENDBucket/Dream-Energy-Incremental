@@ -32,9 +32,11 @@ import {
   getCrushFiveJusticeEntropyDivisor,
   getCrushFiveRevolutionChaoticEtherMultiplier,
   getCrushFourFreedomSoftcapEfficiency,
+  getCrushSixPeaceConceptProductionSpeedMultiplier,
   getCrushTwoConsensusShieldingEfficiency,
   isCrushFiveActive,
   isCrushFourActive,
+  isCrushSixActive,
   isCrushTwoActive,
 } from "@/engine/crush/effects";
 
@@ -103,6 +105,7 @@ const isSeveringEnabled = computed(() => conceptCrystals.value.isSeveringEnabled
 const isConsensusActive = computed(() => isCrushTwoActive(activeStratum.value));
 const isFreedomActive = computed(() => isCrushFourActive(activeStratum.value));
 const isInnerConceptsActive = computed(() => isCrushFiveActive(activeStratum.value));
+const isPeaceActive = computed(() => isCrushSixActive(activeStratum.value));
 const dreamCrystalCostGrowthEffectText = computed(() => format(getConceptCrystalDreamCrystalCostGrowthFactor(activeStratum.value)));
 const coherencePointGainEffectText = computed(() => format(getConceptCrystalCoherencePointGainMultiplier(activeStratum.value)));
 const assimilationStrengthEffectText = computed(() => format(getConceptCrystalAssimilationStrengthMultiplier(activeStratum.value)));
@@ -121,7 +124,11 @@ const justiceEntropyDivisorText = computed(() => format(
 const revolutionChaoticEtherText = computed(() => format(
   getCrushFiveRevolutionChaoticEtherMultiplier(activeStratum.value),
 ));
+const peaceConceptSpeedText = computed(() => format(
+  getCrushSixPeaceConceptProductionSpeedMultiplier(activeStratum.value),
+));
 const effectCopyKey = computed(() => {
+  if (isPeaceActive.value) return "conceptCrystals.effect.copyCrushSix";
   if (isInnerConceptsActive.value) return "conceptCrystals.effect.copyCrushFive";
   if (isFreedomActive.value) return "conceptCrystals.effect.copyCrushFour";
   if (isConsensusActive.value) return "conceptCrystals.effect.copyCrushTwo";
@@ -130,6 +137,7 @@ const effectCopyKey = computed(() => {
 function conceptNodeEffectKey(id: ConceptCrystalNodeId): string {
   if (id === "conquest" && isConsensusActive.value) return "consensus";
   if (id === "shackle" && isFreedomActive.value) return "freedom";
+  if (id === "war" && isPeaceActive.value) return "peace";
   return id;
 }
 function conceptNodeLabel(id: ConceptCrystalNodeId): string {
@@ -145,6 +153,8 @@ const conceptContributionRows = computed(() => {
         ? getCrushTwoConsensusShieldingEfficiency(activeStratum.value)
         : id === "shackle" && isFreedomActive.value
           ? getCrushFourFreedomSoftcapEfficiency(activeStratum.value)
+        : id === "war" && isPeaceActive.value
+          ? getCrushSixPeaceConceptProductionSpeedMultiplier(activeStratum.value)
         : getConceptCrystalNodeContribution(activeStratum.value, id),
     ),
   }));
@@ -406,6 +416,9 @@ function onCondenseConceptCrystal() {
         </div>
         <div v-if="isFreedomActive" class="effect-line">
           {{ t("conceptCrystals.effect.softcapEfficiency", { value: freedomSoftcapEfficiencyText }) }}
+        </div>
+        <div v-if="isPeaceActive" class="effect-line">
+          {{ t("conceptCrystals.effect.conceptProductionSpeed", { value: peaceConceptSpeedText }) }}
         </div>
         <div v-if="isInnerConceptsActive" class="effect-line inner-effect-line">
           {{ t("conceptCrystals.effect.faith", { value: faithCharacterPowerText }) }}
